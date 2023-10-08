@@ -1,2 +1,2 @@
-from .app_settings import *
-from .core import *
+from .app_settings import FlaskSettings
+from .core import AppRoutes, AppSettings
