@@ -1,12 +1,9 @@
 from src.config import AppRoutes, AppSettings
-from src.responses import API_Error_Response, API_Error_Message
-from src.errors import RequestHandlingError
+from src.responses.errors import API_Error
+from src.routing.utils import JSON_Provider
 
-from typing import Optional, Union
 from flask import Flask, jsonify
-
-from src.responses.errors.api_error import API_Error
-from src.routing.utils.json_provider import JSON_Provider
+from typing import Optional
     
 class Application:
     ''' Base application class that serves as a configuration class around Flask
@@ -50,6 +47,7 @@ class Application:
             )
             response.status_code = error.status_code
             return response
+
 
     def run(self):
         self.app.run(
