@@ -1,3 +1,4 @@
+from src.config.settings.core.app_settings import AppSettings
 from src.responses import API_Error_Response
 from src.logger import LoggingUtil
 from src.routing.utils import RequestDataParser
@@ -53,7 +54,7 @@ class RouteHandler:
         return self.methods
     
 
-    def _get_request_handler(self, method:str, action:Callable, settings) -> RouteCallable:
+    def _get_request_handler(self, method:str, action:Callable, settings:AppSettings) -> RouteCallable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
             a Routehandler if possible
@@ -81,7 +82,7 @@ class RouteHandler:
                 raise error
         return handler
     
-    def register_url_methods(self, url:str, flask_app:Flask, settings):
+    def register_url_methods(self, url:str, flask_app:Flask, settings:AppSettings):
         ''' Register the functions for all methods (like GET or POST)
             that are supported for a specified URL with Flask
         '''
