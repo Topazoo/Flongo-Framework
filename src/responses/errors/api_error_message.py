@@ -1,19 +1,17 @@
 # Encoding
-from json import dumps
+from typing import Optional
+from src.responses.errors.api_error import API_Error
 
-class API_Error_Message(Exception):
+class API_Error_Message(API_Error):
     ''' An exception that can be thrown from
         user defined request handling functions
         to display a string error message response
     '''
 
-    def __init__(self, message:str, code:int):
+    def __init__(self, message:str, status_code:int=500, stack_trace:Optional[str]=None):
         super(Exception, self).__init__(message)
         self.message = message
-        self.code = code
+        self.status_code = status_code
+        self.stack_trace = stack_trace
 
-    def to_response(self):
-        return dumps({
-            'error': self.message,
-            'code': self.code
-        })
+        self.data = {}

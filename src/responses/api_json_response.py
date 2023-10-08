@@ -1,6 +1,8 @@
 from json import dumps
 from flask import Response
-from typing import Union
+from typing import Any
+
+from src.routing.utils import JSON_Encoder
 
 class API_JSON_Response(Response):
     ''' An JSON response that can be returned from
@@ -10,8 +12,8 @@ class API_JSON_Response(Response):
         the response JSON with the key 'data'
     '''
 
-    def __init__(self, data:Union[str, int, bool, list, float, dict], status_code:int=200) -> None:
+    def __init__(self, data:Any, status_code:int=200) -> None:
         if not isinstance(data, dict):
             data = {'data': data}
 
-        super().__init__(dumps(data), status=status_code, mimetype='application/json')
+        super().__init__(dumps(data, cls=JSON_Encoder), status=status_code, mimetype='application/json')
