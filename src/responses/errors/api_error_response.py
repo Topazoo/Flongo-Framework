@@ -8,11 +8,8 @@ class API_Error_Response(API_Error):
         that contains JSON data
     '''
 
-    def __init__(self, message:Any, status_code:int=500, stack_trace:Optional[str]=None):
+    def __init__(self, message:Any, data:Optional[dict] = None, status_code:int=500, stack_trace:Optional[str]=None):
         if not isinstance(message, dict):
             message = {'data': message}
 
-        self.message = message
-        self.status_code = status_code
-        self.stack_trace = stack_trace
-        self.data = {}
+        self._initialize(message, data, status_code, stack_trace)

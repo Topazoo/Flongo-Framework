@@ -8,10 +8,6 @@ class API_Error_Message(API_Error):
         to display a string error message response
     '''
 
-    def __init__(self, message:str, status_code:int=500, stack_trace:Optional[str]=None):
+    def __init__(self, message:str, data:Optional[dict] = None, status_code:int=500, stack_trace:Optional[str]=None):
         super(Exception, self).__init__(message)
-        self.message = message
-        self.status_code = status_code
-        self.stack_trace = stack_trace
-
-        self.data = {}
+        self._initialize(message, data, status_code, stack_trace)
