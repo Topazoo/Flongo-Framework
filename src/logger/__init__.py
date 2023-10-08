@@ -1,1 +1,1 @@
-from src.logger.api_logging_util import APILoggingUtil
+from src.logger.logging_util import LoggingUtil

@@ -1,7 +1,7 @@
 import logging
 from typing import Callable
 
-class APILoggingUtil:
+class LoggingUtil:
     ''' Base logger class for the application '''
 
     @classmethod

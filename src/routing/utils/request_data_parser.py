@@ -1,8 +1,8 @@
-import xmltodict
-from QueryStringManager import QueryStringManager
-from src.logger import APILoggingUtil
+from src.logger import LoggingUtil
 
+import xmltodict
 from flask import Request
+from QueryStringManager import QueryStringManager
 
 class RequestDataParser:
     ''' Utility class that supports parsing a request query parameters
@@ -53,6 +53,6 @@ class RequestDataParser:
             return xmltodict.parse(request.data.decode())
         
         else:
-            APILoggingUtil.error(f"RequestDataParser: Unable to parse mimetype [{request.mimetype}]!")
+            LoggingUtil.error(f"RequestDataParser: Unable to parse mimetype [{request.mimetype}]!")
         
         return {}

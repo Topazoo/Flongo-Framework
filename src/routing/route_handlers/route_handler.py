@@ -1,13 +1,13 @@
-from flask import Flask, request
-from src.errors import Request_Handling_Error
-from src.logger.api_logging_util import APILoggingUtil
-from src.responses.api_error_response import API_Error_Response
+from src.responses import API_Error_Response
+from src.logger import LoggingUtil
 from src.routing.utils import RequestDataParser
-import traceback
+from src.errors import Request_Handling_Error
 
+import traceback
+from flask import Flask, request
 from flask.typing import RouteCallable
 from werkzeug.exceptions import HTTPException
-from typing import Callable, Union
+from typing import Callable
 
 class RouteHandler:
     ''' Base class that allows functions to be bound
@@ -71,13 +71,13 @@ class RouteHandler:
                 # Handle and log Flask generated errors
                 stack_trace = traceback.format_exc() # TODO - Only for debug
                 error = Request_Handling_Error(method, str(e.description), e.code or 500, stack_trace)
-                APILoggingUtil.error(str(error))
+                LoggingUtil.error(str(error))
                 raise error
             except Exception as e:
                 # Handle and log otherwise unhandled errors
                 stack_trace = traceback.format_exc() # TODO - Only for debug
                 error = Request_Handling_Error(method, str(e), 500, stack_trace)
-                APILoggingUtil.error(str(error))
+                LoggingUtil.error(str(error))
                 raise error
         return handler
     

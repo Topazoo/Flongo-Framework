@@ -3,8 +3,7 @@ from json import dumps
 
 class API_Error_Response(Exception):
     ''' An exception that can be thrown from
-        user defined request handling functions
-        defined within handlers
+        user defined request handling functionss
     '''
 
     def __init__(self, message:str, code:int):

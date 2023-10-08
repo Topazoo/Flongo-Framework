@@ -1,5 +1,6 @@
+from src.routing import RouteHandler
+
 from flask import Flask
-from src.routing.route_handlers import RouteHandler
 
 class Route:
     ''' Base class that wraps Flasks normal routing allowing us
