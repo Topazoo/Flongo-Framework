@@ -1,8 +1,8 @@
-import xmltodict
-from QueryStringManager import QueryStringManager
 from src.logger import LoggingUtil
 
+import xmltodict
 from flask import Request
+from QueryStringManager import QueryStringManager
 
 class RequestDataParser:
     ''' Utility class that supports parsing a request query parameters

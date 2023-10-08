@@ -1,10 +1,9 @@
+from src.config import AppRoutes, AppSettings
+from src.responses import API_Error_Response
+from src.errors import Request_Handling_Error
+
 from typing import Optional
 from flask import Flask, jsonify
-from src.config.settings.core.app_settings import AppSettings
-from src.config.settings.core.route_settings import AppRoutes
-from src.errors.request_handling_error import Request_Handling_Error
-from src.responses.api_error_response import API_Error_Response
-from src.routing.route import Route
     
 class Application:
     ''' Base application class that serves as a configuration class around Flask

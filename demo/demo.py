@@ -1,9 +1,8 @@
-from src.config.settings.core.app_settings import AppSettings
-from src.config.settings.core.route_settings import AppRoutes
-from src.config.settings.app_settings.flask_settings import FlaskSettings
-from src.routing.route import Route, RouteHandler
-from src.application import Application
+from src.config.settings import AppRoutes, AppSettings
+from src.config.settings import FlaskSettings
+from src.routing import Route, RouteHandler
 from src.responses import API_Error_Response
+from src.application import Application
 
 # Method that throws a sample error
 def throw(msg): 
