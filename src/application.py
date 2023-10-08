@@ -52,9 +52,8 @@ class Application:
             return response
 
     def run(self):
-        flask_settings = self.settings.flask
         self.app.run(
-            host=flask_settings.host,
-            port=flask_settings.port,
-            debug=flask_settings.debug_mode,
+            host=self.settings.flask.host,
+            port=self.settings.flask.port,
+            debug=self.settings.flask.debug_mode,
         )
