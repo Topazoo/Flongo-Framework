@@ -1,5 +1,7 @@
+from typing import Optional
 from flask import Flask, jsonify
-from src.config.configs.app_config import FlaskConfig
+from src.config.settings.core.app_settings import AppSettings
+from src.config.settings.core.route_settings import AppRoutes
 from src.errors.request_handling_error import Request_Handling_Error
 from src.responses.api_error_response import API_Error_Response
 from src.routing.route import Route
@@ -10,56 +12,21 @@ class Application:
         for our application like connecting to a database
     '''
     
-    routes:dict[str, Route] = {}
-    def __init__(self, config):
-        # TODO - Config Class
-        self.config = config
+    def __init__(self, routes:AppRoutes, settings:Optional[AppSettings]=None):
+        # Get registered routes and settings
+        self.routes = routes
+        self.settings = settings or AppSettings()
 
         self.app = Flask(__name__)
         self._initialize()
 
 
     def _initialize(self):
-        # Set up all passed settings
-        self.settings = self.config.get('settings', {})
-        self._register_settings()
-
         # Create error handling definitions
         self._register_error_handlers()
 
-        # Set up all passed Route definitions
-        self.routes = self.config.get('routes', {})
-        self._register_routes()
-
-
-    def _register_settings(self):
-        '''
-            Register all settings specified in the Routes config
-            to the application
-        '''
-
-        # TODO - Move to standalone driver(s)
-        settings = self.settings
-
-        # JWT settings
-        jwt_settings = settings.get('jwt_settings', {})
-        if jwt_settings.get('app_use_jwt'):
-            # TODO - Implement JWT setup here
-            pass
-
-        # CORS
-        if settings.get('app_settings', {}).get('app_enable_cors'):
-            # TODO - integrate with Flask-CORS here
-            pass
-
-
-    def _register_routes(self):
-        ''' Register all routes specified in the Routes config
-            to the application
-        '''
-
-        for route in self.routes.values():
-            route.register(self.app)
+        # Register all passed Route definitions
+        self.routes.register_routes(self.app)
 
 
     def _register_error_handlers(self):
@@ -78,6 +45,10 @@ class Application:
             return response
 
 
-    # TODO - Allow connection settings
-    def run(self, host='127.0.0.1', port=3000):
-        self.app.run(host=host, port=port)
+    def run(self):
+        flask_settings = self.settings.flask
+        self.app.run(
+            host=flask_settings.host,
+            port=flask_settings.port,
+            debug=flask_settings.debug_mode,
+        )

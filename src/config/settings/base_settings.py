@@ -6,7 +6,7 @@ from src.logger.api_logging_util import LoggingUtil
 from src.config.enums.log_levels import LOG_LEVELS
 
 @dataclass
-class Config:
+class Settings:
     ''' Base class that holds and validates a set 
         of configuration values for the application 
     '''
@@ -14,7 +14,7 @@ class Config:
     # Name of the configuration group - overridden by subclasses
     GROUP_NAME = 'Base'
     # Default log level for data in this group
-    DEFAULT_LOG_LEVEL = LOG_LEVELS.WARN # TODO - Bump down log-level?
+    DEFAULT_LOG_LEVEL = LOG_LEVELS.INFO
 
     @staticmethod
     def read_config_from_env_or_default( 
@@ -32,7 +32,7 @@ class Config:
             return None
 
         # Cast the data to the proper type
-        parsed_value = Config._normalize_config_value_type(value, data_type)
+        parsed_value = Settings._normalize_config_value_type(value, data_type)
         return parsed_value
     
 
@@ -60,7 +60,7 @@ class Config:
             log_message = field_metadata.get("log_message")
             log_level = field_metadata.get("log_level", self.DEFAULT_LOG_LEVEL)
             if not log_message:
-                log_message = f"    - {field_name} = {getattr(self, field_name)}"
+                log_message = f"  - {field_name} = {getattr(self, field_name)}"
 
             logger = getattr(LoggingUtil, log_level)
             logger(log_message)
@@ -75,7 +75,6 @@ class Config:
     def __post_init__(self):
         ''' Log all configuration values '''
 
-        logger = getattr(LoggingUtil, self.DEFAULT_LOG_LEVEL)
-        logger(f'[{self.GROUP_NAME} Configurations]')
+        LoggingUtil.warn(f'[{self.GROUP_NAME} Configurations]')
         for field_info in self.__dataclass_fields__.values():
             self._log_configuration_value(field_info.name, field_info.metadata)
