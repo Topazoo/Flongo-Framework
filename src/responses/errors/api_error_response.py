@@ -1,7 +1,6 @@
-# Encoding
-from typing import Any, Optional
-
 from src.responses.errors.api_error import API_Error
+
+from typing import Any, Optional
 
 class API_Error_Response(API_Error):
     ''' An exception that can be thrown from

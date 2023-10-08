@@ -1,4 +1,3 @@
-# Encoding
 from typing import Any, Optional
 
 class API_Error(Exception):
