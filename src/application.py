@@ -29,7 +29,7 @@ class Application:
         self._register_error_handlers()
 
         # Register all passed Route definitions
-        self.routes.register_routes(self.app)
+        self.routes.register_routes(self.app, self.settings)
 
 
     def _register_error_handlers(self):

@@ -1,3 +1,4 @@
+from src.config.settings.core.app_settings import AppSettings
 from src.responses import API_Error_Response
 from src.logger import LoggingUtil
 from src.routing.utils import RequestDataParser
@@ -53,7 +54,7 @@ class RouteHandler:
         return self.methods
     
 
-    def _get_request_handler(self, method:str, action:Callable) -> RouteCallable:
+    def _get_request_handler(self, method:str, action:Callable, settings:AppSettings) -> RouteCallable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
             a Routehandler if possible
@@ -69,24 +70,24 @@ class RouteHandler:
                 raise API_Error_Response(f"[{method.upper()}] ERROR: {e.message}", e.code)
             except HTTPException as e:
                 # Handle and log Flask generated errors
-                stack_trace = traceback.format_exc() # TODO - Only for debug
+                stack_trace = traceback.format_exc() if settings.flask.debug_mode else ''
                 error = Request_Handling_Error(method, str(e.description), e.code or 500, stack_trace)
                 LoggingUtil.error(str(error))
                 raise error
             except Exception as e:
                 # Handle and log otherwise unhandled errors
-                stack_trace = traceback.format_exc() # TODO - Only for debug
+                stack_trace = traceback.format_exc() if settings.flask.debug_mode else ''
                 error = Request_Handling_Error(method, str(e), 500, stack_trace)
                 LoggingUtil.error(str(error))
                 raise error
         return handler
     
-    def register_url_methods(self, url:str, flask_app:Flask):
+    def register_url_methods(self, url:str, flask_app:Flask, settings:AppSettings):
         ''' Register the functions for all methods (like GET or POST)
             that are supported for a specified URL with Flask
         '''
 
         for method, action in self.get_methods().items():
-            method_handler = self._get_request_handler(method, action)
+            method_handler = self._get_request_handler(method, action, settings)
             method_handler.__name__ = f"{url}_{method}"  # To avoid Flask's AssertionError: View function mapping is overwriting an existing endpoint function
             flask_app.add_url_rule(url, method_handler.__name__, method_handler, methods=[method.upper()])

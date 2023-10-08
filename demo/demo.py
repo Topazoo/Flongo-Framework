@@ -3,6 +3,7 @@ from src.config.settings import FlaskSettings
 from src.routing import Route, RouteHandler
 from src.responses import API_JSON_Response, API_Error_Response
 from src.application import Application
+from datetime import datetime
 
 # Method that throws a sample error
 def throw(msg): 
@@ -18,7 +19,7 @@ routes = AppRoutes(
             DELETE=lambda request, payload: throw(f'Sample error with payload {payload}'),
             GET=lambda request, payload: "Sample GET request",
             POST=lambda request, payload: API_JSON_Response({'sample_record': '0', 'created': True}, 201),
-            PUT=lambda request, payload: API_JSON_Response(9.99)
+            PUT=lambda request, payload: API_JSON_Response(datetime.now())
         )
     ),
 )
