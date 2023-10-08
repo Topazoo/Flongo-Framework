@@ -1,9 +1,10 @@
 # Encoding
 from json import dumps
 
-class API_Error_Response(Exception):
+class API_Error_Message(Exception):
     ''' An exception that can be thrown from
-        user defined request handling functionss
+        user defined request handling functions
+        to display a string error message response
     '''
 
     def __init__(self, message:str, code:int):

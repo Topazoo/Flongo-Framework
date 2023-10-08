@@ -1,6 +1,6 @@
 from typing import Union
 
-class Request_Handling_Error(Exception):
+class RequestHandlingError(Exception):
     ''' An error thrown while handling an API call.
         it contains a message, status code and optional
         stacktrace

@@ -1,7 +1,7 @@
-from src.responses import API_Error_Response
+from src.responses import API_Error_Message, API_Error_Response
 from src.logger import LoggingUtil
 from src.routing.utils import RequestDataParser
-from src.errors import Request_Handling_Error
+from src.errors import RequestHandlingError
 
 import traceback
 from flask import Flask, request
@@ -64,23 +64,26 @@ class RouteHandler:
                 # Get the data from the request body or query params
                 payload = RequestDataParser.get_request_data(request)
                 return action(request, payload)
+            except API_Error_Message as e:
+                # Handle user generated errors
+                raise API_Error_Message(f"[{method.upper()}] ERROR: {e.message}", e.code)
             except API_Error_Response as e:
                 # Handle user generated errors
-                raise API_Error_Response(f"[{method.upper()}] ERROR: {e.message}", e.code)
+                raise API_Error_Message(f"[{method.upper()}] ERROR: {e.data}", e.code)
             except HTTPException as e:
                 # Handle and log Flask generated errors
                 stack_trace = traceback.format_exc() # TODO - Only for debug
-                error = Request_Handling_Error(method, str(e.description), e.code or 500, stack_trace)
+                error = RequestHandlingError(method, str(e.description), e.code or 500, stack_trace)
                 LoggingUtil.error(str(error))
                 raise error
             except Exception as e:
                 # Handle and log otherwise unhandled errors
                 stack_trace = traceback.format_exc() # TODO - Only for debug
-                error = Request_Handling_Error(method, str(e), 500, stack_trace)
+                error = RequestHandlingError(method, str(e), 500, stack_trace)
                 LoggingUtil.error(str(error))
                 raise error
         return handler
-    
+
     def register_url_methods(self, url:str, flask_app:Flask):
         ''' Register the functions for all methods (like GET or POST)
             that are supported for a specified URL with Flask

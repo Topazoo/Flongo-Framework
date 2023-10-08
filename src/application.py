@@ -1,6 +1,6 @@
 from src.config import AppRoutes, AppSettings
-from src.responses import API_Error_Response
-from src.errors import Request_Handling_Error
+from src.responses import API_Error_Response, API_Error_Message
+from src.errors import RequestHandlingError
 
 from typing import Optional
 from flask import Flask, jsonify
@@ -36,13 +36,19 @@ class Application:
         ''' Register wrappers to handle specific kinds of errors '''
 
         @self.app.errorhandler(API_Error_Response)
-        def handle_user_thrown_error(error:API_Error_Response):
+        def handle_user_thrown_error_json(error:API_Error_Response):
+            response = jsonify(message=error.data)
+            response.status_code = error.code
+            return response
+        
+        @self.app.errorhandler(API_Error_Message)
+        def handle_user_thrown_error(error:API_Error_Message):
             response = jsonify(message=error.message)
             response.status_code = error.code
             return response
         
-        @self.app.errorhandler(Request_Handling_Error)
-        def handle_request_exception(error:Request_Handling_Error):
+        @self.app.errorhandler(RequestHandlingError)
+        def handle_request_exception(error:RequestHandlingError):
             response = jsonify(message=str(error))
             response.status_code = error.status_code
             return response
