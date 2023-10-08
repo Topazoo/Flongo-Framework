@@ -1,14 +1,12 @@
+from src.config.enums.http_methods import HTTP_METHODS
 from src.config.settings.core.app_settings import AppSettings
-from src.responses import API_Error_Response
 from src.logger import LoggingUtil
 from src.responses.errors.api_error import API_Error
-from src.responses.errors.api_error_message import API_Error_Message
 from src.routing.utils import RequestDataParser
 from src.errors import RequestHandlingError
 
 import traceback
 from flask import Flask, Response, request
-from flask.typing import RouteCallable
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
 
@@ -22,23 +20,13 @@ class RouteHandler:
         to a Flask server
     '''
 
-    # All methods a Routehandler can handle
-    ALL_SUPPORTED_METHODS = [
-        'get', 
-        'post', 
-        'put', 
-        'patch', 
-        'delete', 
-        'options'
-    ]
-
     # Holds a reference of all methods for this route
     methods:dict[str, Callable] = {}
     def __init__(self, **methods:Callable):
         for method, func in methods.items():
             normalized_method = method.lower()
             # Ensure the method is a valid HTTP method
-            if normalized_method not in self.ALL_SUPPORTED_METHODS:
+            if normalized_method not in HTTP_METHODS.ALL:
                 raise ValueError(f"Routehandler: [{normalized_method}] is not a valid HTTP method.")
 
             # Create a function on this handler tied
