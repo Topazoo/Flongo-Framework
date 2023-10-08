@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from src.logger.api_logging_util import LoggingUtil
+from src.logger.logging_util import LoggingUtil
 from src.config.enums.log_levels import LOG_LEVELS
 
 @dataclass

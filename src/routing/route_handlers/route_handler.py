@@ -1,6 +1,6 @@
 from flask import Flask, request
 from src.errors import Request_Handling_Error
-from src.logger.api_logging_util import LoggingUtil
+from src.logger.logging_util import LoggingUtil
 from src.responses.api_error_response import API_Error_Response
 from src.routing.utils import RequestDataParser
 import traceback

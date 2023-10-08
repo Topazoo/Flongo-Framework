@@ -14,10 +14,14 @@ class Application:
     
     def __init__(self, routes:AppRoutes, settings:Optional[AppSettings]=None):
         # Get registered routes and settings
+        self.app = Flask(__name__)
+
         self.routes = routes
         self.settings = settings or AppSettings()
 
-        self.app = Flask(__name__)
+        # Register as part of the Flask app config
+        self.app.config['APP_SETTINGS'] = self.settings
+
         self._initialize()
 
 
