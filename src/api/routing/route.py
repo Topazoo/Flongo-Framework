@@ -1,7 +1,7 @@
 from typing import Optional
 from flask import Flask
 from src.config.settings.core.app_settings import AppSettings
-from .route_handlers.route_handler import RouteHandler
+from .route_handler import RouteHandler
 
 class Route:
     ''' Base class that wraps Flasks normal routing allowing us
