@@ -1,9 +1,9 @@
 from src.config import AppRoutes, AppSettings
-from src.responses import API_Error_Response
-from src.errors import Request_Handling_Error
+from src.responses.errors import API_Error
+from src.routing.utils import JSON_Provider
 
-from typing import Optional
 from flask import Flask, jsonify
+from typing import Optional
     
 class Application:
     ''' Base application class that serves as a configuration class around Flask
@@ -31,27 +31,27 @@ class Application:
         # Register all passed Route definitions
         self.routes.register_routes(self.app, self.settings)
 
+        # Set JSON encoding class
+        self.app.json = JSON_Provider(self.app)
+
 
     def _register_error_handlers(self):
         ''' Register wrappers to handle specific kinds of errors '''
-
-        @self.app.errorhandler(API_Error_Response)
-        def handle_user_thrown_error(error:API_Error_Response):
-            response = jsonify(message=error.message)
-            response.status_code = error.code
-            return response
         
-        @self.app.errorhandler(Request_Handling_Error)
-        def handle_request_exception(error:Request_Handling_Error):
-            response = jsonify(message=str(error))
+        @self.app.errorhandler(API_Error)
+        def handle_user_thrown_error(error:API_Error):
+            response = jsonify(
+                error=error.message, 
+                traceback=error.stack_trace, 
+                additional_data=error.data,
+            )
             response.status_code = error.status_code
             return response
 
 
     def run(self):
-        flask_settings = self.settings.flask
         self.app.run(
-            host=flask_settings.host,
-            port=flask_settings.port,
-            debug=flask_settings.debug_mode,
+            host=self.settings.flask.host,
+            port=self.settings.flask.port,
+            debug=self.settings.flask.debug_mode,
         )

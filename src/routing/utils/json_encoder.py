@@ -10,6 +10,10 @@ class JSON_Encoder(JSONEncoder):
             # Handle dates
             if isinstance(obj, datetime):
                 return obj.strftime("%c")
+            
+            # Handle sets
+            if isinstance(obj, set):
+                return tuple(obj)
                 
             return JSONEncoder.default(self, obj)
         except TypeError:   # Write as string on failure
