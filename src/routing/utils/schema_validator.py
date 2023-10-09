@@ -23,20 +23,9 @@ class JSON_Schema_Validator:
             try:
                 validate(payload, method_schema)
             except ValidationError as e:
-                error = SchemaValidationError(
+                raise SchemaValidationError(
                     self.url,
                     method,
-                    self._parse_path(e),
+                    e.message,
                     method_schema
                 )
-
-                return error
-
-        return False
-
-
-    def _parse_path(self, error:ValidationError):
-        if len(error.path):
-            return str(error.path.pop())
-
-        return None

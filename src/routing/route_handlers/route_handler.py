@@ -1,14 +1,17 @@
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.settings.core.app_settings import AppSettings
+from src.errors.schema_validation_error import SchemaValidationError
 from src.logger import LoggingUtil
 from src.responses.errors.api_error import API_Error
 from src.routing.utils import RequestDataParser
 from src.errors import RequestHandlingError
 
 import traceback
-from flask import Flask, Response, request
+from flask import Flask, Request, Response, request
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
+
+from src.routing.utils.schema_validator import JSON_Schema_Validator
 
 class RouteHandler:
     ''' Base class that allows functions to be bound
@@ -44,7 +47,7 @@ class RouteHandler:
         return self.methods
     
 
-    def _get_request_handler(self, method:str, action:Callable, settings:AppSettings) -> Callable:
+    def _get_request_handler(self, method:str, action:Callable, settings:AppSettings, request_schema:dict) -> Callable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
             a Routehandler if possible
@@ -54,6 +57,9 @@ class RouteHandler:
             # Get the data from the request body or query params
             payload = RequestDataParser.get_request_data(request)
             try:
+                # Validate the JSONSchema for this route if one is configured
+                self._validate_schema(request, payload, request_schema, settings)
+                # Execute the function configured for this route if one is configured
                 return action(request, payload)
             except HTTPException as e:
                 # Handle and log Flask generated errors
@@ -65,6 +71,17 @@ class RouteHandler:
             except API_Error as e:
                 # Handle user generated errors
                 self._log_and_raise_exception(e, payload, settings)
+            except SchemaValidationError as e:
+                # Handle schema validation errors
+                self._log_and_raise_exception(
+                    RequestHandlingError(
+                        f"Schema validation error: {e.message}",
+                        data=e.get_data(settings.flask.debug_mode),
+                        status_code=400
+                    ), 
+                    payload, 
+                    settings
+                )
             except Exception as e:
                 # Handle unknown exceptions
                 self._log_and_raise_exception(
@@ -73,6 +90,7 @@ class RouteHandler:
             
         return handler
     
+
     def _log_and_raise_exception(self, error:API_Error, payload:dict, settings:AppSettings):
         ''' Log and raise an exception '''
 
@@ -84,12 +102,21 @@ class RouteHandler:
         LoggingUtil.error(str(error))
         raise error
     
-    def register_url_methods(self, url:str, flask_app:Flask, settings:AppSettings):
+
+    def _validate_schema(self, request:Request, payload:dict, request_schema:dict, settings:AppSettings):
+        ''' Validate the request payload against a JSONSchema if one was supplied'''
+
+        if request_schema:
+            validator = JSON_Schema_Validator(request.url_root, request_schema, settings)
+            validator.validate_request(request.method.upper(), payload)
+    
+
+    def register_url_methods(self, url:str, flask_app:Flask, settings:AppSettings, request_schema:dict):
         ''' Register the functions for all methods (like GET or POST)
             that are supported for a specified URL with Flask
         '''
 
         for method, action in self.get_methods().items():
-            method_handler = self._get_request_handler(method, action, settings)
+            method_handler = self._get_request_handler(method, action, settings, request_schema)
             method_handler.__name__ = f"{url}_{method}"  # To avoid Flask's AssertionError: View function mapping is overwriting an existing endpoint function
             flask_app.add_url_rule(url, method_handler.__name__, method_handler, methods=[method.upper()])

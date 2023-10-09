@@ -18,9 +18,19 @@ routes = AppRoutes(
             # Custom handlers allow a POST request or a GET request to create different errors
             DELETE=lambda request, payload: throw(f'Sample error with payload {payload}'),
             GET=lambda request, payload: "Sample GET request",
-            POST=lambda request, payload: API_JSON_Response({'sample_record': '0', 'created': True}, 201),
+            POST=lambda request, payload: API_JSON_Response({'sample_record': f'{payload["_id"]}', 'created': True}, 201),
             PUT=lambda request, payload: API_JSON_Response(datetime.now())
-        )
+        ),
+        request_schema={
+            'POST': {
+                'type': 'object',
+                'additionalProperties': False,
+                'properties': {
+                    '_id': {'type': 'integer'}
+                },
+                'required': ['_id']
+            }
+        }
     ),
 )
 
