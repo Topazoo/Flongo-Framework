@@ -1,3 +1,6 @@
 Query-String-Manager >= 1.0.9
 Flask == 3.0.0
+dnspython==2.4.2
+pyopenssl == 23.2.0
+pymongo[srv] == 4.5.0
 xmltodict >= 0.13.0

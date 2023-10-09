@@ -1,9 +1,12 @@
+import logging
 from src.config.settings import AppRoutes, AppSettings
 from src.api.responses.errors.api_error import API_Error
 from src.utils.json import JSON_Provider
 
 from flask import Flask, jsonify
 from typing import Optional
+
+from src.utils.logging.loggers.app import ApplicationLogger
     
 class Application:
     ''' Base application class that serves as a configuration class around Flask
@@ -14,14 +17,26 @@ class Application:
     def __init__(self, routes:AppRoutes, settings:Optional[AppSettings]=None):
         # Get registered routes and settings
         self.app = Flask(__name__)
-
         self.routes = routes
-        self.settings = settings or AppSettings()
 
         # Register as part of the Flask app config
+        self.settings = settings or AppSettings()
         self.app.config['APP_SETTINGS'] = self.settings
 
+        # Configure loggers
+        self._configure_logger()
+
+        # Initialize the application
         self._initialize()
+
+        ApplicationLogger.info(f"App started successfully!")
+
+
+    def _configure_logger(self):
+        # Application
+        logging.getLogger(ApplicationLogger.LOGGER_NAME).setLevel(
+            ApplicationLogger.log_level_int(self.settings.flask.log_level or '')
+        )
 
 
     def _initialize(self):

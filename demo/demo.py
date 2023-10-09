@@ -1,3 +1,4 @@
+from src.config.enums.log_levels import LOG_LEVELS
 from src.config.settings import AppRoutes, AppSettings
 from src.config.settings import FlaskSettings
 from src.api.routing import Route, RouteHandler
@@ -30,13 +31,30 @@ routes = AppRoutes(
                 },
                 'required': ['_id']
             }
-        }
+        },
+        log_level=LOG_LEVELS.INFO
+    ),
+    Route(
+        # Route that demonstrates built-in error handling
+        url='/sample',
+        handler=RouteHandler(
+            # Custom handlers allow a POST request or a GET request to create different errors
+            POST=lambda request, payload, collection: collection.insert_one(payload),
+            GET=lambda request, payload, collection: collection.find_one(payload)
+        ),
+        log_level=LOG_LEVELS.DEBUG,
+        collection_name='sample'
     ),
 )
 
  # Application settings
 settings = AppSettings(
-    flask=FlaskSettings(env="qa", debug_mode=True)
+    flask=FlaskSettings(
+        env="qa", 
+        debug_mode=True, 
+        log_level=LOG_LEVELS.INFO,
+        config_log_level=LOG_LEVELS.INFO
+    )
 )
 
 app = Application(routes=routes, settings=settings)

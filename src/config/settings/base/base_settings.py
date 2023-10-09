@@ -1,9 +1,11 @@
+import logging
 import os
 from dataclasses import dataclass
 from typing import Optional, Union
 
 from src.config.enums.log_levels import LOG_LEVELS
-from src.utils.logging import LoggingUtil
+from src.utils.logging.loggers.app import ApplicationLogger
+from src.utils.logging.loggers.app_config import ApplicationConfigLogger
 
 @dataclass
 class Settings:
@@ -60,9 +62,9 @@ class Settings:
             log_message = field_metadata.get("log_message")
             log_level = field_metadata.get("log_level", self.DEFAULT_LOG_LEVEL)
             if not log_message:
-                log_message = f"  - {field_name} = {getattr(self, field_name)}"
+                log_message = f"    {field_name} = {getattr(self, field_name)}"
 
-            logger = getattr(LoggingUtil, log_level)
+            logger = getattr(ApplicationConfigLogger, log_level)
             logger(log_message)
 
 
@@ -72,9 +74,16 @@ class Settings:
         return "log_level" not in metadata or metadata.get("log_level") != None
 
 
+    def _configure_logger(self, name:str, log_level:str):
+        logging.basicConfig(level=logging.NOTSET)
+        logging.getLogger(name).setLevel(
+            ApplicationLogger.log_level_int(log_level or '')
+        )
+
+
     def __post_init__(self):
         ''' Log all configuration values '''
 
-        LoggingUtil.warn(f'[{self.GROUP_NAME} Configurations]')
+        ApplicationLogger.warn(f'[{self.GROUP_NAME} Configurations]')
         for field_info in self.__dataclass_fields__.values():
             self._log_configuration_value(field_info.name, field_info.metadata)

@@ -3,7 +3,7 @@ from datetime import datetime
 from json import JSONEncoder
 from decimal import Decimal
 
-from src.utils.logging.logging_util import LoggingUtil
+from src.utils.logging.loggers.app import ApplicationLogger
 
 class JSON_Encoder(JSONEncoder):
     ''' Custom JSON serializer '''
@@ -24,6 +24,6 @@ class JSON_Encoder(JSONEncoder):
                 
             return JSONEncoder.default(self, obj)
         except TypeError:   # Write as string on failure
-            LoggingUtil.warn(f"JSON_Encoder: Could not serialize type [{type(obj)}]")
+            ApplicationLogger.warn(f"JSON_Encoder: Could not serialize type [{type(obj)}]")
             
             return str(obj)
