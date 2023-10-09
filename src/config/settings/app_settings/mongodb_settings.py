@@ -33,6 +33,7 @@ class MongoDB_Settings(Settings):
             data_type=str,
             default_value=""
         ),
+        metadata={"log_level": LOG_LEVELS.DEBUG}
     ) # type: ignore
 
     password: Optional[str] = field(
@@ -41,6 +42,7 @@ class MongoDB_Settings(Settings):
             data_type=str,
             default_value=""
         ),
+        metadata={"log_level": LOG_LEVELS.DEBUG}
     ) # type: ignore
 
     default_database: Optional[str] = field(
@@ -57,6 +59,15 @@ class MongoDB_Settings(Settings):
             "MONGODB_CONNECTION_TIMEOUT", 
             data_type=int,
             default_value="600"
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
+    log_level: Optional[str] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "MONGODB_LOG_LEVEL", 
+            data_type=str,
+            default_value=LOG_LEVELS.WARN
         ),
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore

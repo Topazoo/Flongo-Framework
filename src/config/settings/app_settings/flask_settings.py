@@ -1,3 +1,4 @@
+from src.config.enums.log_groups import LOG_GROUPS
 from src.config.settings.base.base_settings import Settings
 from dataclasses import dataclass, field
 from typing import Optional
@@ -63,3 +64,26 @@ class FlaskSettings(Settings):
         ),
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
+
+    log_level: Optional[str] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "APP_LOG_LEVEL", 
+            data_type=str,
+            default_value=LOG_LEVELS.WARN
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
+    config_log_level: Optional[str] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "APP_CONFIG_LOG_LEVEL", 
+            data_type=str,
+            default_value=LOG_LEVELS.WARN
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
+
+    def __post_init__(self):
+        self._configure_logger(LOG_GROUPS.APP_CONFIG, self.config_log_level or '')
+        super().__post_init__()

@@ -1,4 +1,5 @@
     
+import logging
 from typing import Optional
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
@@ -9,9 +10,10 @@ from pymongo.errors import OperationFailure
 from src.database.errors.database_error import DatabaseError
 from src.database.mongodb.index.base import Index
 from src.database.mongodb.index.indices import Indices
-from src.utils.logging.logging_util import LoggingUtil
 
 import traceback
+
+from src.utils.logging.loggers.database import DatabaseLogger
 
 class MongoDB_Database:
     ''' MongoDB database client 
@@ -37,14 +39,19 @@ class MongoDB_Database:
             collection_name:Optional[str]=None, 
             database_name:Optional[str]=None, 
             settings:Optional[MongoDB_Settings]=None,
-            indices:Optional[Indices]=None
+            indices:Optional[Indices]=None,
+            connection_must_be_valid:bool=True
         ):
         self.settings = settings or MongoDB_Settings()
         self.indices = indices or Indices([])
         self.database_name = database_name or self.settings.default_database
         self.collection_name = collection_name or ''
 
+        self._configure_logger()
         self._client = self._get_client()
+
+        if connection_must_be_valid:
+            self.validate_connection(True)
         
 
     def _get_client(self) -> MongoClient:
@@ -92,6 +99,14 @@ class MongoDB_Database:
     
         return self.database.get_collection(collection_name)
     
+    
+    def _configure_logger(self):
+        int_log_level =  DatabaseLogger.log_level_int(self.settings.log_level or '')
+
+        # Database
+        logging.basicConfig(level=int_log_level)
+        logging.getLogger(DatabaseLogger.LOGGER_NAME).setLevel(int_log_level)
+
 
     def __getitem__(self, collection_name: str) -> Collection:
         ''' Get a MongoDB Collection by name with []'''
@@ -127,7 +142,7 @@ class MongoDB_Database:
             )
         
         if result:
-            LoggingUtil.debug(f"Connected to MongoDB on [{self.connection_string}]!")
+            DatabaseLogger.debug(f"Connected to MongoDB on [{self.connection_string}]!")
         
         return result
     
@@ -164,11 +179,11 @@ class MongoDB_Database:
                     (index.field_name, index.order),
                 ], **index.properties, background=background)
 
-            LoggingUtil.info(f"Created {index.index_type} index for collection [{index.collection_name}]")
+            DatabaseLogger.info(f"Created {index.index_type} index on field [{index.field_name}] for collection [{index.collection_name}]")
 
         except OperationFailure as e:
             if e.code == 85:
-                LoggingUtil.warn(f"{index.index_type.capitalize()} Index for field [{index.field_name}] in collection [{index.collection_name}] already exists!")
+                DatabaseLogger.warn(f"{index.index_type.capitalize()} Index for field [{index.field_name}] in collection [{index.collection_name}] already exists!")
             else:
                 raise DatabaseError(
                     f"MongoDB_Database: Index creation failed!",

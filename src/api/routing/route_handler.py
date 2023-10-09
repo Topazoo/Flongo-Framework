@@ -1,8 +1,11 @@
+import logging
 from src.config.enums.http_methods import HTTP_METHODS
+from src.config.enums.log_levels import LOG_LEVELS
 from src.config.settings.core.app_settings import AppSettings
 from src.api.errors.schema_validation_error import SchemaValidationError
 
 from src.api.responses.errors.api_error import API_Error
+from src.utils.logging.loggers.routing import RoutingLogger
 from src.utils.requests import RequestDataParser, JSON_Schema_Validator
 from src.api.errors.request_handling_error import RequestHandlingError
 
@@ -10,7 +13,6 @@ import traceback
 from flask import Flask, Request, Response, request
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
-from src.utils.logging.logging_util import LoggingUtil
 
 
 class RouteHandler:
@@ -25,7 +27,10 @@ class RouteHandler:
 
     # Holds a reference of all methods for this route
     methods:dict[str, Callable] = {}
-    def __init__(self, **methods:Callable):
+    def __init__(self, log_level:str=LOG_LEVELS.WARN, **methods:Callable):
+        self.log_level = log_level
+        self._configure_logger()
+
         for method, func in methods.items():
             normalized_method = method.lower()
             # Ensure the method is a valid HTTP method
@@ -47,24 +52,32 @@ class RouteHandler:
         return self.methods
     
 
-    def _get_request_handler(self, method:str, action:Callable, settings:AppSettings, request_schema:dict) -> Callable:
+    def _get_request_handler(self, url:str, method:str, action:Callable, settings:AppSettings, request_schema:dict) -> Callable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
             a Routehandler if possible
         '''
 
         def handler(**kwargs) -> Optional[Response]:
+            RoutingLogger.info(f"* Recieved HTTP {method.upper()} request on URL [{url}] *")
             # Get the data from the request body or query params
             payload = RequestDataParser.get_request_data(request)
+            RoutingLogger.debug(f"Parsed payload data for request: {payload}")
             try:
                 # Validate the JSONSchema for this route if one is configured
-                self._validate_schema(request, payload, request_schema, settings)
+                self._validate_schema(request, payload, request_schema)
+                RoutingLogger.debug(f"Request schema for HTTP {method.upper()} on URL [{url}] validated!")
                 # Execute the function configured for this route if one is configured
-                return action(request, payload)
+                response:Response = action(request, payload)
+                if response.json:
+                    RoutingLogger.debug(f"Attaching response body [{response.json}]")
+                
+                RoutingLogger.info(f"* Sending HTTP {method.upper()} response on URL [{url}] *")
+                return response
             except HTTPException as e:
                 # Handle and log Flask generated errors
                 self._log_and_raise_exception(
-                    RequestHandlingError(f"[{method}] Error handling request!", status_code=e.code or 500),
+                    RequestHandlingError(f"[{method}] Error handling request on URL [{url}]!", status_code=e.code or 500),
                     payload,
                     settings
                 )
@@ -75,7 +88,7 @@ class RouteHandler:
                 # Handle schema validation errors
                 self._log_and_raise_exception(
                     RequestHandlingError(
-                        f"Schema validation error: {e.message}",
+                        f"Schema validation error on URL [{url}]: {e.message}",
                         data=e.get_data(settings.flask.debug_mode),
                         status_code=400
                     ), 
@@ -99,11 +112,11 @@ class RouteHandler:
             error.update_payload_data("request_data", payload)
             error.set_stack_trace(traceback.format_exc())
         
-        LoggingUtil.error(str(error))
+        RoutingLogger.error(str(error))
         raise error
     
 
-    def _validate_schema(self, request:Request, payload:dict, request_schema:dict, settings:AppSettings):
+    def _validate_schema(self, request:Request, payload:dict, request_schema:dict):
         ''' Validate the request payload against a JSONSchema if one was supplied'''
 
         if request_schema:
@@ -117,6 +130,16 @@ class RouteHandler:
         '''
 
         for method, action in self.get_methods().items():
-            method_handler = self._get_request_handler(method, action, settings, request_schema)
-            method_handler.__name__ = f"{url}_{method}"  # To avoid Flask's AssertionError: View function mapping is overwriting an existing endpoint function
-            flask_app.add_url_rule(url, method_handler.__name__, method_handler, methods=[method.upper()])
+            method_handler = self._get_request_handler(url, method, action, settings, request_schema)
+            flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method.upper()])
+
+            RoutingLogger.debug(f"Bound function for HTTP {method.upper()} on URL [{url}]")
+
+
+    def _configure_logger(self):
+        logging.basicConfig(level=logging.NOTSET)
+
+        # Routing
+        logging.getLogger(RoutingLogger.LOGGER_NAME).setLevel(
+            RoutingLogger.log_level_int(self.log_level)
+        )
