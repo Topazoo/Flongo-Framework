@@ -1,4 +1,5 @@
 import logging
+from src.config.enums.log_levels import LOG_LEVELS
 from src.config.settings import AppRoutes, AppSettings
 from src.api.responses.errors.api_error import API_Error
 from src.utils.json import JSON_Provider
@@ -35,7 +36,7 @@ class Application:
     def _configure_logger(self):
         # Application
         logging.getLogger(ApplicationLogger.LOGGER_NAME).setLevel(
-            ApplicationLogger.log_level_int(self.settings.flask.log_level or '')
+            LOG_LEVELS.level_to_int(self.settings.flask.log_level or '')
         )
 
 

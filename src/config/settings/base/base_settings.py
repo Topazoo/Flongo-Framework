@@ -77,7 +77,7 @@ class Settings:
     def _configure_logger(self, name:str, log_level:str):
         logging.basicConfig(level=logging.NOTSET)
         logging.getLogger(name).setLevel(
-            ApplicationLogger.log_level_int(log_level or '')
+            LOG_LEVELS.level_to_int(log_level or '')
         )
 
 

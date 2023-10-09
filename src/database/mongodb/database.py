@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 
 from bson import ObjectId
+from src.config.enums.log_levels import LOG_LEVELS
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
@@ -108,7 +109,7 @@ class MongoDB_Database:
     
     
     def _configure_logger(self):
-        int_log_level =  DatabaseLogger.log_level_int(self.settings.log_level or '')
+        int_log_level = LOG_LEVELS.level_to_int(self.settings.log_level or '')
 
         # Database
         logging.basicConfig(level=int_log_level)
