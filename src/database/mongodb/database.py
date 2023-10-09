@@ -1,6 +1,8 @@
     
 import logging
 from typing import Optional
+
+from bson import ObjectId
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
@@ -8,6 +10,7 @@ from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
 
 from src.database.errors.database_error import DatabaseError
+from src.database.mongodb.fixtures import Fixtures
 from src.database.mongodb.index.base import Index
 from src.database.mongodb.index.indices import Indices
 
@@ -33,6 +36,7 @@ class MongoDB_Database:
             pass
         ```
         # TODO - Indices docs
+        # TODO - Fixtures docs
     '''
 
     def __init__(self, 
@@ -40,10 +44,12 @@ class MongoDB_Database:
             database_name:Optional[str]=None, 
             settings:Optional[MongoDB_Settings]=None,
             indices:Optional[Indices]=None,
+            fixtures:Optional[Fixtures]=None,
             connection_must_be_valid:bool=True
         ):
         self.settings = settings or MongoDB_Settings()
         self.indices = indices or Indices([])
+        self.fixtures = fixtures or Fixtures({})
         self.database_name = database_name or self.settings.default_database
         self.collection_name = collection_name or ''
 
@@ -186,7 +192,7 @@ class MongoDB_Database:
                 DatabaseLogger.warn(f"{index.index_type.capitalize()} Index for field [{index.field_name}] in collection [{index.collection_name}] already exists!")
             else:
                 raise DatabaseError(
-                    f"MongoDB_Database: Index creation failed!",
+                    f"Index creation failed!",
                     e.code,
                     {
                         "collection_name": index.collection_name, 
@@ -198,7 +204,7 @@ class MongoDB_Database:
         
         except Exception as e:
             raise DatabaseError(
-                    f"MongoDB_Database: Error creating index!",
+                    f"Error creating index!",
                     data={
                         "collection_name": index.collection_name, 
                         "field": index.field_name,
@@ -217,3 +223,45 @@ class MongoDB_Database:
         # Create all indices
         for index in self.indices:
             self.create_index(index, background)
+
+
+    def create_fixtures(self, fixtures:Optional[Fixtures]=None):
+        ''' Create pre-defined database records in the MongoDB database '''
+        
+        fixtures = fixtures or self.fixtures
+        for collection_name, fixtures_to_create in fixtures.get_fixtures().items():
+            collection = self._get_collection(collection_name)
+            for fixture in fixtures_to_create:
+                self.create_fixture(fixture, collection)
+
+
+    def create_fixture(self, fixture:dict, collection:Collection):
+        ''' Create a pre-defined database record in the MongoDB database '''
+        
+        try:
+            fixture["_id"] = ObjectId(fixture["_id"])
+            collection.update_one({"_id": fixture["_id"]}, {"$set": fixture}, upsert=True)
+        except OperationFailure as e:
+            if e.code == 11000:
+                DatabaseLogger.warn(f"Fixture for collection [{collection.name}] with ID [{fixture['_id']}] already exists!")
+                DatabaseLogger.debug(f"Duplicate fixture: {fixture}")
+            else:
+                raise DatabaseError(
+                        f"Failed to create fixture!",
+                        code=e.code,
+                        data={
+                            "collection_name": collection.name, 
+                            "fixture": fixture,
+                            "details": e.details
+                        },
+                        stack_trace=traceback.format_exc()
+                    )
+        except Exception as e:
+            raise DatabaseError(
+                    f"Error creating fixture!",
+                    data={
+                        "collection_name": collection.name, 
+                        "fixture": fixture,
+                    },
+                    stack_trace=traceback.format_exc()
+                )
