@@ -14,12 +14,15 @@ class Route:
 
     def __init__(self, 
             url:str, 
-            handler:RouteHandler, 
+            handler:RouteHandler,
+            collection_name:str='',
             request_schema:Optional[dict]=None,
             log_level:str=LOG_LEVELS.WARN
         ):
+
         self.url = url
         self.handler = handler
+        self.collection_name = collection_name
         self.request_schema = request_schema or {}
         self.log_level = log_level
     
@@ -30,5 +33,5 @@ class Route:
         '''
 
         self.handler.configure_logger(self.log_level)
-        self.handler.register_url_methods(self.url, flask_app, settings, self.request_schema)
+        self.handler.register_url_methods(self.url, self.collection_name, flask_app, settings, self.request_schema)
         RoutingLogger.info(f"Created application route: [{self.url}]")

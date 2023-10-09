@@ -34,6 +34,17 @@ routes = AppRoutes(
         },
         log_level=LOG_LEVELS.INFO
     ),
+    Route(
+        # Route that demonstrates built-in error handling
+        url='/sample',
+        handler=RouteHandler(
+            # Custom handlers allow a POST request or a GET request to create different errors
+            POST=lambda request, payload, collection: collection.insert_one(payload),
+            GET=lambda request, payload, collection: collection.find_one(payload)
+        ),
+        log_level=LOG_LEVELS.DEBUG,
+        collection_name='sample'
+    ),
 )
 
  # Application settings

@@ -39,6 +39,7 @@ class MongoDB_Database:
         # TODO - Fixtures docs
     '''
 
+    # TODO - Factory from Flask context using stored settings?
     def __init__(self, 
             collection_name:Optional[str]=None, 
             database_name:Optional[str]=None, 
