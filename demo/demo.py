@@ -16,7 +16,6 @@ routes = AppRoutes(
         # Route that demonstrates built-in error handling
         url='/error',
         handler=RouteHandler(
-            log_level=LOG_LEVELS.INFO,
             # Custom handlers allow a POST request or a GET request to create different errors
             DELETE=lambda request, payload: throw(f'Sample error with payload {payload}'),
             GET=lambda request, payload: "Sample GET request",
@@ -33,6 +32,7 @@ routes = AppRoutes(
                 'required': ['_id']
             }
         },
+        log_level=LOG_LEVELS.INFO
     ),
 )
 

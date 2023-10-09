@@ -29,5 +29,6 @@ class Route:
             methods (e.g. GET or POST) specified in the passed RouteHandler
         '''
 
+        self.handler.configure_logger(self.log_level)
         self.handler.register_url_methods(self.url, flask_app, settings, self.request_schema)
         RoutingLogger.info(f"Created application route: [{self.url}]")

@@ -27,10 +27,7 @@ class RouteHandler:
 
     # Holds a reference of all methods for this route
     methods:dict[str, Callable] = {}
-    def __init__(self, log_level:str=LOG_LEVELS.WARN, **methods:Callable):
-        self.log_level = log_level
-        self._configure_logger()
-
+    def __init__(self, **methods:Callable):
         for method, func in methods.items():
             normalized_method = method.lower()
             # Ensure the method is a valid HTTP method
@@ -136,10 +133,10 @@ class RouteHandler:
             RoutingLogger.debug(f"Bound function for HTTP {method.upper()} on URL [{url}]")
 
 
-    def _configure_logger(self):
+    def configure_logger(self, log_level:str):
         logging.basicConfig(level=logging.NOTSET)
 
         # Routing
         logging.getLogger(RoutingLogger.LOGGER_NAME).setLevel(
-            RoutingLogger.log_level_int(self.log_level)
+            RoutingLogger.log_level_int(log_level)
         )
