@@ -47,19 +47,3 @@ class LoggingUtil:
         ''' Emit a log. Optionally emit using a passed function '''
 
         logging_func(msg)
-
-
-    @staticmethod
-    def log_level_int(log_level:str) -> int:
-        if log_level == LOG_LEVELS.DEBUG:
-            return logging.DEBUG
-        if log_level == LOG_LEVELS.INFO:
-            return logging.INFO
-        if log_level == LOG_LEVELS.WARN:
-            return logging.WARN
-        if log_level == LOG_LEVELS.ERROR:
-            return logging.ERROR
-        if log_level == LOG_LEVELS.CRITICAL:
-            return logging.CRITICAL
-        
-        return logging.FATAL

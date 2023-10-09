@@ -1,5 +1,6 @@
 import logging
 from src.config.enums.http_methods import HTTP_METHODS
+from src.config.enums.log_levels import LOG_LEVELS
 from src.config.settings.core.app_settings import AppSettings
 from src.api.errors.schema_validation_error import SchemaValidationError
 
@@ -148,5 +149,5 @@ class RouteHandler:
 
         # Routing
         logging.getLogger(RoutingLogger.LOGGER_NAME).setLevel(
-            RoutingLogger.log_level_int(log_level)
+            LOG_LEVELS.level_to_int(log_level)
         )
