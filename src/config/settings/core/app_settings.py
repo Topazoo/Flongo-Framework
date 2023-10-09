@@ -1,5 +1,7 @@
-from src.config.settings import FlaskSettings
+
 from typing import Optional
+
+from src.config.settings.app_settings.flask_settings import FlaskSettings
 
 class AppSettings:
     ''' Class that holds all application settings configured by the user 

@@ -1,6 +1,9 @@
-from src.logger import LoggingUtil
+
 from datetime import datetime
 from json import JSONEncoder
+from decimal import Decimal
+
+from src.utils.logging.logging_util import LoggingUtil
 
 class JSON_Encoder(JSONEncoder):
     ''' Custom JSON serializer '''
@@ -14,6 +17,10 @@ class JSON_Encoder(JSONEncoder):
             # Handle sets
             if isinstance(obj, set):
                 return tuple(obj)
+            
+            # Handle decimals
+            if isinstance(obj, Decimal):
+                return str(obj)
                 
             return JSONEncoder.default(self, obj)
         except TypeError:   # Write as string on failure

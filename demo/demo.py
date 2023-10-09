@@ -1,7 +1,7 @@
 from src.config.settings import AppRoutes, AppSettings
 from src.config.settings import FlaskSettings
-from src.routing import Route, RouteHandler
-from src.responses import API_JSON_Response, API_Error_Message, API_Error_Response
+from src.api.routing import Route, RouteHandler
+from src.api.responses import API_JSON_Response, API_Error_Message, API_Error_Response
 from src.application import Application
 from datetime import datetime
 
