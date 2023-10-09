@@ -1,11 +1,17 @@
     
 from typing import Optional
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
-from pymongo import MongoClient
+from pymongo import TEXT, MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
+from pymongo.errors import OperationFailure
 
 from src.database.errors.database_error import DatabaseError
+from src.database.mongodb.index.base import Index
+from src.database.mongodb.index.indices import Indices
+from src.utils.logging.logging_util import LoggingUtil
+
+import traceback
 
 class MongoDB_Database:
     ''' MongoDB database client 
@@ -24,10 +30,17 @@ class MongoDB_Database:
         with MongoDB_Database("collection", "db", settings) as db:
             pass
         ```
+        # TODO - Indices docs
     '''
 
-    def __init__(self, collection_name:Optional[str]=None, database_name:Optional[str]=None, settings:Optional[MongoDB_Settings]=None):
+    def __init__(self, 
+            collection_name:Optional[str]=None, 
+            database_name:Optional[str]=None, 
+            settings:Optional[MongoDB_Settings]=None,
+            indices:Optional[Indices]=None
+        ):
         self.settings = settings or MongoDB_Settings()
+        self.indices = indices or Indices([])
         self.database_name = database_name or self.settings.default_database
         self.collection_name = collection_name or ''
 
@@ -70,12 +83,6 @@ class MongoDB_Database:
         connection_uri += f"{self.settings.host}:{self.settings.port}/{self.database_name}"
 
         return connection_uri
-
-
-    def is_valid_connection(self):
-        ''' Tests if the connection to MongoDB is working '''
-
-        return True if self._client.server_info() else False
     
 
     def _get_collection(self, collection_name:str):
@@ -102,3 +109,96 @@ class MongoDB_Database:
         ''' Exit the context and handle cleanup '''
 
         self._client.close()
+
+
+    def validate_connection(self, raise_exception:bool=False) -> bool:
+        ''' Tests if the connection to MongoDB is working '''
+
+        result = True if self._client.server_info() else False
+        if not result and raise_exception:
+            raise DatabaseError(
+                f"MongoDB_Database: Could not connect to the database!",
+                data={
+                    'host': self.settings.host,
+                    'port': self.settings.port,
+                    'username': self.settings.username,
+                    'password': '<SET>' if self.settings.password else '<NOT SET>'
+                }
+            )
+        
+        if result:
+            LoggingUtil.debug(f"Connected to MongoDB on [{self.connection_string}]!")
+        
+        return result
+    
+
+    def add_index(self, index:Index, create:bool=True, background:bool=False):
+        ''' Add an index and create it by default '''
+        
+        self.indices.add_index(index)
+        if create:
+            self.create_index(index, background)
+
+
+    def create_index(self, index:Index, background:bool=False):
+        ''' Create a database index '''
+        
+        try:
+            index_collection = self._get_collection(index.collection_name)
+            # Create a text index
+            if index.is_text:
+                index_collection.create_index([
+                    (index.field_name, TEXT)
+                ], background=background)
+            
+            # Create a compound index
+            elif index.compound_index:
+                index_collection.create_index([
+                    (index.field_name, index.order), 
+                    (index.compound_index.field_name, index.compound_index.order)
+                ], **index.properties, background=background)
+
+            # Create a standard index
+            else:
+                index_collection.create_index([
+                    (index.field_name, index.order),
+                ], **index.properties, background=background)
+
+            LoggingUtil.info(f"Created {index.index_type} index for collection [{index.collection_name}]")
+
+        except OperationFailure as e:
+            if e.code == 85:
+                LoggingUtil.warn(f"{index.index_type.capitalize()} Index for field [{index.field_name}] in collection [{index.collection_name}] already exists!")
+            else:
+                raise DatabaseError(
+                    f"MongoDB_Database: Index creation failed!",
+                    e.code,
+                    {
+                        "collection_name": index.collection_name, 
+                        "field": index.field_name,
+                        "index_type": index.index_type,
+                        "details": e.details
+                    }
+                )
+        
+        except Exception as e:
+            raise DatabaseError(
+                    f"MongoDB_Database: Error creating index!",
+                    data={
+                        "collection_name": index.collection_name, 
+                        "field": index.field_name,
+                        "index_type": index.index_type
+                    },
+                    stack_trace=traceback.format_exc()
+                )
+        
+
+    def create_indices(self, background:bool=False):
+        ''' Creates all stored indices on the connected database '''
+
+        # Ensure a connection can be made
+        self.validate_connection(raise_exception=True)
+
+        # Create all indices
+        for index in self.indices:
+            self.create_index(index, background)
