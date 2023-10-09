@@ -1,6 +1,6 @@
 from typing import Optional, Union
 
-from src.responses.errors.api_error import API_Error
+from src.api.responses.errors.api_error import API_Error
 
 class RequestHandlingError(API_Error):
     ''' An error thrown while handling an API call.

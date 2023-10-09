@@ -1,6 +1,6 @@
-from src.config import AppRoutes, AppSettings
-from src.responses.errors import API_Error
-from src.routing.utils import JSON_Provider
+from src.config.settings import AppRoutes, AppSettings
+from src.api.responses.errors.api_error import API_Error
+from src.utils.json import JSON_Provider
 
 from flask import Flask, jsonify
 from typing import Optional

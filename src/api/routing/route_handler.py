@@ -1,17 +1,17 @@
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.settings.core.app_settings import AppSettings
-from src.errors.schema_validation_error import SchemaValidationError
-from src.logger import LoggingUtil
-from src.responses.errors.api_error import API_Error
-from src.routing.utils import RequestDataParser
-from src.errors import RequestHandlingError
+from src.api.errors.schema_validation_error import SchemaValidationError
+
+from src.api.responses.errors.api_error import API_Error
+from src.utils.requests import RequestDataParser, JSON_Schema_Validator
+from src.api.errors.request_handling_error import RequestHandlingError
 
 import traceback
 from flask import Flask, Request, Response, request
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
+from src.utils.logging.logging_util import LoggingUtil
 
-from src.routing.utils.schema_validator import JSON_Schema_Validator
 
 class RouteHandler:
     ''' Base class that allows functions to be bound
@@ -107,7 +107,7 @@ class RouteHandler:
         ''' Validate the request payload against a JSONSchema if one was supplied'''
 
         if request_schema:
-            validator = JSON_Schema_Validator(request.url_root, request_schema, settings)
+            validator = JSON_Schema_Validator(request.url_root, request_schema)
             validator.validate_request(request.method.upper(), payload)
     
 

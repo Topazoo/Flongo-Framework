@@ -1,6 +1,6 @@
 from flask import Flask
 from src.config.settings.core.app_settings import AppSettings
-from src.routing.route import Route
+from src.api.routing.route import Route
 
 class AppRoutes:
     ''' Class that holds all routes for the application
