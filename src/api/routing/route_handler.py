@@ -14,6 +14,7 @@ import traceback
 from flask import Flask, Request, Response, jsonify, request
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
+from .types import HandlerMethod
 
 
 class RouteHandler:
@@ -27,7 +28,7 @@ class RouteHandler:
     '''
 
     # Holds a reference of all methods for this route
-    def __init__(self, **methods:Callable):
+    def __init__(self, **methods:HandlerMethod):
         self.methods = {}
         for method, func in methods.items():
             normalized_method = method.lower()
@@ -42,7 +43,7 @@ class RouteHandler:
             self.methods[normalized_method] = func
     
 
-    def get_methods(self) -> dict[str, Callable]:
+    def get_methods(self) -> dict[str, HandlerMethod]:
         ''' Returns all methods handled by this handler
             and their associated function
         '''
@@ -50,7 +51,7 @@ class RouteHandler:
         return self.methods
     
 
-    def _get_request_handler(self, url:str, method:str, action:Callable, collection_name:str, settings:AppSettings, request_schema:dict) -> Callable:
+    def _get_request_handler(self, url:str, method:str, action:HandlerMethod, collection_name:str, settings:AppSettings, request_schema:dict) -> Callable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
             a Routehandler if possible
@@ -72,9 +73,10 @@ class RouteHandler:
                         RoutingLogger.debug(f"Passing connection to MongoDB collection [{collection_name}] with request")
                         response = action(request, payload, db)
                 else:
-                    response = action(request, payload)
+                    response = action(request, payload, None)
 
                 if not isinstance(response, Response):
+                    RoutingLogger.warn(f"HTTP {method.upper()} response on URL [{url}] was force to a Response! Type: {type(response)}")
                     response = jsonify(response)
                         
                 if response.json:
