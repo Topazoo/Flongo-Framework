@@ -1,5 +1,6 @@
 import logging
-from src.config.enums.log_levels import LOG_LEVELS
+from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
+from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings import AppRoutes, AppSettings
 from src.api.responses.errors.api_error import API_Error
 from src.utils.json import JSON_Provider
@@ -30,7 +31,9 @@ class Application:
         # Initialize the application
         self._initialize()
 
-        ApplicationLogger.info(f"App started successfully!")
+        ApplicationLogger.critical(
+            ApplicationLogger.color_log(f"[App Started Successfully]", LOG_BACKGROUND_COLORS.PURPLE)
+        )
 
 
     def _configure_logger(self):

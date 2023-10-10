@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 
 from bson import ObjectId
-from src.config.enums.log_levels import LOG_LEVELS
+from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
@@ -139,7 +139,7 @@ class MongoDB_Database:
 
         result = True if self._client.server_info() else False
         if not result and raise_exception:
-            raise DatabaseError(
+            self._log_and_throw_database_error(DatabaseError(
                 f"MongoDB_Database: Could not connect to the database!",
                 data={
                     'host': self.settings.host,
@@ -147,7 +147,7 @@ class MongoDB_Database:
                     'username': self.settings.username,
                     'password': '<SET>' if self.settings.password else '<NOT SET>'
                 }
-            )
+            ))
         
         if result:
             DatabaseLogger.debug(f"Connected to MongoDB on [{self.connection_string}]!")
@@ -193,27 +193,33 @@ class MongoDB_Database:
             if e.code == 85:
                 DatabaseLogger.warn(f"{index.index_type.capitalize()} Index for field [{index.field_name}] in collection [{index.collection_name}] already exists!")
             else:
-                raise DatabaseError(
-                    f"Index creation failed!",
-                    e.code,
-                    {
+                self._log_and_throw_database_error(DatabaseError(
+                    f"Failed to create index!", e.code, data={
                         "collection_name": index.collection_name, 
                         "field": index.field_name,
                         "index_type": index.index_type,
                         "details": e.details
                     }
-                )
+                ))
         
         except Exception as e:
-            raise DatabaseError(
-                    f"Error creating index!",
-                    data={
-                        "collection_name": index.collection_name, 
-                        "field": index.field_name,
-                        "index_type": index.index_type
-                    },
-                    stack_trace=traceback.format_exc()
-                )
+            self._log_and_throw_database_error(DatabaseError(
+                f"Error creating index: {e}!", 
+                data={
+                    "collection_name": index.collection_name, 
+                    "field": index.field_name,
+                    "index_type": index.index_type
+                }
+            ))
+        
+
+    def _log_and_throw_database_error(self, error:DatabaseError):
+        DatabaseLogger.error(error.message)
+        error.set_stack_strace(traceback.format_exc())
+        if error.stack_trace:
+            DatabaseLogger.debug(error.stack_trace)
+
+        raise error
         
 
     def create_indices(self, background:bool=False):
@@ -243,27 +249,26 @@ class MongoDB_Database:
         try:
             fixture["_id"] = ObjectId(fixture["_id"])
             collection.update_one({"_id": fixture["_id"]}, {"$set": fixture}, upsert=True)
+
         except OperationFailure as e:
             if e.code == 11000:
                 DatabaseLogger.warn(f"Fixture for collection [{collection.name}] with ID [{fixture['_id']}] already exists!")
                 DatabaseLogger.debug(f"Duplicate fixture: {fixture}")
             else:
-                raise DatabaseError(
-                        f"Failed to create fixture!",
-                        code=e.code,
-                        data={
-                            "collection_name": collection.name, 
-                            "fixture": fixture,
-                            "details": e.details
-                        },
-                        stack_trace=traceback.format_exc()
-                    )
-        except Exception as e:
-            raise DatabaseError(
-                    f"Error creating fixture!",
-                    data={
+                self._log_and_throw_database_error(DatabaseError(
+                    f"Failed to create fixture!", 
+                    code=e.code, data={
                         "collection_name": collection.name, 
                         "fixture": fixture,
-                    },
-                    stack_trace=traceback.format_exc()
-                )
+                        "details": e.details
+                    }
+                ))
+
+        except Exception as e:
+            self._log_and_throw_database_error(DatabaseError(
+                f"Error creating fixture: {e}",
+                data={
+                    "collection_name": collection.name, 
+                    "fixture": fixture,
+                }
+            ))

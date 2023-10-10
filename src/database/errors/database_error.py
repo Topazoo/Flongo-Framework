@@ -17,3 +17,7 @@ class DatabaseError(Exception):
         self.code = code
         self.data = data or {}
         self.stack_trace = stack_trace
+
+
+    def set_stack_strace(self, stack_trace:str):
+        self.stack_trace = stack_trace
