@@ -56,43 +56,45 @@ class RouteHandler:
             of the methods registered to an instance of
             a Routehandler if possible
         '''
-
+        
+        logger = RoutingLogger(url, method)
         def handler(**kwargs) -> Optional[Response]:
-            RoutingLogger.info(f"* Recieved HTTP {method} request on URL [{url}] *")
+            logger.info(f"* Recieved HTTP {method} request *")
             # Get the data from the request body or query params
-            payload = RequestDataParser.get_request_data(request)
+            payload = RequestDataParser.get_request_data(request, logger)
             try:
                 # Validate the JSONSchema for this route if one is configured
                 self._validate_schema(request, payload, request_schema)
-                RoutingLogger.debug(f"Validated SCHEMA for HTTP {method} on URL [{url}]")
+                logger.debug(f"* Validated SCHEMA successfully")
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
                 if collection_name:
                     with MongoDB_Database(collection_name, settings=settings.mongodb, connection_must_be_valid=True) as db:
-                        RoutingLogger.debug(f"Opened DATABASE CONNECTION to MongoDB collection [{collection_name}] for request")
+                        logger.debug(f"* Opened DATABASE CONNECTION to MongoDB collection [{collection_name}] for request")
                         response = action(request, payload, db)
                 else:
                     response = action(request, payload, None)
 
                 if not isinstance(response, Response):
-                    RoutingLogger.warn(f"HTTP {method} response on URL [{url}] was force to a Response! Type: {type(response)}")
+                    logger.warn(f"* HTTP {method} response was forced to a Response! Type: {type(response)}")
                     response = jsonify(response)
                         
                 if response.json:
-                    RoutingLogger.debug(f"Attaching response body [{response.json}]")
+                    logger.debug(f"* Attached RESPONSE BODY [{response.json}]")
                 
-                RoutingLogger.info(f"* Sending HTTP {method} response on URL [{url}] *")
+                logger.info(f"* Sending HTTP {method} response *")
                 return response
             except HTTPException as e:
                 # Handle and log Flask generated errors
                 self._log_and_raise_exception(url, method,
                     RequestHandlingError(f"[{method}] Error handling request on URL [{url}]!", status_code=e.code or 500),
                     payload,
-                    settings
+                    settings,
+                    logger
                 )
             except API_Error as e:
                 # Handle user generated errors
-                self._log_and_raise_exception(url, method, e, payload, settings)
+                self._log_and_raise_exception(url, method, e, payload, settings, logger)
             except SchemaValidationError as e:
                 # Handle schema validation errors
                 self._log_and_raise_exception(url, method,
@@ -102,18 +104,19 @@ class RouteHandler:
                         status_code=400
                     ), 
                     payload, 
-                    settings
+                    settings,
+                    logger
                 )
             except Exception as e:
                 # Handle unknown exceptions
                 self._log_and_raise_exception(url, method,
-                    RequestHandlingError(str(e), status_code=500), payload, settings
+                    RequestHandlingError(str(e), status_code=500), payload, settings, logger
                 )
             
         return handler
     
 
-    def _log_and_raise_exception(self, url:str, method:str, error:API_Error, payload:dict, settings:AppSettings):
+    def _log_and_raise_exception(self, url:str, method:str, error:API_Error, payload:dict, settings:AppSettings, logger:RoutingLogger):
         ''' Log and raise an exception '''
 
         tb = traceback.format_exc()
@@ -122,9 +125,10 @@ class RouteHandler:
             error.update_payload_data("request_data", payload)
             error.set_stack_trace(tb)
         
-        RoutingLogger.info(f"* Sending HTTP {method} ERROR response on URL [{url}] *")
-        RoutingLogger.error(str(error))
-        RoutingLogger.debug(tb)
+        logger.error(f"* Error: {error}")
+        logger.debug(tb)
+        logger.info(f"* Sending HTTP {method} ERROR response *")
+        
         raise error
     
 
@@ -136,22 +140,24 @@ class RouteHandler:
             validator.validate_request(request.method.upper(), payload)
     
 
-    def register_url_methods(self, url:str, collection_name:str, flask_app:Flask, settings:AppSettings, request_schema:dict):
+    def register_url_methods(self, url:str, collection_name:str, flask_app:Flask, settings:AppSettings, request_schema:dict, log_level:str):
         ''' Register the functions for all methods (like GET or POST)
             that are supported for a specified URL with Flask
         '''
 
         for method, action in self.get_methods().items():
+            self.configure_logger(url, method, log_level)
+
             method_handler = self._get_request_handler(url, method, action, collection_name, settings, request_schema)
             flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
 
-            RoutingLogger.debug(f"Bound function for HTTP {method} on URL [{url}]")
+            RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")
 
 
-    def configure_logger(self, log_level:str):
+    def configure_logger(self, url:str, method:str, log_level:str):
         logging.basicConfig(level=logging.NOTSET)
 
         # Routing
-        logging.getLogger(RoutingLogger.LOGGER_NAME).setLevel(
+        logging.getLogger(RoutingLogger(url, method).LOGGER_NAME).setLevel(
             LOG_LEVELS.level_to_int(log_level)
         )
