@@ -1,4 +1,4 @@
-from src.config.enums.log_levels import LOG_LEVELS
+from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings import AppRoutes, AppSettings
 from src.config.settings import FlaskSettings
 from src.api.routing import Route, RouteHandler

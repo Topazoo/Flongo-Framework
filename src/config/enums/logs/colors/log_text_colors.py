@@ -1,6 +1,6 @@
 from src.config.enums.base.base_str_enum import BaseStrEnum
 
-class LOG_FOREGROUND_COLORS(BaseStrEnum):
+class LOG_TEXT_COLORS(BaseStrEnum):
     """ Log colors supported for the application """
 
     GREY = "\x1b[38;20m"

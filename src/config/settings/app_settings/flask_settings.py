@@ -1,9 +1,9 @@
-from src.config.enums.log_groups import LOG_GROUPS
+from src.config.enums.logs import LOG_GROUPS, LOG_LEVELS
 from src.config.settings.base.base_settings import Settings
 from dataclasses import dataclass, field
 from typing import Optional
 
-from src.config.enums import LOG_LEVELS, ENVIRONMENTS
+from src.config.enums import ENVIRONMENTS
 
 @dataclass
 class FlaskSettings(Settings):

@@ -1,6 +1,6 @@
 from typing import Optional
 from flask import Flask
-from src.config.enums.log_levels import LOG_LEVELS
+from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.core.app_settings import AppSettings
 from src.utils.logging.loggers.routing import RoutingLogger
 from .route_handler import RouteHandler

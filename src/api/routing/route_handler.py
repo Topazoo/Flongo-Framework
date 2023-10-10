@@ -1,6 +1,6 @@
 import logging
 from src.config.enums.http_methods import HTTP_METHODS
-from src.config.enums.log_levels import LOG_LEVELS
+from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.core.app_settings import AppSettings
 from src.api.errors.schema_validation_error import SchemaValidationError
 
@@ -128,7 +128,7 @@ class RouteHandler:
         logger.error(f"* Error: {error}")
         logger.debug(tb)
         logger.info(f"* Sending HTTP {method} ERROR response *")
-        
+
         raise error
     
 

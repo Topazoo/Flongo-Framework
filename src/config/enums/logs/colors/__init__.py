@@ -1,0 +1,2 @@
+from .log_background_colors import LOG_BACKGROUND_COLORS
+from .log_text_colors import LOG_TEXT_COLORS

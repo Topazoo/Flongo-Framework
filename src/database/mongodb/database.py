@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 
 from bson import ObjectId
-from src.config.enums.log_levels import LOG_LEVELS
+from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database

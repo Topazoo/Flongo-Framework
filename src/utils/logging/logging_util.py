@@ -3,7 +3,7 @@ from typing import Callable, Optional
 
 import logging
 
-from src.config.enums import LOG_FOREGROUND_COLORS
+from src.config.enums.logs.colors import LOG_TEXT_COLORS
 
 class LoggingUtil:
     ''' Base logger class for the application '''
@@ -13,33 +13,33 @@ class LoggingUtil:
     @classmethod
     def info(cls, msg:str):
         ''' Emit a info log '''
-        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).info, LOG_FOREGROUND_COLORS.GREEN)
+        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).info, LOG_TEXT_COLORS.GREEN)
 
 
     @classmethod
     def debug(cls, msg:str):
         ''' Emit a debug log '''
-        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).debug, LOG_FOREGROUND_COLORS.BLUE)
+        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).debug, LOG_TEXT_COLORS.BLUE)
 
 
     @classmethod
     def warn(cls, msg:str):
         ''' Emit a warning log '''
-        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).warn, LOG_FOREGROUND_COLORS.YELLOW)
+        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).warn, LOG_TEXT_COLORS.YELLOW)
 
 
     @classmethod
     def error(cls, msg:str):
         ''' Emit an error log '''
 
-        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).error, LOG_FOREGROUND_COLORS.RED)
+        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).error, LOG_TEXT_COLORS.RED)
 
 
     @classmethod
     def critical(cls, msg:str):
         ''' Emit a critical error log '''
 
-        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).critical, LOG_FOREGROUND_COLORS.PURPLE)
+        cls._log(msg, logging.getLogger(cls.LOGGER_NAME).critical, LOG_TEXT_COLORS.PURPLE)
 
 
     @classmethod
@@ -51,4 +51,4 @@ class LoggingUtil:
 
     @classmethod
     def color_log(cls, msg:str, color:str) -> str:
-        return f"{color}{msg}{LOG_FOREGROUND_COLORS.END}"
+        return f"{color}{msg}{LOG_TEXT_COLORS.END}"
