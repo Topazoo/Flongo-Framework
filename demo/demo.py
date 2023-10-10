@@ -9,7 +9,7 @@ from datetime import datetime
 
 # Method that throws a sample error
 def throw(msg): 
-    raise API_Error_Message(msg)
+    raise ValueError(msg)
 
 # App config for a simple blog application with user accounts
 routes = AppRoutes(
@@ -33,7 +33,7 @@ routes = AppRoutes(
                 'required': ['_id']
             }
         },
-        log_level=LOG_LEVELS.INFO
+        log_level=LOG_LEVELS.DEBUG
     ),
     Route(
         # Route that demonstrates built-in error handling

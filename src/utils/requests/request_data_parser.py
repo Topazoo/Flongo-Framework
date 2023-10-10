@@ -61,6 +61,6 @@ class RequestDataParser:
             logger.error(f"* Unable to parse mimetype [{request.mimetype}]!")
         
         if body and logger:
-            logger.debug(f"* Parsed REQUEST BODY data for MIME type [{request.mimetype}]: {body}")
+            logger.debug(f"* Parsed REQUEST BODY with MIME type [{request.mimetype}]: {body}")
         
         return body

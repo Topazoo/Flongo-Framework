@@ -1,5 +1,6 @@
 import logging
 from src.config.enums.http_methods import HTTP_METHODS
+from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.core.app_settings import AppSettings
 from src.api.errors.schema_validation_error import SchemaValidationError
@@ -59,7 +60,7 @@ class RouteHandler:
         
         logger = RoutingLogger(url, method)
         def handler(**kwargs) -> Optional[Response]:
-            logger.info(f"* Recieved HTTP {method} request *")
+            logger.info(logger.color_log(f"* Recieved HTTP {method} request *", LOG_BACKGROUND_COLORS.GREEN))
             # Get the data from the request body or query params
             payload = RequestDataParser.get_request_data(request, logger)
             try:
@@ -82,7 +83,7 @@ class RouteHandler:
                 if response.json:
                     logger.debug(f"* Attached RESPONSE BODY [{response.json}]")
                 
-                logger.info(f"* Sending HTTP {method} response *")
+                logger.info(logger.color_log(f"* Sending HTTP {method} response *", LOG_BACKGROUND_COLORS.GREEN))
                 return response
             except HTTPException as e:
                 # Handle and log Flask generated errors
@@ -125,9 +126,9 @@ class RouteHandler:
             error.update_payload_data("request_data", payload)
             error.set_stack_trace(tb)
         
-        logger.error(f"* Error: {error}")
+        logger.error(logger.color_log(f"* Error: {error}", LOG_BACKGROUND_COLORS.RED))
         logger.debug(tb)
-        logger.info(f"* Sending HTTP {method} ERROR response *")
+        logger.info(logger.color_log(f"* Sending HTTP {method} ERROR response *", LOG_BACKGROUND_COLORS.GREEN))
 
         raise error
     

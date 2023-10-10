@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 from flask import Flask
 from src.config.enums.logs.log_levels import LOG_LEVELS
@@ -25,6 +26,8 @@ class Route:
         self.collection_name = collection_name
         self.request_schema = request_schema or {}
         self.log_level = log_level
+
+        self._configure_logger()
     
     
     def register(self, flask_app:Flask, settings:AppSettings):
@@ -33,4 +36,11 @@ class Route:
         '''
 
         self.handler.register_url_methods(self.url, self.collection_name, flask_app, settings, self.request_schema, self.log_level)
-        RoutingLogger(self.url).info(f"* Created application route: [{self.url}] *")
+        RoutingLogger(self.url).warn(f"* Created application route: [{self.url}] *")
+
+
+    def _configure_logger(self):
+        # Routing
+        logging.getLogger(RoutingLogger(self.url).LOGGER_NAME).setLevel(
+            LOG_LEVELS.level_to_int(self.log_level)
+        )
