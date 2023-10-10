@@ -53,8 +53,8 @@ settings = AppSettings(
     flask=FlaskSettings(
         env="qa", 
         debug_mode=True, 
-        log_level=LOG_LEVELS.INFO,
-        config_log_level=LOG_LEVELS.INFO
+        log_level=LOG_LEVELS.DEBUG,
+        config_log_level=LOG_LEVELS.DEBUG
     )
 )
 

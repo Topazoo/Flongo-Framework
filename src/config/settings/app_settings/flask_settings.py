@@ -19,6 +19,7 @@ class FlaskSettings(Settings):
             data_type=str,
             default_value="0.0.0.0"
         ),
+        metadata={"log_level": LOG_LEVELS.DEBUG}
     ) # type: ignore
 
     port: Optional[int] = field(
@@ -27,6 +28,7 @@ class FlaskSettings(Settings):
             data_type=int,
             default_value="3000"
         ),
+        metadata={"log_level": LOG_LEVELS.DEBUG}
     ) # type: ignore
 
     env: Optional[str] = field(
@@ -35,7 +37,6 @@ class FlaskSettings(Settings):
             data_type=str,
             default_value=ENVIRONMENTS.DEVELOPMENT
         ),
-        metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
     debug_mode: Optional[bool] = field(
@@ -44,7 +45,6 @@ class FlaskSettings(Settings):
             data_type=bool,
             default_value="True"
         ),
-        metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
     enable_cors: Optional[bool] = field(
@@ -53,7 +53,6 @@ class FlaskSettings(Settings):
             data_type=bool,
             default_value="True"
         ),
-        metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
     cors_enabled_paths: Optional[bool] = field(
@@ -62,7 +61,6 @@ class FlaskSettings(Settings):
             data_type=list,
             default_value="/api/*"
         ),
-        metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
     log_level: Optional[str] = field(

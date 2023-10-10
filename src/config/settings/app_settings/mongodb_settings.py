@@ -51,7 +51,6 @@ class MongoDB_Settings(Settings):
             data_type=str,
             default_value="db"
         ),
-        metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
     connection_timeout: Optional[int] = field(
@@ -60,7 +59,6 @@ class MongoDB_Settings(Settings):
             data_type=int,
             default_value="600"
         ),
-        metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
     log_level: Optional[str] = field(
