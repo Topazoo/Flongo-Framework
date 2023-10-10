@@ -61,16 +61,15 @@ class RouteHandler:
             RoutingLogger.info(f"* Recieved HTTP {method} request on URL [{url}] *")
             # Get the data from the request body or query params
             payload = RequestDataParser.get_request_data(request)
-            RoutingLogger.debug(f"Parsed payload data for request: {payload}")
             try:
                 # Validate the JSONSchema for this route if one is configured
                 self._validate_schema(request, payload, request_schema)
-                RoutingLogger.debug(f"Request schema for HTTP {method} on URL [{url}] validated!")
+                RoutingLogger.debug(f"Validated SCHEMA for HTTP {method} on URL [{url}]")
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
                 if collection_name:
                     with MongoDB_Database(collection_name, settings=settings.mongodb, connection_must_be_valid=True) as db:
-                        RoutingLogger.debug(f"Passing connection to MongoDB collection [{collection_name}] with request")
+                        RoutingLogger.debug(f"Opened DATABASE CONNECTION to MongoDB collection [{collection_name}] for request")
                         response = action(request, payload, db)
                 else:
                     response = action(request, payload, None)

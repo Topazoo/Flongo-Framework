@@ -3,9 +3,8 @@
 import xmltodict
 from flask import Request
 from QueryStringManager import QueryStringManager
-from src.utils.logging.loggers.app import ApplicationLogger
+from src.utils.logging.loggers.routing import RoutingLogger
 
-from src.utils.logging.logging_util import LoggingUtil
 
 class RequestDataParser:
     ''' Utility class that supports parsing a request query parameters
@@ -29,35 +28,38 @@ class RequestDataParser:
     def parse_query_string(cls, request:Request) -> dict:
         ''' Parse a query string into a dictionary if one is present '''
 
-        return QueryStringManager.parse(request.query_string.decode()) if \
+        query_string_params = QueryStringManager.parse(request.query_string.decode()) if \
             request.query_string else {}
+        
+        if query_string_params:
+            RoutingLogger.debug(f"Parsed QUERY STRING data for request: {query_string_params}")
+
+        return query_string_params
 
 
     @classmethod
     def parse_request_body(cls, request:Request) -> dict:
         ''' Parse the request body into a dictionary if one is present '''
 
+        body = {}
         if request.is_json:
-            return request.get_json()
+            body = request.get_json()
         
-        elif request.mimetype in [
-            'application/x-www-form-urlencoded',
-            'application/form-data',
-            'multipart/form-data',
-        ]:
-            return request.form.to_dict()
+        mimetype_suffix = request.mimetype.split('/')[-1]
+        if mimetype_suffix == 'plain' and request.data:
+            body = {"data": request.data.decode()}
         
-        # TODO - Text Plain
+        # TODO - Extend to just form present?
+        elif mimetype_suffix in ['x-www-form-urlencoded', 'form-data']:
+            body = request.form.to_dict()
         
-        elif request.mimetype in [
-            'text/xml',
-            'application/xml',
-            'text/html',
-            'application/html',
-        ]:
-            return xmltodict.parse(request.data.decode())
+        elif mimetype_suffix in ['xml', 'html']:
+            body = xmltodict.parse(request.data.decode())
         
         elif request.mimetype:
-            ApplicationLogger.error(f"Unable to parse mimetype [{request.mimetype}]!")
+            RoutingLogger.error(f"Unable to parse mimetype [{request.mimetype}]!")
         
-        return {}
+        if body:
+            RoutingLogger.debug(f"Parsed REQUEST BODY data for MIME type [{request.mimetype}]: {body}")
+        
+        return body
