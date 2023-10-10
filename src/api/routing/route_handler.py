@@ -85,17 +85,17 @@ class RouteHandler:
                 return response
             except HTTPException as e:
                 # Handle and log Flask generated errors
-                self._log_and_raise_exception(
+                self._log_and_raise_exception(url, method,
                     RequestHandlingError(f"[{method}] Error handling request on URL [{url}]!", status_code=e.code or 500),
                     payload,
                     settings
                 )
             except API_Error as e:
                 # Handle user generated errors
-                self._log_and_raise_exception(e, payload, settings)
+                self._log_and_raise_exception(url, method, e, payload, settings)
             except SchemaValidationError as e:
                 # Handle schema validation errors
-                self._log_and_raise_exception(
+                self._log_and_raise_exception(url, method,
                     RequestHandlingError(
                         f"Schema validation error on URL [{url}]: {e.message}",
                         data=e.get_data(settings.flask.debug_mode),
@@ -106,22 +106,25 @@ class RouteHandler:
                 )
             except Exception as e:
                 # Handle unknown exceptions
-                self._log_and_raise_exception(
+                self._log_and_raise_exception(url, method,
                     RequestHandlingError(str(e), status_code=500), payload, settings
                 )
             
         return handler
     
 
-    def _log_and_raise_exception(self, error:API_Error, payload:dict, settings:AppSettings):
+    def _log_and_raise_exception(self, url:str, method:str, error:API_Error, payload:dict, settings:AppSettings):
         ''' Log and raise an exception '''
 
+        tb = traceback.format_exc()
         if settings.flask.debug_mode:
             error.update_payload_data("request_headers", list(request.headers))
             error.update_payload_data("request_data", payload)
-            error.set_stack_trace(traceback.format_exc())
+            error.set_stack_trace(tb)
         
+        RoutingLogger.info(f"* Sending HTTP {method} ERROR response on URL [{url}] *")
         RoutingLogger.error(str(error))
+        RoutingLogger.debug(tb)
         raise error
     
 
