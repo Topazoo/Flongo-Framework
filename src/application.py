@@ -30,7 +30,7 @@ class Application:
         # Initialize the application
         self._initialize()
 
-        ApplicationLogger.info(f"App started successfully!")
+        ApplicationLogger.critical(f"App started successfully!")
 
 
     def _configure_logger(self):

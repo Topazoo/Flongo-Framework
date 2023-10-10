@@ -84,6 +84,6 @@ class Settings:
     def __post_init__(self):
         ''' Log all configuration values '''
 
-        ApplicationLogger.warn(f'[{self.GROUP_NAME} Configurations]')
+        ApplicationLogger.critical(f'[{self.GROUP_NAME} Configurations]')
         for field_info in self.__dataclass_fields__.values():
             self._log_configuration_value(field_info.name, field_info.metadata)
