@@ -31,9 +31,9 @@ class RouteHandler:
     def __init__(self, **methods:HandlerMethod):
         self.methods = {}
         for method, func in methods.items():
-            normalized_method = method.lower()
+            normalized_method = method.upper()
             # Ensure the method is a valid HTTP method
-            if normalized_method not in HTTP_METHODS.ALL:
+            if normalized_method.lower() not in HTTP_METHODS:
                 raise ValueError(f"Routehandler: [{normalized_method}] is not a valid HTTP method.")
 
             # Create a function on this handler tied
@@ -58,14 +58,14 @@ class RouteHandler:
         '''
 
         def handler(**kwargs) -> Optional[Response]:
-            RoutingLogger.info(f"* Recieved HTTP {method.upper()} request on URL [{url}] *")
+            RoutingLogger.info(f"* Recieved HTTP {method} request on URL [{url}] *")
             # Get the data from the request body or query params
             payload = RequestDataParser.get_request_data(request)
             RoutingLogger.debug(f"Parsed payload data for request: {payload}")
             try:
                 # Validate the JSONSchema for this route if one is configured
                 self._validate_schema(request, payload, request_schema)
-                RoutingLogger.debug(f"Request schema for HTTP {method.upper()} on URL [{url}] validated!")
+                RoutingLogger.debug(f"Request schema for HTTP {method} on URL [{url}] validated!")
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
                 if collection_name:
@@ -76,13 +76,13 @@ class RouteHandler:
                     response = action(request, payload, None)
 
                 if not isinstance(response, Response):
-                    RoutingLogger.warn(f"HTTP {method.upper()} response on URL [{url}] was force to a Response! Type: {type(response)}")
+                    RoutingLogger.warn(f"HTTP {method} response on URL [{url}] was force to a Response! Type: {type(response)}")
                     response = jsonify(response)
                         
                 if response.json:
                     RoutingLogger.debug(f"Attaching response body [{response.json}]")
                 
-                RoutingLogger.info(f"* Sending HTTP {method.upper()} response on URL [{url}] *")
+                RoutingLogger.info(f"* Sending HTTP {method} response on URL [{url}] *")
                 return response
             except HTTPException as e:
                 # Handle and log Flask generated errors
@@ -141,9 +141,9 @@ class RouteHandler:
 
         for method, action in self.get_methods().items():
             method_handler = self._get_request_handler(url, method, action, collection_name, settings, request_schema)
-            flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method.upper()])
+            flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
 
-            RoutingLogger.debug(f"Bound function for HTTP {method.upper()} on URL [{url}]")
+            RoutingLogger.debug(f"Bound function for HTTP {method} on URL [{url}]")
 
 
     def configure_logger(self, log_level:str):

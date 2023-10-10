@@ -27,6 +27,6 @@ class SchemaValidationError(Exception):
 
         return {
             'url': self.url,
-            'method': self.method.upper(),
+            'method': self.method,
             **({} if not include_schema else {'method_schema': self.json_schema})
         }
