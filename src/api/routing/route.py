@@ -36,7 +36,7 @@ class Route:
         '''
 
         self.handler.register_url_methods(self.url, self.collection_name, flask_app, settings, self.request_schema, self.log_level)
-        RoutingLogger(self.url).warn(f"* Created application route: [{self.url}] *")
+        RoutingLogger(self.url).info(f"* Created application route: [{self.url}] *")
 
 
     def _configure_logger(self):
