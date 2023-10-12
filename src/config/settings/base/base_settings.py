@@ -76,10 +76,11 @@ class Settings:
 
 
     def _configure_logger(self, name:str, log_level:str):
-        logging.basicConfig(level=logging.NOTSET)
-        logging.getLogger(name).setLevel(
-            LOG_LEVELS.level_to_int(log_level or '')
-        )
+        if log_level:
+            logging.basicConfig(level=logging.NOTSET)
+            logging.getLogger(name).setLevel(
+                LOG_LEVELS.level_to_int(log_level)
+            )
 
 
     def __post_init__(self):
