@@ -1,9 +1,11 @@
 # dead-simple-framework-v2
+
 A framework for rapid application development on Flask. Includes:
-  - Built-in bindings for MongoDB including fixtures and index management
-  - Built-in detailed and configurable logging
-  - Built-in easy request/response management and error handling
-  - Built-in query string and response body parsing / normalization
+
+- Built-in bindings for MongoDB including fixtures and index management
+- Built-in detailed and configurable logging
+- Built-in easy request/response management and error handling
+- Built-in query string and response body parsing / normalization
 
 Sample App:
 
