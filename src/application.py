@@ -41,8 +41,9 @@ class Application:
         # Initialize the application
         self._initialize()
 
-        # Initialize the database
-        self._initialize_database()
+        # Initialize the database and store client for re-use
+        database = self._initialize_database()
+        self.app.config['APP_DB_CLIENT'] = database.get_client()
 
         ApplicationLogger.critical(
             ApplicationLogger.color_log(f"[App Started Successfully]", LOG_BACKGROUND_COLORS.PURPLE)
@@ -68,12 +69,13 @@ class Application:
         self.app.json = JSON_Provider(self.app)
 
     
-    def _initialize_database(self):
+    def _initialize_database(self) -> MongoDB_Database:
         # Set up database driver
         database = MongoDB_Database(
             settings=self.settings.mongodb,
             indices=self.indices,
-            fixtures=self.fixtures
+            fixtures=self.fixtures,
+            connection_must_be_valid=True
         )
 
         # Create indices
@@ -95,6 +97,8 @@ class Application:
                     LOG_BACKGROUND_COLORS.PURPLE
                 )
             )
+
+        return database
 
     def _register_error_handlers(self):
         ''' Register wrappers to handle specific kinds of errors '''
