@@ -80,14 +80,20 @@ class Application:
         if self.indices and len(self.indices):
             database.create_indices()
             ApplicationLogger.critical(
-                ApplicationLogger.color_log(f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]", LOG_BACKGROUND_COLORS.PURPLE)
+                ApplicationLogger.color_log(
+                    f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]",
+                    LOG_BACKGROUND_COLORS.PURPLE
+                )
             )
 
         # Create fixtures
         if self.fixtures and len(self.fixtures):
             database.create_fixtures()
             ApplicationLogger.critical(
-                ApplicationLogger.color_log(f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]", LOG_BACKGROUND_COLORS.PURPLE)
+                ApplicationLogger.color_log(
+                    f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]",
+                    LOG_BACKGROUND_COLORS.PURPLE
+                )
             )
 
     def _register_error_handlers(self):
