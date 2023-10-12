@@ -1,7 +1,7 @@
 from typing import Optional
 from src.config.enums.mongodb_index_types import MONGODB_INDEX_TYPES
 
-class Index:
+class MongoDB_Index:
     ''' Stores MongoDB index information '''
 
     def __init__(self, 
@@ -9,7 +9,7 @@ class Index:
             field_name:str, 
             order:int=1, 
             properties:Optional[dict]=None, 
-            compound_index:Optional["Index"]=None, 
+            compound_index:Optional["MongoDB_Index"]=None, 
             is_text:bool=False
         ):
 

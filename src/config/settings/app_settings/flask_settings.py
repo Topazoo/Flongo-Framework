@@ -84,7 +84,9 @@ class FlaskSettings(Settings):
 
 
     def __post_init__(self):
-        self._configure_logger(LOG_GROUPS.APP_CONFIG, self.config_log_level or '')
+        if self.config_log_level:
+            self._configure_logger(LOG_GROUPS.APP_CONFIG, self.config_log_level)
+            
         super().__post_init__()
 
 

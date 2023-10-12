@@ -1,15 +1,15 @@
 
-from src.database.mongodb.index.base import Index
+from src.database.mongodb.index.base import MongoDB_Index
 
 class MongoDB_Indices:
     ''' Client to store a collection of MongoDB index information '''
 
-    def __init__(self, indices:list[Index]):
+    def __init__(self, indices:list[MongoDB_Index]):
         self._index = 0
-        self._indices:list[Index]= indices
+        self._indices:list[MongoDB_Index]= indices
 
 
-    def add_index(self, index:Index):
+    def add_index(self, index:MongoDB_Index):
         ''' Add an index to be stored '''
         
         self._indices.append(index)
@@ -20,7 +20,7 @@ class MongoDB_Indices:
         return self
 
 
-    def __next__(self) -> Index:
+    def __next__(self) -> MongoDB_Index:
         # Implement the __next__ method for iteration
         if self._index < len(self._indices):
             result = self._indices[self._index]
@@ -34,3 +34,7 @@ class MongoDB_Indices:
 
     def __str__(self):
         return str(self._indices)
+    
+    
+    def __len__(self):
+        return len(self._indices)

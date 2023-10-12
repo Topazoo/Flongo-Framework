@@ -3,6 +3,9 @@ from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_CO
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings import AppRoutes, AppSettings
 from src.api.responses.errors.api_error import API_Error
+from src.database.mongodb.database import MongoDB_Database
+from src.database.mongodb.fixture.fixtures import MongoDB_Fixtures
+from src.database.mongodb.index.indices import MongoDB_Indices
 from src.utils.json import JSON_Provider
 
 from flask import Flask, jsonify
@@ -16,10 +19,17 @@ class Application:
         for our application like connecting to a database
     '''
     
-    def __init__(self, routes:AppRoutes, settings:Optional[AppSettings]=None):
-        # Get registered routes and settings
+    def __init__(self, 
+            routes:AppRoutes, 
+            settings:Optional[AppSettings]=None,
+            indices:Optional[MongoDB_Indices]=None,
+            fixtures:Optional[MongoDB_Fixtures]=None
+        ):
+        # Get registered routes, settings, indices and fixtures
         self.app = Flask(__name__)
         self.routes = routes
+        self.indices = indices
+        self.fixtures = fixtures
 
         # Register as part of the Flask app config
         self.settings = settings or AppSettings()
@@ -31,6 +41,9 @@ class Application:
         # Initialize the application
         self._initialize()
 
+        # Initialize the database
+        self._initialize_database()
+
         ApplicationLogger.critical(
             ApplicationLogger.color_log(f"[App Started Successfully]", LOG_BACKGROUND_COLORS.PURPLE)
         )
@@ -38,9 +51,10 @@ class Application:
 
     def _configure_logger(self):
         # Application
-        logging.getLogger(ApplicationLogger.LOGGER_NAME).setLevel(
-            LOG_LEVELS.level_to_int(self.settings.flask.log_level or '')
-        )
+        if self.settings.flask and self.settings.flask.log_level:
+            logging.getLogger(ApplicationLogger.LOGGER_NAME).setLevel(
+                LOG_LEVELS.level_to_int(self.settings.flask.log_level)
+            )
 
 
     def _initialize(self):
@@ -53,6 +67,34 @@ class Application:
         # Set JSON encoding class
         self.app.json = JSON_Provider(self.app)
 
+    
+    def _initialize_database(self):
+        # Set up database driver
+        database = MongoDB_Database(
+            settings=self.settings.mongodb,
+            indices=self.indices,
+            fixtures=self.fixtures
+        )
+
+        # Create indices
+        if self.indices and len(self.indices):
+            database.create_indices()
+            ApplicationLogger.critical(
+                ApplicationLogger.color_log(
+                    f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]",
+                    LOG_BACKGROUND_COLORS.PURPLE
+                )
+            )
+
+        # Create fixtures
+        if self.fixtures and len(self.fixtures):
+            database.create_fixtures()
+            ApplicationLogger.critical(
+                ApplicationLogger.color_log(
+                    f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]",
+                    LOG_BACKGROUND_COLORS.PURPLE
+                )
+            )
 
     def _register_error_handlers(self):
         ''' Register wrappers to handle specific kinds of errors '''

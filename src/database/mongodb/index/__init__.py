@@ -1,1 +1,1 @@
-from .base import Index
+from .base import MongoDB_Index

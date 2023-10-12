@@ -3,18 +3,17 @@ import logging
 from typing import Optional
 
 from bson import ObjectId
-from flask import current_app, has_app_context
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
-from src.config.settings.core.app_settings import AppSettings
 
 from src.database.errors.database_error import DatabaseError
-from src.database.mongodb.fixtures import Fixtures
-from src.database.mongodb.index.base import Index
+from src.database.mongodb.fixture.base import MongoDB_Fixture
+from src.database.mongodb.fixture.fixtures import MongoDB_Fixtures
+from src.database.mongodb.index.base import MongoDB_Index
 from src.database.mongodb.index.indices import MongoDB_Indices
 
 import traceback
@@ -47,12 +46,12 @@ class MongoDB_Database:
             database_name:Optional[str]=None, 
             settings:Optional[MongoDB_Settings]=None,
             indices:Optional[MongoDB_Indices]=None,
-            fixtures:Optional[Fixtures]=None,
+            fixtures:Optional[MongoDB_Fixtures]=None,
             connection_must_be_valid:bool=True
         ):
         self.settings = settings or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
         self.indices = indices or MongoDB_Indices([])
-        self.fixtures = fixtures or Fixtures({})
+        self.fixtures = fixtures or MongoDB_Fixtures([])
         self.database_name = database_name or self.settings.default_database
         self.collection_name = collection_name or ''
 
@@ -60,7 +59,7 @@ class MongoDB_Database:
         self._client = self._get_client()
 
         if connection_must_be_valid:
-            self.validate_connection(True)
+            self.validate_connection(raise_exception=True)
         
 
     def _get_client(self) -> MongoClient:
@@ -110,11 +109,12 @@ class MongoDB_Database:
     
     
     def _configure_logger(self):
-        int_log_level = LOG_LEVELS.level_to_int(self.settings.log_level or '')
+        if self.settings and self.settings.log_level:
+            int_log_level = LOG_LEVELS.level_to_int(self.settings.log_level)
 
-        # Database
-        logging.basicConfig(level=int_log_level)
-        logging.getLogger(DatabaseLogger.LOGGER_NAME).setLevel(int_log_level)
+            # Database
+            logging.basicConfig(level=int_log_level)
+            logging.getLogger(DatabaseLogger.LOGGER_NAME).setLevel(int_log_level)
 
 
     def __getitem__(self, collection_name: str) -> Collection:
@@ -156,7 +156,7 @@ class MongoDB_Database:
         return result
     
 
-    def add_index(self, index:Index, create:bool=True, background:bool=False):
+    def add_index(self, index:MongoDB_Index, create:bool=True, background:bool=False):
         ''' Add an index and create it by default '''
         
         self.indices.add_index(index)
@@ -164,7 +164,7 @@ class MongoDB_Database:
             self.create_index(index, background)
 
 
-    def create_index(self, index:Index, background:bool=False):
+    def create_index(self, index:MongoDB_Index, background:bool=False):
         ''' Create a database index '''
         
         try:
@@ -227,41 +227,38 @@ class MongoDB_Database:
     def create_indices(self, background:bool=False):
         ''' Creates all stored indices on the connected database '''
 
-        # Ensure a connection can be made
-        self.validate_connection(raise_exception=True)
-
         # Create all indices
         for index in self.indices:
             self.create_index(index, background)
 
 
-    def create_fixtures(self, fixtures:Optional[Fixtures]=None):
+    def create_fixtures(self, fixtures:Optional[MongoDB_Fixtures]=None):
         ''' Create pre-defined database records in the MongoDB database '''
         
         fixtures = fixtures or self.fixtures
-        for collection_name, fixtures_to_create in fixtures.get_fixtures().items():
-            collection = self._get_collection(collection_name)
-            for fixture in fixtures_to_create:
-                self.create_fixture(fixture, collection)
+        for fixture in fixtures.get_fixtures():
+            collection = self._get_collection(fixture.collection_name)
+            self.create_fixture(fixture, collection)
 
 
-    def create_fixture(self, fixture:dict, collection:Collection):
+    def create_fixture(self, fixture:MongoDB_Fixture, collection:Collection):
         ''' Create a pre-defined database record in the MongoDB database '''
         
+        fixture_data = fixture.data
         try:
-            fixture["_id"] = ObjectId(fixture["_id"])
-            collection.update_one({"_id": fixture["_id"]}, {"$set": fixture}, upsert=True)
-
+            collection.update_one({"_id": fixture_data["_id"]}, {"$set": fixture_data}, upsert=True)
+            DatabaseLogger.info(f"Created fixture for collection [{collection.name}] with ID [{fixture_data['_id']}]!")
+            DatabaseLogger.debug(f"Fixture data: {fixture_data}")
         except OperationFailure as e:
             if e.code == 11000:
-                DatabaseLogger.warn(f"Fixture for collection [{collection.name}] with ID [{fixture['_id']}] already exists!")
-                DatabaseLogger.debug(f"Duplicate fixture: {fixture}")
+                DatabaseLogger.warn(f"Fixture for collection [{collection.name}] with ID [{fixture_data['_id']}] already exists!")
+                DatabaseLogger.debug(f"Fixture data: {fixture_data}")
             else:
                 self._log_and_throw_database_error(DatabaseError(
                     f"Failed to create fixture!", 
                     code=e.code, data={
                         "collection_name": collection.name, 
-                        "fixture": fixture,
+                        "fixture": fixture_data,
                         "details": e.details
                     }
                 ))
@@ -271,6 +268,6 @@ class MongoDB_Database:
                 f"Error creating fixture: {e}",
                 data={
                     "collection_name": collection.name, 
-                    "fixture": fixture,
+                    "fixture": fixture_data,
                 }
             ))
