@@ -1,7 +1,7 @@
 
 from src.database.mongodb.index.base import Index
 
-class Indices:
+class MongoDB_Indices:
     ''' Client to store a collection of MongoDB index information '''
 
     def __init__(self, indices:list[Index]):

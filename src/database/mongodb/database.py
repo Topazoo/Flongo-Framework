@@ -13,7 +13,7 @@ from pymongo.errors import OperationFailure
 from src.database.errors.database_error import DatabaseError
 from src.database.mongodb.fixtures import Fixtures
 from src.database.mongodb.index.base import Index
-from src.database.mongodb.index.indices import Indices
+from src.database.mongodb.index.indices import MongoDB_Indices
 
 import traceback
 
@@ -45,12 +45,12 @@ class MongoDB_Database:
             collection_name:Optional[str]=None, 
             database_name:Optional[str]=None, 
             settings:Optional[MongoDB_Settings]=None,
-            indices:Optional[Indices]=None,
+            indices:Optional[MongoDB_Indices]=None,
             fixtures:Optional[Fixtures]=None,
             connection_must_be_valid:bool=True
         ):
         self.settings = settings or MongoDB_Settings()
-        self.indices = indices or Indices([])
+        self.indices = indices or MongoDB_Indices([])
         self.fixtures = fixtures or Fixtures({})
         self.database_name = database_name or self.settings.default_database
         self.collection_name = collection_name or ''
