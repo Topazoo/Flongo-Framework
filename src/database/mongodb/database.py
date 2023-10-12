@@ -2,7 +2,8 @@
 import logging
 from typing import Optional
 
-from bson import ObjectId
+from flask import current_app, has_app_context
+
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
@@ -47,7 +48,7 @@ class MongoDB_Database:
             settings:Optional[MongoDB_Settings]=None,
             indices:Optional[MongoDB_Indices]=None,
             fixtures:Optional[MongoDB_Fixtures]=None,
-            connection_must_be_valid:bool=True
+            connection_must_be_valid:bool=False
         ):
         self.settings = settings or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
         self.indices = indices or MongoDB_Indices([])
@@ -56,15 +57,24 @@ class MongoDB_Database:
         self.collection_name = collection_name or ''
 
         self._configure_logger()
-        self._client = self._get_client()
+        self._client = self.get_client()
 
         if connection_must_be_valid:
             self.validate_connection(raise_exception=True)
         
 
-    def _get_client(self) -> MongoClient:
+    def get_client(self) -> MongoClient:
         ''' Get the MongoDB connection string '''
 
+        # If client already exists in instance, return it
+        if current_client:=getattr(self, "_client", None):
+            return current_client
+        
+        # If client already exists in Flask context, return it
+        if flask_client:=self.get_client_from_flask():
+            return flask_client
+        
+        # Otherwise create a new client
         return MongoClient(self.connection_string, connectTimeoutMS=self.settings.connection_timeout)
 
 
@@ -271,3 +281,10 @@ class MongoDB_Database:
                     "fixture": fixture_data,
                 }
             ))
+
+    @classmethod
+    def get_client_from_flask(cls) -> Optional[MongoClient]:
+        ''' Get the MongoDB client for the current Flask app '''
+
+        if has_app_context():
+            return current_app.config.get('APP_DB_CLIENT')
