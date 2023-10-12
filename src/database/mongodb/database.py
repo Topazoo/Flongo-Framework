@@ -50,7 +50,7 @@ class MongoDB_Database:
             fixtures:Optional[Fixtures]=None,
             connection_must_be_valid:bool=True
         ):
-        self.settings = settings or self.get_settings_from_flask() or MongoDB_Settings()
+        self.settings = settings or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
         self.indices = indices or MongoDB_Indices([])
         self.fixtures = fixtures or Fixtures({})
         self.database_name = database_name or self.settings.default_database
@@ -274,12 +274,3 @@ class MongoDB_Database:
                     "fixture": fixture,
                 }
             ))
-
-
-    @classmethod
-    def get_settings_from_flask(cls) -> Optional[MongoDB_Settings]:
-        ''' Get the MongoDB settings for the current Flask app '''
-
-        app_settings = AppSettings.get_settings_from_flask()
-        if app_settings:
-            return app_settings.mongodb
