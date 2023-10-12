@@ -65,8 +65,7 @@ class RouteHandler:
             payload = RequestDataParser.get_request_data(request, logger)
             try:
                 # Validate the JSONSchema for this route if one is configured
-                self._validate_schema(request, payload, request_schema)
-                logger.debug(f"* Validated SCHEMA successfully")
+                self._validate_schema(request, payload, request_schema, logger)
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
                 if collection_name:
@@ -133,12 +132,13 @@ class RouteHandler:
         raise error
     
 
-    def _validate_schema(self, request:Request, payload:dict, request_schema:dict):
+    def _validate_schema(self, request:Request, payload:dict, request_schema:dict, logger:RoutingLogger):
         ''' Validate the request payload against a JSONSchema if one was supplied'''
 
         if request_schema:
             validator = JSON_Schema_Validator(request.url_root, request_schema)
             validator.validate_request(request.method.upper(), payload)
+            logger.info(f"* Validated SCHEMA successfully")
     
 
     def register_url_methods(self, url:str, collection_name:str, flask_app:Flask, settings:AppSettings, request_schema:dict, log_level:str):
