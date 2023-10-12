@@ -1,3 +1,4 @@
+from flask import current_app, has_app_context
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.base.base_settings import Settings
 from dataclasses import dataclass, field
@@ -69,3 +70,12 @@ class MongoDB_Settings(Settings):
         ),
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
+
+    @classmethod
+    def get_settings_from_flask(cls) -> Optional["MongoDB_Settings"]:
+        ''' Get the MongoDB settings for the current Flask app '''
+
+        if has_app_context():
+            current_settings = current_app.config.get('APP_SETTINGS')
+            if current_settings:
+                return current_settings.mongodb

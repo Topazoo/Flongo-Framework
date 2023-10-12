@@ -3,17 +3,19 @@ import logging
 from typing import Optional
 
 from bson import ObjectId
+from flask import current_app, has_app_context
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
+from src.config.settings.core.app_settings import AppSettings
 
 from src.database.errors.database_error import DatabaseError
 from src.database.mongodb.fixtures import Fixtures
 from src.database.mongodb.index.base import Index
-from src.database.mongodb.index.indices import Indices
+from src.database.mongodb.index.indices import MongoDB_Indices
 
 import traceback
 
@@ -40,17 +42,16 @@ class MongoDB_Database:
         # TODO - Fixtures docs
     '''
 
-    # TODO - Factory from Flask context using stored settings?
     def __init__(self, 
             collection_name:Optional[str]=None, 
             database_name:Optional[str]=None, 
             settings:Optional[MongoDB_Settings]=None,
-            indices:Optional[Indices]=None,
+            indices:Optional[MongoDB_Indices]=None,
             fixtures:Optional[Fixtures]=None,
             connection_must_be_valid:bool=True
         ):
-        self.settings = settings or MongoDB_Settings()
-        self.indices = indices or Indices([])
+        self.settings = settings or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
+        self.indices = indices or MongoDB_Indices([])
         self.fixtures = fixtures or Fixtures({})
         self.database_name = database_name or self.settings.default_database
         self.collection_name = collection_name or ''
@@ -213,7 +214,8 @@ class MongoDB_Database:
             ))
         
 
-    def _log_and_throw_database_error(self, error:DatabaseError):
+    @classmethod
+    def _log_and_throw_database_error(cls, error:DatabaseError):
         DatabaseLogger.error(error.message)
         error.set_stack_strace(traceback.format_exc())
         if error.stack_trace:

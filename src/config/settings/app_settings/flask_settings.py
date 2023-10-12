@@ -1,3 +1,4 @@
+from flask import current_app, has_app_context
 from src.config.enums.logs import LOG_GROUPS, LOG_LEVELS
 from src.config.settings.base.base_settings import Settings
 from dataclasses import dataclass, field
@@ -85,3 +86,13 @@ class FlaskSettings(Settings):
     def __post_init__(self):
         self._configure_logger(LOG_GROUPS.APP_CONFIG, self.config_log_level or '')
         super().__post_init__()
+
+
+    @classmethod
+    def get_settings_from_flask(cls) -> Optional["FlaskSettings"]:
+        ''' Get the Flask settings for the current Flask app '''
+
+        if has_app_context():
+            current_settings = current_app.config.get('APP_SETTINGS')
+            if current_settings:
+                return current_settings.flask
