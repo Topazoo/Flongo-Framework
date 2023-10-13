@@ -42,8 +42,8 @@ class Application:
         self._initialize()
 
         # Initialize the database and store client for re-use
-        database = self._initialize_database()
-        self.app.config['APP_DB_CLIENT'] = database.get_client()
+        if database:=self._initialize_database():
+            self.app.config['APP_DB_CLIENT'] = database.get_client()
 
         ApplicationLogger.critical(
             ApplicationLogger.color_log(f"[App Started Successfully]", LOG_BACKGROUND_COLORS.PURPLE)
@@ -69,36 +69,44 @@ class Application:
         self.app.json = JSON_Provider(self.app)
 
     
-    def _initialize_database(self) -> MongoDB_Database:
+    def _initialize_database(self) -> Optional[MongoDB_Database]:
+        ''' Initialize the database by creating passed fixture and 
+            indices. Check if the database can be connected to if the
+            application requires it. Return the database if it can be connected to
+        ''' 
+        requires_mongodb = self.settings.flask.requires_mongodb or False
+
         # Set up database driver
         database = MongoDB_Database(
             settings=self.settings.mongodb,
             indices=self.indices,
             fixtures=self.fixtures,
-            connection_must_be_valid=True
+            connection_must_be_valid=requires_mongodb
         )
 
-        # Create indices
-        if self.indices and len(self.indices):
-            database.create_indices()
-            ApplicationLogger.critical(
-                ApplicationLogger.color_log(
-                    f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]",
-                    LOG_BACKGROUND_COLORS.PURPLE
+        # If MongoDB is not required but the connection is valid, create and return the DB
+        if requires_mongodb or database.validate_connection():
+            # Create indices
+            if self.indices and len(self.indices):
+                database.create_indices()
+                ApplicationLogger.critical(
+                    ApplicationLogger.color_log(
+                        f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]",
+                        LOG_BACKGROUND_COLORS.PURPLE
+                    )
                 )
-            )
 
-        # Create fixtures
-        if self.fixtures and len(self.fixtures):
-            database.create_fixtures()
-            ApplicationLogger.critical(
-                ApplicationLogger.color_log(
-                    f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]",
-                    LOG_BACKGROUND_COLORS.PURPLE
+            # Create fixtures
+            if self.fixtures and len(self.fixtures):
+                database.create_fixtures()
+                ApplicationLogger.critical(
+                    ApplicationLogger.color_log(
+                        f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]",
+                        LOG_BACKGROUND_COLORS.PURPLE
+                    )
                 )
-            )
 
-        return database
+            return database
 
     def _register_error_handlers(self):
         ''' Register wrappers to handle specific kinds of errors '''
