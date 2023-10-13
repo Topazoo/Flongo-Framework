@@ -10,7 +10,8 @@ class SchemaValidationError(Exception):
                  method:str,
                  message:str,
                  json_schema:dict,
-                 status_code:int = 400, 
+                 status_code:int = 400,
+                 is_response_schema:bool = False
         ):
 
         self.url = url
@@ -18,6 +19,7 @@ class SchemaValidationError(Exception):
         self.message = message
         self.json_schema = json_schema
         self.status_code = status_code
+        self.is_response_schema = is_response_schema
 
 
     def get_data(self, include_schema:Optional[bool] = False) -> dict:
@@ -28,5 +30,6 @@ class SchemaValidationError(Exception):
         return {
             'url': self.url,
             'method': self.method,
+            'is_response_schema': self.is_response_schema,
             **({} if not include_schema else {'method_schema': self.json_schema})
         }

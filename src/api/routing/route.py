@@ -19,6 +19,7 @@ class Route:
             handler:RouteHandler,
             collection_name:str='',
             request_schema:Optional[RouteSchema]=None,
+            response_schema:Optional[RouteSchema]=None,
             log_level:str=LOG_LEVELS.WARN
         ):
 
@@ -26,6 +27,7 @@ class Route:
         self.handler = handler
         self.collection_name = collection_name
         self.request_schema = request_schema or RouteSchema()
+        self.response_schema = response_schema or RouteSchema()
         self.log_level = log_level
 
         self._configure_logger()
@@ -36,7 +38,16 @@ class Route:
             methods (e.g. GET or POST) specified in the passed RouteHandler
         '''
 
-        self.handler.register_url_methods(self.url, self.collection_name, flask_app, settings, self.request_schema, self.log_level)
+        self.handler.register_url_methods(
+            self.url, 
+            self.collection_name, 
+            flask_app, 
+            settings, 
+            self.request_schema,
+            self.response_schema,
+            self.log_level
+        )
+
         RoutingLogger(self.url).info(f"* Created application route: [{self.url}] *")
 
 
