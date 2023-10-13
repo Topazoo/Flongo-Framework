@@ -4,9 +4,9 @@ from src.database.mongodb.index.base import MongoDB_Index
 class MongoDB_Indices:
     ''' Client to store a collection of MongoDB index information '''
 
-    def __init__(self, indices:list[MongoDB_Index]):
+    def __init__(self, *indices:MongoDB_Index):
         self._index = 0
-        self._indices:list[MongoDB_Index]= indices
+        self._indices:list[MongoDB_Index]= list(indices)
 
 
     def add_index(self, index:MongoDB_Index):

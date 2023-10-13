@@ -6,8 +6,8 @@ from src.database.mongodb.fixture.base import MongoDB_Fixture
 class MongoDB_Fixtures:
     ''' Class to facilitate applying database fixtures '''
 
-    def __init__(self, fixtures:list[MongoDB_Fixture]) -> None:
-        self._fixtures = self._validate_fixtures(fixtures)
+    def __init__(self, *fixtures:MongoDB_Fixture) -> None:
+        self._fixtures = self._validate_fixtures(list(fixtures))
         
     def _validate_fixtures(self, fixtures:list[MongoDB_Fixture]) -> list[MongoDB_Fixture]:
         ''' Validate fixture structure and return fixtures'''
