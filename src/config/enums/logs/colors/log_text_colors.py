@@ -3,6 +3,7 @@ from src.config.enums.base.base_str_enum import BaseStrEnum
 class LOG_TEXT_COLORS(BaseStrEnum):
     """ Log colors supported for the application """
 
+    WHITE = "\x1b[37;20m"
     GREY = "\x1b[38;20m"
     YELLOW = "\x1b[33;20m"
     RED = "\x1b[31;20m"
