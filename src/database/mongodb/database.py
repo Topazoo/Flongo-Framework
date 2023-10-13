@@ -1,4 +1,5 @@
     
+import json
 import logging
 from typing import Optional
 
@@ -75,7 +76,7 @@ class MongoDB_Database:
             return flask_client
         
         # Otherwise create a new client
-        return MongoClient(self.connection_string, connectTimeoutMS=self.settings.connection_timeout)
+        return MongoClient(self.connection_string, serverSelectionTimeoutMS=self.settings.connection_timeout)
 
 
     @property
@@ -148,7 +149,14 @@ class MongoDB_Database:
     def validate_connection(self, raise_exception:bool=False) -> bool:
         ''' Tests if the connection to MongoDB is working '''
 
-        result = True if self._client.server_info() else False
+        result = False
+        
+        try:
+            if self._client.server_info():
+                result = True 
+        except Exception as e:
+            pass
+
         if not result and raise_exception:
             self._log_and_throw_database_error(DatabaseError(
                 f"MongoDB_Database: Could not connect to the database!",
@@ -156,7 +164,8 @@ class MongoDB_Database:
                     'host': self.settings.host,
                     'port': self.settings.port,
                     'username': self.settings.username,
-                    'password': '<SET>' if self.settings.password else '<NOT SET>'
+                    'password': self.settings.password,
+                    'connection_string': self.connection_string
                 }
             ))
         
@@ -235,8 +244,10 @@ class MongoDB_Database:
         logger = DatabaseLogger()
         logger.error(error.message)
         error.set_stack_strace(traceback.format_exc())
-        if error.stack_trace:
+        if error.stack_trace and error.stack_trace != "NoneType: None\n":
             logger.debug(error.stack_trace)
+        else:
+            logger.debug(json.dumps(error.data))
 
         raise error
         
