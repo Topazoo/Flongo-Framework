@@ -1,7 +1,7 @@
 # app
 from src.application import Application
 # routing
-from src.api.routing import Route, RouteHandler
+from src.api.routing import Route, RouteHandler, RouteSchema
 
 # responses
 from src.api.responses import API_JSON_Response, API_Message_Response
@@ -38,8 +38,8 @@ routes = AppRoutes(
             DELETE=lambda request, payload, collection: API_JSON_Response({'date': datetime.now(), 'deleted': True}),
         ),
         # Demonstrates HTTP method based schema validation
-        request_schema={
-            'POST': {
+        request_schema=RouteSchema(
+            POST={
                 'type': 'object',
                 'additionalProperties': False,
                 'properties': {
@@ -47,7 +47,7 @@ routes = AppRoutes(
                 },
                 'required': ['_id']
             }
-        },
+        ),
         log_level=LOG_LEVELS.DEBUG
     ),
     Route(
