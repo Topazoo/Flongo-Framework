@@ -6,6 +6,7 @@ A framework for rapid application development on Flask. Includes:
 - Built-in query string and response body parsing / normalization
 - Built-in request and response payload validation using JSONSchema
 - Built-in bindings for MongoDB including fixtures and index management
+- Built-in automatic CRUD handling for endpoints given a MongoDB collection name
 - Built-in detailed logging and fine-tuneable configurations
 
 Sample App:
@@ -14,7 +15,7 @@ Sample App:
 # app
 from src.application import Application
 # routing
-from src.api.routing import Route, RouteHandler, RouteSchema
+from src.api.routing import Route, RouteHandler, RouteSchema, DefaultRouteHandler
 
 # responses
 from src.api.responses import API_JSON_Response, API_Message_Response
@@ -93,6 +94,13 @@ routes = AppRoutes(
         ),
         log_level=LOG_LEVELS.DEBUG,
         collection_name='sample'
+    ),
+    Route(
+        # Route that demonstrates built-in default CRUD handling
+        url='/default',
+        handler=DefaultRouteHandler(),
+        log_level=LOG_LEVELS.DEBUG,
+        collection_name='default'
     ),
 )
 

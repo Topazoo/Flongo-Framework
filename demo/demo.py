@@ -1,7 +1,7 @@
 # app
 from src.application import Application
 # routing
-from src.api.routing import Route, RouteHandler, RouteSchema
+from src.api.routing import Route, RouteHandler, RouteSchema, DefaultRouteHandler
 
 # responses
 from src.api.responses import API_JSON_Response, API_Message_Response
@@ -80,6 +80,13 @@ routes = AppRoutes(
         ),
         log_level=LOG_LEVELS.DEBUG,
         collection_name='sample'
+    ),
+    Route(
+        # Route that demonstrates built-in default CRUD handling
+        url='/default',
+        handler=DefaultRouteHandler(),
+        log_level=LOG_LEVELS.DEBUG,
+        collection_name='default'
     ),
 )
 
