@@ -1,4 +1,6 @@
 import logging
+
+from bson import ObjectId
 from src.api.routing.route_schema import RouteSchema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
@@ -16,7 +18,8 @@ import traceback
 from flask import Flask, Response, jsonify, request
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
-from .types import HandlerMethod
+from pymongo.collection import Collection
+from src.api.routing.types import HandlerMethod
 
 
 class RouteHandler:
@@ -98,7 +101,7 @@ class RouteHandler:
                 if response.json:
                     logger.debug(f"* Attached RESPONSE BODY [{response.json}]")
                 
-                logger.info(logger.color_log(f"* Sending HTTP {method} response *", LOG_BACKGROUND_COLORS.GREEN))
+                logger.info(logger.color_log(f"* Sending HTTP {method} response: ({response.status_code}) *", LOG_BACKGROUND_COLORS.GREEN))
                 return response
             except HTTPException as e:
                 # Handle and log Flask generated errors
@@ -143,7 +146,7 @@ class RouteHandler:
         
         logger.error(logger.color_log(f"* Error: {error}", LOG_BACKGROUND_COLORS.RED))
         logger.debug(tb)
-        logger.info(logger.color_log(f"* Sending HTTP {method} ERROR response *", LOG_BACKGROUND_COLORS.GREEN))
+        logger.info(logger.color_log(f"* Sending HTTP {method} ERROR response: ({error.status_code}) *", LOG_BACKGROUND_COLORS.GREEN))
 
         raise error
     
@@ -177,6 +180,36 @@ class RouteHandler:
             flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
 
             RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")
+
+    @classmethod
+    def ensure_collection(cls, url:str, collection:Collection):
+        ''' Ensure a MongoDB collection is specified for this route '''
+
+        if collection == None:
+            raise API_Error(
+                "No MongoDB collection was specified for this route",
+                {'url': url},
+                stack_trace=traceback.format_exc()
+            )
+        
+
+    @classmethod
+    def ensure_field(cls, url:str, method:str, field:str, payload:dict):
+        ''' Ensure a field is specified in this request payload and return the field '''
+
+        if payload and field not in payload:
+            raise API_Error(
+                "Required field [{field}] not passed in request",
+                {'url': url, 'method': method},
+                stack_trace=traceback.format_exc()
+            )
+        
+
+    @classmethod
+    def normalize_id(cls, payload:dict):
+        if "_id" in payload:
+            if ObjectId.is_valid(payload["_id"]):
+                payload["_id"] = ObjectId(payload["_id"])
 
 
     def configure_logger(self, url:str, method:str, log_level:str):

@@ -76,7 +76,7 @@ class MongoDB_Database:
             return flask_client
         
         # Otherwise create a new client
-        return MongoClient(self.connection_string, serverSelectionTimeoutMS=self.settings.connection_timeout)
+        return MongoClient(self.connection_string, serverSelectionTimeoutMS=self.settings.connection_timeout_ms)
 
 
     @property
@@ -142,8 +142,7 @@ class MongoDB_Database:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         ''' Exit the context and handle cleanup '''
-
-        self._client.close()
+        pass
 
 
     def validate_connection(self, raise_exception:bool=False) -> bool:
