@@ -5,6 +5,7 @@ from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.core.app_settings import AppSettings
 from src.utils.logging.loggers.routing import RoutingLogger
 from .route_handler import RouteHandler
+from .route_schema import RouteSchema
 
 class Route:
     ''' Base class that wraps Flasks normal routing allowing us
@@ -17,14 +18,14 @@ class Route:
             url:str, 
             handler:RouteHandler,
             collection_name:str='',
-            request_schema:Optional[dict]=None,
+            request_schema:Optional[RouteSchema]=None,
             log_level:str=LOG_LEVELS.WARN
         ):
 
         self.url = url
         self.handler = handler
         self.collection_name = collection_name
-        self.request_schema = request_schema or {}
+        self.request_schema = request_schema or RouteSchema()
         self.log_level = log_level
 
         self._configure_logger()

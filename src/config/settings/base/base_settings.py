@@ -5,7 +5,6 @@ from typing import Optional, Union
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.utils.logging.loggers.app import ApplicationLogger
 from src.utils.logging.loggers.app_config import ApplicationConfigLogger
 
 @dataclass

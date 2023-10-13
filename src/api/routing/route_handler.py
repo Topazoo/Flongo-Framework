@@ -1,4 +1,5 @@
 import logging
+from src.api.routing.route_schema import RouteSchema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
@@ -52,7 +53,7 @@ class RouteHandler:
         return self.methods
     
 
-    def _get_request_handler(self, url:str, method:str, action:HandlerMethod, collection_name:str, settings:AppSettings, request_schema:dict) -> Callable:
+    def _get_request_handler(self, url:str, method:str, action:HandlerMethod, collection_name:str, settings:AppSettings, request_schema:RouteSchema) -> Callable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
             a Routehandler if possible
@@ -65,7 +66,9 @@ class RouteHandler:
             payload = RequestDataParser.get_request_data(request, logger)
             try:
                 # Validate the JSONSchema for this route if one is configured
-                self._validate_schema(request, payload, request_schema, logger)
+                if(request_schema.validate_schema(request, payload)):
+                    logger.info("* Validated SCHEMA successfully")
+
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
                 if collection_name:
@@ -132,16 +135,7 @@ class RouteHandler:
         raise error
     
 
-    def _validate_schema(self, request:Request, payload:dict, request_schema:dict, logger:RoutingLogger):
-        ''' Validate the request payload against a JSONSchema if one was supplied'''
-
-        if request_schema:
-            validator = JSON_Schema_Validator(request.url_root, request_schema)
-            validator.validate_request(request.method.upper(), payload)
-            logger.info(f"* Validated SCHEMA successfully")
-    
-
-    def register_url_methods(self, url:str, collection_name:str, flask_app:Flask, settings:AppSettings, request_schema:dict, log_level:str):
+    def register_url_methods(self, url:str, collection_name:str, flask_app:Flask, settings:AppSettings, request_schema:RouteSchema, log_level:str):
         ''' Register the functions for all methods (like GET or POST)
             that are supported for a specified URL with Flask
         '''

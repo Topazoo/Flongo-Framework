@@ -7,22 +7,21 @@ class JSON_Schema_Validator:
         a passed request payload
     '''
 
-    def __init__(self, url:str, json_schema:dict[str, dict]) -> None:
+    def __init__(self, json_schema:dict[str, dict], url:str='', method:str='') -> None:
         self.url = url
+        self.method = method
         self.json_schema = json_schema
 
 
-    def validate_request(self, method:str, payload:dict):
+    def validate_request(self, payload:dict):
         ''' Validate a request payload against the provided schema '''
 
-        if method in self.json_schema:
-            method_schema = self.json_schema[method].copy()
-            try:
-                validate(payload, method_schema)
-            except ValidationError as e:
-                raise SchemaValidationError(
-                    self.url,
-                    method,
-                    e.message,
-                    method_schema
-                )
+        try:
+            validate(payload, self.json_schema)
+        except ValidationError as e:
+            raise SchemaValidationError(
+                self.url,
+                self.method,
+                e.message,
+                self.json_schema
+            )
