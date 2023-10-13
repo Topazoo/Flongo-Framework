@@ -43,8 +43,8 @@ class MongoDB_Database:
     '''
 
     def __init__(self, 
-            collection_name:Optional[str]=None, 
-            database_name:Optional[str]=None, 
+            collection_name:str='', 
+            database_name:str='', 
             settings:Optional[MongoDB_Settings]=None,
             indices:Optional[MongoDB_Indices]=None,
             fixtures:Optional[MongoDB_Fixtures]=None,
@@ -53,8 +53,8 @@ class MongoDB_Database:
         self.settings = settings or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
         self.indices = indices or MongoDB_Indices()
         self.fixtures = fixtures or MongoDB_Fixtures()
-        self.database_name = database_name or self.settings.default_database
-        self.collection_name = collection_name or ''
+        self.database_name = database_name or self.settings.default_database or ''
+        self.collection_name = collection_name
 
         self._configure_logger()
         self._client = self.get_client()
@@ -124,7 +124,7 @@ class MongoDB_Database:
 
             # Database
             logging.basicConfig(level=int_log_level)
-            logging.getLogger(DatabaseLogger.LOGGER_NAME).setLevel(int_log_level)
+            logging.getLogger(DatabaseLogger._BASE_NAME).setLevel(int_log_level)
 
 
     def __getitem__(self, collection_name: str) -> Collection:
@@ -161,7 +161,7 @@ class MongoDB_Database:
             ))
         
         if result:
-            DatabaseLogger.debug(f"Connected to MongoDB on [{self.connection_string}]!")
+            DatabaseLogger().debug(f"Connected to MongoDB on [{self.connection_string}]!")
         
         return result
     
@@ -198,14 +198,20 @@ class MongoDB_Database:
                     (index.field_name, index.order),
                 ], **index.properties, background=background)
 
-            DatabaseLogger.info(f"Created {index.index_type} index on field [{index.field_name}] for collection [{index.collection_name}]")
+            DatabaseLogger(
+                database=self.database_name,
+                collection=index.collection_name
+            ).info(f"Created {index.index_type} index on field [{index.field_name}]")
 
         except OperationFailure as e:
             if e.code == 85:
-                DatabaseLogger.warn(f"{index.index_type.capitalize()} Index for field [{index.field_name}] in collection [{index.collection_name}] already exists!")
+                DatabaseLogger(
+                    database=self.database_name,
+                    collection=index.collection_name
+                ).warn(f"{index.index_type.capitalize()} Index for field [{index.field_name}] already exists!")
             else:
                 self._log_and_throw_database_error(DatabaseError(
-                    f"Failed to create index!", e.code, data={
+                    f"Failed to create index", e.code, data={
                         "collection_name": index.collection_name, 
                         "field": index.field_name,
                         "index_type": index.index_type,
@@ -215,7 +221,7 @@ class MongoDB_Database:
         
         except Exception as e:
             self._log_and_throw_database_error(DatabaseError(
-                f"Error creating index: {e}!", 
+                f"Error creating index: {e}", 
                 data={
                     "collection_name": index.collection_name, 
                     "field": index.field_name,
@@ -226,10 +232,11 @@ class MongoDB_Database:
 
     @classmethod
     def _log_and_throw_database_error(cls, error:DatabaseError):
-        DatabaseLogger.error(error.message)
+        logger = DatabaseLogger()
+        logger.error(error.message)
         error.set_stack_strace(traceback.format_exc())
         if error.stack_trace:
-            DatabaseLogger.debug(error.stack_trace)
+            logger.debug(error.stack_trace)
 
         raise error
         
@@ -255,17 +262,18 @@ class MongoDB_Database:
         ''' Create a pre-defined database record in the MongoDB database '''
         
         fixture_data = fixture.data
+        logger = DatabaseLogger(database=self.database_name, collection=collection.name)
         try:
             collection.update_one({"_id": fixture_data["_id"]}, {"$set": fixture_data}, upsert=True)
-            DatabaseLogger.info(f"Created fixture for collection [{collection.name}] with ID [{fixture_data['_id']}]!")
-            DatabaseLogger.debug(f"Fixture data: {fixture_data}")
+            logger.info(f"Created fixture with ID [{fixture_data['_id']}]")
+            logger.debug(f"Fixture data: {fixture_data}")
         except OperationFailure as e:
             if e.code == 11000:
-                DatabaseLogger.warn(f"Fixture for collection [{collection.name}] with ID [{fixture_data['_id']}] already exists!")
-                DatabaseLogger.debug(f"Fixture data: {fixture_data}")
+                logger.warn(f"Fixture with ID [{fixture_data['_id']}] already exists")
+                logger.debug(f"Fixture data: {fixture_data}")
             else:
                 self._log_and_throw_database_error(DatabaseError(
-                    f"Failed to create fixture!", 
+                    f"Failed to create fixture", 
                     code=e.code, data={
                         "collection_name": collection.name, 
                         "fixture": fixture_data,
