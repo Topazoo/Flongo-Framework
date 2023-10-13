@@ -51,8 +51,8 @@ class MongoDB_Database:
             connection_must_be_valid:bool=False
         ):
         self.settings = settings or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
-        self.indices = indices or MongoDB_Indices([])
-        self.fixtures = fixtures or MongoDB_Fixtures([])
+        self.indices = indices or MongoDB_Indices()
+        self.fixtures = fixtures or MongoDB_Fixtures()
         self.database_name = database_name or self.settings.default_database
         self.collection_name = collection_name or ''
 

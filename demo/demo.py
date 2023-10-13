@@ -87,14 +87,14 @@ settings = AppSettings(
 )
 
 # Application Database Indices
-indices = MongoDB_Indices([
+indices = MongoDB_Indices(
     MongoDB_Index("sample", "name")
-])
+)
 
 # Application Database Fixtures
-fixtures = MongoDB_Fixtures([
+fixtures = MongoDB_Fixtures(
     MongoDB_Fixture("sample", {"_id": ObjectId("652790328c73b750984aee34"), "name": "Peter"})
-])
+)
 
 # Create application
 app = Application(routes=routes, settings=settings, indices=indices, fixtures=fixtures)
