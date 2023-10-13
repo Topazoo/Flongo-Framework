@@ -54,11 +54,11 @@ class MongoDB_Settings(Settings):
         ),
     ) # type: ignore
 
-    connection_timeout: Optional[int] = field(
+    connection_timeout_ms: Optional[int] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "MONGODB_CONNECTION_TIMEOUT", 
             data_type=int,
-            default_value="600"
+            default_value="5000"
         ),
     ) # type: ignore
 
