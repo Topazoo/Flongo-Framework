@@ -2,10 +2,11 @@
 
 A framework for rapid application development on Flask. Includes:
 
-- Built-in bindings for MongoDB including fixtures and index management
-- Built-in detailed and configurable logging
-- Built-in easy request/response management and error handling
+- Built-in easy HTTP request/response management and error handling
 - Built-in query string and response body parsing / normalization
+- Built-in request and response payload validation using JSONSchema
+- Built-in bindings for MongoDB including fixtures and index management
+- Built-in detailed logging and fine-tuneable configurations
 
 Sample App:
 
