@@ -56,6 +56,15 @@ class FlaskSettings(Settings):
         ),
     ) # type: ignore
 
+    requires_mongodb: Optional[bool] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "APP_REQUIRES_MONGODB", 
+            data_type=bool,
+            default_value="False"
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
     cors_enabled_paths: Optional[bool] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "APP_CORS_ENABLED_PATHS", 
