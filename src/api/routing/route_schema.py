@@ -41,16 +41,15 @@ class RouteSchema:
         return self.get_schemas().get(method)
     
 
-    def validate_schema(self, request:Request, payload:dict) -> bool:
+    def validate_schema(self, request:Request, payload:dict, is_response_schema=False) -> bool:
         ''' Validate the request payload against a JSONSchema if one was supplied
             Returns True if a schema was validated, False if one was not and throws
             an exception if schema validation failed 
         '''
 
         method = request.method.upper()
-        request_schema = self.get_schema(method)
-        if request_schema:
-            validator = JSON_Schema_Validator(request_schema, request.url_root, method)
+        if schema:=self.get_schema(method):
+            validator = JSON_Schema_Validator(schema, request.url_root, method, is_response_schema)
             validator.validate_request(payload)
 
             return True

@@ -7,10 +7,11 @@ class JSON_Schema_Validator:
         a passed request payload
     '''
 
-    def __init__(self, json_schema:dict[str, dict], url:str='', method:str='') -> None:
+    def __init__(self, json_schema:dict[str, dict], url:str='', method:str='', is_response_schema:bool=False) -> None:
         self.url = url
         self.method = method
         self.json_schema = json_schema
+        self.is_response_schema = is_response_schema
 
 
     def validate_request(self, payload:dict):
@@ -23,5 +24,6 @@ class JSON_Schema_Validator:
                 self.url,
                 self.method,
                 e.message,
-                self.json_schema
+                self.json_schema,
+                is_response_schema=self.is_response_schema
             )

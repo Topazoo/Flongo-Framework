@@ -9,11 +9,11 @@ from src.api.errors.schema_validation_error import SchemaValidationError
 from src.api.responses.errors.api_error import API_Error
 from src.database.mongodb.database import MongoDB_Database
 from src.utils.logging.loggers.routing import RoutingLogger
-from src.utils.requests import RequestDataParser, JSON_Schema_Validator
+from src.utils.requests import RequestDataParser
 from src.api.errors.request_handling_error import RequestHandlingError
 
 import traceback
-from flask import Flask, Request, Response, jsonify, request
+from flask import Flask, Response, jsonify, request
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
 from .types import HandlerMethod
@@ -53,7 +53,16 @@ class RouteHandler:
         return self.methods
     
 
-    def _get_request_handler(self, url:str, method:str, action:HandlerMethod, collection_name:str, settings:AppSettings, request_schema:RouteSchema) -> Callable:
+    def _get_request_handler(
+            self, 
+            url:str,
+            method:str, 
+            action:HandlerMethod, 
+            collection_name:str, 
+            settings:AppSettings, 
+            request_schema:RouteSchema,
+            response_schema:RouteSchema
+        ) -> Callable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
             a Routehandler if possible
@@ -65,9 +74,9 @@ class RouteHandler:
             # Get the data from the request body or query params
             payload = RequestDataParser.get_request_data(request, logger)
             try:
-                # Validate the JSONSchema for this route if one is configured
+                # Validate the payload passed to this route agains the request JSONSchema if configured
                 if(request_schema.validate_schema(request, payload)):
-                    logger.info("* Validated SCHEMA successfully")
+                    logger.info("* Validated request SCHEMA successfully")
 
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
@@ -81,6 +90,10 @@ class RouteHandler:
                 if not isinstance(response, Response):
                     logger.warn(f"* HTTP {method} response was forced to a Response! Type: {type(response)}")
                     response = jsonify(response)
+
+                # Validate the payload passed to this route agains the request JSONSchema if configured
+                if isinstance(response.json, dict) and response_schema.validate_schema(request, response.json, is_response_schema=True):
+                    logger.info("* Validated response SCHEMA successfully")
                         
                 if response.json:
                     logger.debug(f"* Attached RESPONSE BODY [{response.json}]")
@@ -102,7 +115,7 @@ class RouteHandler:
                 # Handle schema validation errors
                 self._log_and_raise_exception(url, method,
                     RequestHandlingError(
-                        f"Schema validation error on URL [{url}]: {e.message}",
+                        f"{'Response' if e.is_response_schema else 'Request'} schema validation error on URL [{url}]: {e.message}",
                         data=e.get_data(settings.flask.debug_mode),
                         status_code=400
                     ), 
@@ -135,7 +148,15 @@ class RouteHandler:
         raise error
     
 
-    def register_url_methods(self, url:str, collection_name:str, flask_app:Flask, settings:AppSettings, request_schema:RouteSchema, log_level:str):
+    def register_url_methods(self, 
+            url:str, 
+            collection_name:str, 
+            flask_app:Flask, 
+            settings:AppSettings, 
+            request_schema:RouteSchema,
+            response_schema:RouteSchema, 
+            log_level:str
+        ):
         ''' Register the functions for all methods (like GET or POST)
             that are supported for a specified URL with Flask
         '''
@@ -143,7 +164,16 @@ class RouteHandler:
         for method, action in self.get_methods().items():
             self.configure_logger(url, method, log_level)
 
-            method_handler = self._get_request_handler(url, method, action, collection_name, settings, request_schema)
+            method_handler = self._get_request_handler(
+                url, 
+                method,
+                action,
+                collection_name,
+                settings,
+                request_schema,
+                response_schema,
+            )
+
             flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
 
             RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")

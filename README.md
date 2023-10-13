@@ -60,6 +60,16 @@ routes = AppRoutes(
                 'required': ['_id']
             }
         ),
+        response_schema=RouteSchema(
+            PUT={
+                'type': 'object',
+                'additionalProperties': False,
+                'properties': {
+                    'payload': {'type': 'object'}
+                },
+                'required': ['payload']
+            }
+        ),
         log_level=LOG_LEVELS.DEBUG
     ),
     Route(
