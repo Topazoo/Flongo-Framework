@@ -9,7 +9,7 @@ class LoggingUtil:
     ''' Base logger class for the application '''
 
     LOGGER_NAME = "root"
-    EMPTY_LOG = "NoneType: None\n"
+    EMPTY_TRACEBACK = "NoneType: None\n"
 
     @classmethod
     def info(cls, msg:str):

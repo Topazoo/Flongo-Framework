@@ -244,7 +244,7 @@ class MongoDB_Database:
         logger = DatabaseLogger()
         logger.error(error.message)
         error.set_stack_strace(traceback.format_exc())
-        if error.stack_trace and error.stack_trace != logger.EMPTY_LOG:
+        if error.stack_trace and error.stack_trace != logger.EMPTY_TRACEBACK:
             logger.debug(error.stack_trace)
         else:
             logger.debug(json.dumps(error.data))
