@@ -115,7 +115,7 @@ class Application:
         ''' Register wrappers to handle specific kinds of errors '''
         
         @self.app.errorhandler(API_Error)
-        @cross_origin(origins=self.settings.flask.cors_origins)
+        @cross_origin(origins=self.settings.flask.cors_origins, supports_credentials=True)
         def handle_user_thrown_error(error:API_Error):
             response = jsonify(
                 error=error.message, 
