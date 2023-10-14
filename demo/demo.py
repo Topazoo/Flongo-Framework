@@ -100,11 +100,15 @@ routes = AppRoutes(
                 response=API_Message_Response("Authenticated!"),
                 _id="test",
                 roles="user"
+            ),
+            # De-authentication route that removes the JWT in response cookies
+            DELETE=lambda request, payload, collection: App_JWT_Manager.remove_response_jwt(
+                response=API_Message_Response("Logged out!"),
             )
         ),
         log_level=LOG_LEVELS.DEBUG,
         collection_name='permissions',
-        permissions=RoutePermissions(POST='user', PUT='admin', DELETE='admin')
+        permissions=RoutePermissions(POST='user', PUT='admin')
     ),
 )
 
