@@ -48,14 +48,6 @@ class FlaskSettings(Settings):
         ),
     ) # type: ignore
 
-    enable_cors: Optional[bool] = field(
-        default_factory=lambda: Settings.read_config_from_env_or_default(
-            "APP_ENABLE_CORS", 
-            data_type=bool,
-            default_value="True"
-        ),
-    ) # type: ignore
-
     requires_mongodb: Optional[bool] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "APP_REQUIRES_MONGODB", 
@@ -63,14 +55,6 @@ class FlaskSettings(Settings):
             default_value="False"
         ),
         metadata={"log_level": LOG_LEVELS.WARN}
-    ) # type: ignore
-
-    cors_enabled_paths: Optional[bool] = field(
-        default_factory=lambda: Settings.read_config_from_env_or_default(
-            "APP_CORS_ENABLED_PATHS", 
-            data_type=list,
-            default_value="/api/*"
-        ),
     ) # type: ignore
 
     log_level: Optional[str] = field(
@@ -91,12 +75,31 @@ class FlaskSettings(Settings):
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
+    cors_origins: Optional[list] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "APP_CORS_ORIGINS", 
+            data_type=list,
+            default_value=None
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
 
     def __post_init__(self):
         if self.config_log_level:
             self._configure_logger(LOG_GROUPS.APP_CONFIG, self.config_log_level)
+
+        self._set_default_cors_origins()
             
         super().__post_init__()
+
+    
+    def _set_default_cors_origins(self):
+        if not self.cors_origins:
+            self.cors_origins = [
+                f"http://{self.host or ''}:{self.port or ''}",
+                f"https://{self.host or ''}:{self.port or ''}"
+            ]
 
 
     @classmethod

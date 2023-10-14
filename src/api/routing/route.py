@@ -17,6 +17,7 @@ class Route:
     def __init__(self, 
             url:str, 
             handler:RouteHandler,
+            enable_CORS:bool=True,
             collection_name:str='',
             request_schema:Optional[RouteSchema]=None,
             response_schema:Optional[RouteSchema]=None,
@@ -25,6 +26,7 @@ class Route:
 
         self.url = url
         self.handler = handler
+        self.enable_CORS = enable_CORS
         self.collection_name = collection_name
         self.request_schema = request_schema or RouteSchema()
         self.response_schema = response_schema or RouteSchema()
@@ -39,8 +41,9 @@ class Route:
         '''
 
         self.handler.register_url_methods(
-            self.url, 
-            self.collection_name, 
+            self.url,
+            self.collection_name,
+            self.enable_CORS,
             flask_app, 
             settings, 
             self.request_schema,
