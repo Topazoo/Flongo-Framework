@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from flask import Flask
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.core.app_settings import AppSettings
+from src.config.settings.app_settings import AppSettings
 from src.utils.logging.loggers.routing import RoutingLogger
 from src.api.routing.handlers.route_handler import RouteHandler
 from src.api.routing.route_schema import RouteSchema

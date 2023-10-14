@@ -1,7 +1,8 @@
 import logging
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings import AppRoutes, AppSettings
+from src.api.routing import AppRoutes
+from src.config.settings import AppSettings
 from src.api.responses.errors.api_error import API_Error
 from src.database.mongodb.database import MongoDB_Database
 from src.database.mongodb.fixture.fixtures import MongoDB_Fixtures

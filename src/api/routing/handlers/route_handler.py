@@ -5,7 +5,7 @@ from src.api.routing.route_schema import RouteSchema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.core.app_settings import AppSettings
+from src.config.settings.app_settings import AppSettings
 from src.api.errors.schema_validation_error import SchemaValidationError
 
 from src.api.responses.errors.api_error import API_Error

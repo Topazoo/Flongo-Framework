@@ -3,8 +3,8 @@ from typing import Optional
 
 from flask import current_app, has_app_context
 
-from src.config.settings.app_settings.flask_settings import FlaskSettings
-from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
+from src.config.settings.flask_settings import FlaskSettings
+from src.config.settings.mongodb_settings import MongoDB_Settings
 
 class AppSettings:
     ''' Class that holds all application settings configured by the user 

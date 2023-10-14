@@ -1,6 +1,6 @@
 from flask import Flask
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
-from src.config.settings.core.app_settings import AppSettings
+from src.config.settings.app_settings import AppSettings
 from src.api.routing.route import Route
 from src.utils.logging.loggers.routing import RoutingLogger
 
