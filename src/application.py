@@ -1,4 +1,6 @@
 import logging
+
+from flask_cors import cross_origin
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.api.routing import AppRoutes
@@ -113,6 +115,7 @@ class Application:
         ''' Register wrappers to handle specific kinds of errors '''
         
         @self.app.errorhandler(API_Error)
+        @cross_origin(origins=self.settings.flask.cors_origins)
         def handle_user_thrown_error(error:API_Error):
             response = jsonify(
                 error=error.message, 
