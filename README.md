@@ -5,6 +5,7 @@ A framework for rapid application development on Flask. Includes:
 - Built-in easy HTTP request/response management and error handling
 - Built-in query string and response body parsing / normalization
 - Built-in request and response payload validation using JSONSchema
+- Built in CORS handling and request origin configuration
 - Built-in bindings for MongoDB including fixtures and index management
 - Built-in automatic CRUD handling for endpoints given a MongoDB collection name
 - Built-in detailed logging and fine-tuneable configurations
