@@ -1,7 +1,8 @@
 # app
 from src.application import Application
 # routing
-from src.api.routing import AppRoutes, Route, RouteSchema, RouteHandler, DefaultRouteHandler
+from src.api.routing import AppRoutes, Route, RouteSchema, \
+    RouteHandler, DefaultRouteHandler, RoutePermissions
 
 # responses
 from src.api.responses import API_JSON_Response, API_Message_Response
@@ -21,6 +22,8 @@ from src.config.enums.logs.log_levels import LOG_LEVELS
 from typing import Any
 from bson import ObjectId
 from datetime import datetime
+
+from src.utils.jwt.jwt_manager import App_JWT_Manager
 
 # Method that throws a sample error
 def throw(exception_type:type, msg:Any): 
@@ -87,6 +90,21 @@ routes = AppRoutes(
         handler=DefaultRouteHandler(),
         log_level=LOG_LEVELS.DEBUG,
         collection_name='default'
+    ),
+    Route(
+        # Route that demonstrates built-in permissions handling
+        url='/permissions',
+        handler=DefaultRouteHandler(
+            # Authentication route that sets the JWT in response cookies
+            GET=lambda request, payload, collection: App_JWT_Manager.add_response_jwt(
+                response=API_Message_Response("Authenticated!"),
+                _id="test",
+                roles="user"
+            )
+        ),
+        log_level=LOG_LEVELS.DEBUG,
+        collection_name='permissions',
+        permissions=RoutePermissions(POST='user', PUT='admin', DELETE='admin')
     ),
 )
 

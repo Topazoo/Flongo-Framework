@@ -13,6 +13,7 @@ class Settings:
         of configuration values for the application 
     '''
 
+    FLASK_SETTINGS_KEY = "APP_SETTINGS"
     # Name of the configuration group - overridden by subclasses
     GROUP_NAME = 'Base'
     # Default log level for data in this group

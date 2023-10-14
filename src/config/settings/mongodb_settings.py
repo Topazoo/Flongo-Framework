@@ -76,6 +76,6 @@ class MongoDB_Settings(Settings):
         ''' Get the MongoDB settings for the current Flask app '''
 
         if has_app_context():
-            current_settings = current_app.config.get('APP_SETTINGS')
+            current_settings = current_app.config.get(cls.FLASK_SETTINGS_KEY)
             if current_settings:
                 return current_settings.mongodb

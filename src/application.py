@@ -15,6 +15,7 @@ from flask import Flask, jsonify
 from typing import Optional
 
 from src.utils.logging.loggers.app import ApplicationLogger
+from src.utils.jwt.jwt_manager import App_JWT_Manager
     
 class Application:
     ''' Base application class that serves as a configuration class around Flask
@@ -40,6 +41,9 @@ class Application:
 
         # Configure loggers
         self._configure_logger()
+
+        # Initialize JWT Util
+        self._initialize_jwt()
 
         # Initialize the application
         self._initialize()
@@ -70,6 +74,10 @@ class Application:
 
         # Set JSON encoding class
         self.app.json = JSON_Provider(self.app)
+
+
+    def _initialize_jwt(self):
+        App_JWT_Manager(self.app, self.settings.jwt)
 
     
     def _initialize_database(self) -> Optional[MongoDB_Database]:
