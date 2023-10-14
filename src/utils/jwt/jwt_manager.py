@@ -2,7 +2,8 @@ from datetime import timedelta
 import time
 import traceback
 from typing import Optional, Union
-from flask_jwt_extended import JWTManager, get_jwt, get_jwt_identity, set_access_cookies, set_refresh_cookies, verify_jwt_in_request
+from flask_jwt_extended import JWTManager, get_jwt, get_jwt_identity, \
+    set_access_cookies, set_refresh_cookies, verify_jwt_in_request, unset_jwt_cookies
 from flask import Flask, Response
 from src.api.responses.errors.api_error import API_Error
 
@@ -101,6 +102,13 @@ class App_JWT_Manager(JWTManager):
     def add_response_jwt(cls, response:Response, _id:str, roles:Optional[Union[str, list[str]]]='') -> Response:
         set_access_cookies(response, cls.create_access_token(_id, roles))
         set_refresh_cookies(response, cls.create_refresh_token(_id, roles))
+
+        return response
+    
+
+    @classmethod
+    def remove_response_jwt(cls, response:Response) -> Response:
+        unset_jwt_cookies(response)
 
         return response
     
