@@ -209,7 +209,7 @@ class MongoDB_Database:
             DatabaseLogger(
                 database=self.database_name,
                 collection=index.collection_name
-            ).info(f"Created {index.index_type} index on field [{index.field_name}]")
+            ).info(f"* Created {index.index_type} index on field [{index.field_name}] *")
 
         except OperationFailure as e:
             if e.code == 85:
@@ -275,7 +275,7 @@ class MongoDB_Database:
         logger = DatabaseLogger(database=self.database_name, collection=collection.name)
         try:
             collection.update_one({"_id": fixture_data["_id"]}, {"$set": fixture_data}, upsert=True)
-            logger.info(f"Created fixture with ID [{fixture_data['_id']}]")
+            logger.info(f"* Created fixture with ID [{fixture_data['_id']}] *")
             logger.debug(f"Fixture data: {fixture_data}")
         except OperationFailure as e:
             if e.code == 11000:
