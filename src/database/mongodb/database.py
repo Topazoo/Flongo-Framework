@@ -6,7 +6,7 @@ from typing import Optional
 from flask import current_app, has_app_context
 
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.app_settings.mongodb_settings import MongoDB_Settings
+from src.config.settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
