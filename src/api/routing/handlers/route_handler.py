@@ -1,6 +1,7 @@
 import logging
 
 from bson import ObjectId
+from flask_cors import cross_origin
 from src.api.routing.route_schema import RouteSchema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
@@ -154,7 +155,8 @@ class RouteHandler:
     def register_url_methods(self, 
             url:str, 
             collection_name:str, 
-            flask_app:Flask, 
+            enable_CORS:bool,
+            flask_app:Flask,
             settings:AppSettings, 
             request_schema:RouteSchema,
             response_schema:RouteSchema, 
@@ -177,9 +179,18 @@ class RouteHandler:
                 response_schema,
             )
 
-            flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
+            # Enable CORS for the route if it is specified
+            if enable_CORS: 
+                method_handler = cross_origin(
+                    origins=settings.flask.cors_origins,
+                    supports_credentials=True
+                )(method_handler)
 
+            flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
             RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")
+
+        RoutingLogger(url).info(f"* CORS enabled for route: [{url}] *") if enable_CORS else RoutingLogger(url).info(f"* CORS disabled for route: {url} *")
+
 
     @classmethod
     def ensure_collection(cls, url:str, collection:Collection):
