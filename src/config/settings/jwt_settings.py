@@ -29,6 +29,14 @@ class JWT_Settings(Settings):
         ),
     ) # type: ignore
 
+    refresh_access_token_within_secs: Optional[int] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "JWT_REFRESH_ACCESS_TOKEN_WITHIN_SECS", 
+            data_type=int,
+            default_value="60"
+        ),
+    ) # type: ignore
+
     refresh_token_expiration_secs: Optional[str] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "JWT_REFRESH_TOKEN_EXPIRATION_SECS", 
@@ -50,7 +58,7 @@ class JWT_Settings(Settings):
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "JWT_ENABLE_CSRF_PROTECTION", 
             data_type=str,
-            default_value="True"
+            default_value="False"
         ),
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore

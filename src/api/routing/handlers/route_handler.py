@@ -2,6 +2,7 @@ import logging
 
 from bson import ObjectId
 from flask_cors import cross_origin
+from src.api.routing.route_permissions import RoutePermissions
 from src.api.routing.route_schema import RouteSchema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
@@ -11,6 +12,7 @@ from src.api.errors.schema_validation_error import SchemaValidationError
 
 from src.api.responses.errors.api_error import API_Error
 from src.database.mongodb.database import MongoDB_Database
+from src.utils.jwt.jwt_manager import App_JWT_Manager
 from src.utils.logging.loggers.routing import RoutingLogger
 from src.utils.requests import RequestDataParser
 from src.api.errors.request_handling_error import RequestHandlingError
@@ -62,7 +64,8 @@ class RouteHandler:
             url:str,
             method:str, 
             action:HandlerMethod, 
-            collection_name:str, 
+            collection_name:str,
+            permissions:RoutePermissions,
             settings:AppSettings, 
             request_schema:RouteSchema,
             response_schema:RouteSchema
@@ -78,6 +81,11 @@ class RouteHandler:
             # Get the data from the request body or query params
             payload = RequestDataParser.get_request_data(request, logger)
             try:
+                # Validate JIT roles
+                if required_roles:=getattr(permissions, method, []):
+                    App_JWT_Manager.validate_jwt_roles(required_roles)
+                    logger.info("* Validated request JWT IDENTITY successfully *")
+
                 # Validate the payload passed to this route agains the request JSONSchema if configured
                 if(request_schema.validate_schema(request, payload)):
                     logger.info("* Validated request SCHEMA successfully")
@@ -154,7 +162,8 @@ class RouteHandler:
 
     def register_url_methods(self, 
             url:str, 
-            collection_name:str, 
+            collection_name:str,
+            permissions:RoutePermissions,
             enable_CORS:bool,
             flask_app:Flask,
             settings:AppSettings, 
@@ -174,9 +183,10 @@ class RouteHandler:
                 method,
                 action,
                 collection_name,
+                permissions,
                 settings,
                 request_schema,
-                response_schema,
+                response_schema
             )
 
             # Enable CORS for the route if it is specified

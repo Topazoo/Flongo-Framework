@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 from flask import Flask
+from src.api.routing.route_permissions import RoutePermissions
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings import AppSettings
 from src.utils.logging.loggers.routing import RoutingLogger
@@ -17,6 +18,7 @@ class Route:
     def __init__(self, 
             url:str, 
             handler:RouteHandler,
+            permissions:Optional[RoutePermissions]=None,
             enable_CORS:bool=True,
             collection_name:str='',
             request_schema:Optional[RouteSchema]=None,
@@ -26,6 +28,7 @@ class Route:
 
         self.url = url
         self.handler = handler
+        self.permissions = permissions or RoutePermissions()
         self.enable_CORS = enable_CORS
         self.collection_name = collection_name
         self.request_schema = request_schema or RouteSchema()
@@ -43,6 +46,7 @@ class Route:
         self.handler.register_url_methods(
             self.url,
             self.collection_name,
+            self.permissions,
             self.enable_CORS,
             flask_app, 
             settings, 
