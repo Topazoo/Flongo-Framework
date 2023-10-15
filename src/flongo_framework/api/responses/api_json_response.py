@@ -2,7 +2,7 @@ from json import dumps
 from flask import Response
 from typing import Any
 
-from src.flongo_framework.utils.json.json_encoder import JSON_Encoder
+from ...utils.json.json_encoder import JSON_Encoder
 
 class API_JSON_Response(Response):
     ''' An JSON response that can be returned from

@@ -1,7 +1,7 @@
 import traceback
 
 from bson import ObjectId
-from src.flongo_framework.database.errors.database_error import DatabaseError
+from ....database.errors.database_error import DatabaseError
 
 
 class MongoDB_Fixture:

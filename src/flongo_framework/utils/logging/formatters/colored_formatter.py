@@ -1,5 +1,5 @@
 import logging
-from src.flongo_framework.config.enums.logs.colors import LOG_BACKGROUND_COLORS, LOG_TEXT_COLORS
+from ....config.enums.logs.colors import LOG_BACKGROUND_COLORS, LOG_TEXT_COLORS
 
 class ColoredFormatter(logging.Formatter):
     COLORS = {

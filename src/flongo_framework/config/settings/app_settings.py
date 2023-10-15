@@ -3,12 +3,12 @@ from typing import Optional
 
 from flask import current_app, has_app_context
 
-from src.flongo_framework.config.settings.base.base_settings import Settings
+from ...config.settings.base.base_settings import Settings
 
-from src.flongo_framework.config.settings.flask_settings import Flask_Settings
-from src.flongo_framework.config.settings.jwt_settings import JWT_Settings
-from src.flongo_framework.config.settings.mongodb_settings import MongoDB_Settings
-from src.flongo_framework.config.settings.sentry_settings import Sentry_Settings
+from ...config.settings.flask_settings import Flask_Settings
+from ...config.settings.jwt_settings import JWT_Settings
+from ...config.settings.mongodb_settings import MongoDB_Settings
+from ...config.settings.sentry_settings import Sentry_Settings
 
 class App_Settings:
     ''' Class that holds all application settings configured by the user 

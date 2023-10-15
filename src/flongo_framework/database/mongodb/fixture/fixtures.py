@@ -1,7 +1,7 @@
 import traceback
 
-from src.flongo_framework.database.errors.database_error import DatabaseError
-from src.flongo_framework.database.mongodb.fixture.base import MongoDB_Fixture
+from ....database.errors.database_error import DatabaseError
+from ....database.mongodb.fixture.base import MongoDB_Fixture
 
 class MongoDB_Fixtures:
     ''' Class to facilitate applying database fixtures '''

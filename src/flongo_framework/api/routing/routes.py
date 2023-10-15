@@ -1,8 +1,8 @@
 from flask import Flask
-from src.flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
-from src.flongo_framework.config.settings.app_settings import App_Settings
-from src.flongo_framework.api.routing.route import Route
-from src.flongo_framework.utils.logging.loggers.routing import RoutingLogger
+from ...config.enums.logs.log_levels import LOG_LEVELS
+from ...config.settings.app_settings import App_Settings
+from ...api.routing.route import Route
+from ...utils.logging.loggers.routing import RoutingLogger
 
 class App_Routes:
     ''' Class that holds all routes for the application

@@ -1,8 +1,8 @@
 import logging
-from src.flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
-from src.flongo_framework.config.enums.logs.log_groups import LOG_GROUPS
-from src.flongo_framework.utils.logging.logging_util import LoggingUtil
-from src.flongo_framework.utils.logging.formatters.colored_formatter import ColoredFormatter
+from ...config.enums.logs.log_levels import LOG_LEVELS
+from ...config.enums.logs.log_groups import LOG_GROUPS
+from ...utils.logging.logging_util import LoggingUtil
+from ...utils.logging.formatters.colored_formatter import ColoredFormatter
 
 class StatefulLoggingUtil(LoggingUtil):
     ''' Base logger class for the application with state '''

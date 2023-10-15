@@ -1,10 +1,10 @@
 from flask import current_app, has_app_context
-from src.flongo_framework.config.enums.logs import LOG_LEVELS
-from src.flongo_framework.config.settings.base.base_settings import Settings
+from ...config.enums.logs import LOG_LEVELS
+from ...config.settings.base.base_settings import Settings
 from dataclasses import dataclass, field
 from typing import Optional
 
-from src.flongo_framework.config.enums import ENVIRONMENTS
+from ...config.enums import ENVIRONMENTS
 
 @dataclass
 class Flask_Settings(Settings):

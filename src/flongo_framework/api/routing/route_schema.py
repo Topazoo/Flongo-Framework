@@ -1,5 +1,5 @@
-from src.flongo_framework.config.enums.http_methods import HTTP_METHODS
-from src.flongo_framework.utils.requests import JSON_Schema_Validator
+from ...config.enums.http_methods import HTTP_METHODS
+from ...utils.requests import JSON_Schema_Validator
 
 from flask import Request
 from typing import Any, Optional
