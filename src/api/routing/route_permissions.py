@@ -34,3 +34,17 @@ class Route_Permissions:
             return []
         
         return [val] if not isinstance(val, list) else val
+    
+
+    @property
+    def permissions_map(self) -> dict[str, list[str]]:
+        ''' Return the permissions required for each method if they are required 
+            Returns an empty map if no permissions are required
+        '''
+        return {
+            **({'GET': self.GET} if self.GET else {}),
+            **({'POST': self.POST} if self.POST else {}),
+            **({'PUT': self.PUT} if self.PUT else {}),
+            **({'PATCH': self.PATCH} if self.PATCH else {}),
+            **({'DELETE': self.DELETE} if self.DELETE else {})
+        }

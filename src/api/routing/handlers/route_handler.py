@@ -199,7 +199,13 @@ class Route_Handler:
             flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
             RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")
 
-        RoutingLogger(url).info(f"* CORS enabled for route: [{url}] *") if enable_CORS else RoutingLogger(url).info(f"* CORS disabled for route: {url} *")
+        logger = RoutingLogger(url)
+        logger.info(f"* CORS enabled for route: [{url}] *") if enable_CORS else RoutingLogger(url).info(f"* CORS disabled for route: {url} *")
+        if method_permissions:=permissions.permissions_map:
+            logger.info(f"* JWT validation enabled on methods: {list(method_permissions.keys())} *")
+            logger.debug(f"JWT permissions: {method_permissions}")
+        else:
+            logger.info(f"* JWT validation disabled for route: {url} *")
 
 
     @classmethod
