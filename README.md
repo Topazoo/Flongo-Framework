@@ -17,31 +17,31 @@ A framework for rapid application development on Flask. Includes:
 
 ```python
 # app
-from src.flongo_framework.application import Application
+from flongo_framework.application import Application
 # routing
-from src.flongo_framework.api.routing import App_Routes, Route, Route_Schema, \
+from flongo_framework.api.routing import App_Routes, Route, Route_Schema, \
     Route_Handler, Default_Route_Handler, Route_Permissions
 
 # responses
-from src.flongo_framework.api.responses import API_JSON_Response, API_Message_Response
-from src.flongo_framework.api.responses.errors import API_Error_Message, API_Error_Response
+from flongo_framework.api.responses import API_JSON_Response, API_Message_Response
+from flongo_framework.api.responses.errors import API_Error_Message, API_Error_Response
 
 # database
-from src.flongo_framework.database.mongodb.index import MongoDB_Indices, MongoDB_Index
-from src.flongo_framework.database.mongodb.fixture import MongoDB_Fixtures, MongoDB_Fixture
+from flongo_framework.database.mongodb.index import MongoDB_Indices, MongoDB_Index
+from flongo_framework.database.mongodb.fixture import MongoDB_Fixtures, MongoDB_Fixture
 
 # settings
-from src.flongo_framework.config.settings import App_Settings, Flask_Settings, MongoDB_Settings
+from flongo_framework.config.settings import App_Settings, Flask_Settings, MongoDB_Settings
 
 # enums
-from src.flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
+from flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
 
 # typing
 from typing import Any
 from bson import ObjectId
 from datetime import datetime
 
-from src.flongo_framework.utils.jwt.jwt_manager import App_JWT_Manager
+from flongo_framework.utils.jwt.jwt_manager import App_JWT_Manager
 
 # Method that throws a sample error
 def throw(exception_type:type, msg:Any): 
