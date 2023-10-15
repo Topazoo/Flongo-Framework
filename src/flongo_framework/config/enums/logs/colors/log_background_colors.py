@@ -1,4 +1,4 @@
-from src.flongo_framework.config.enums.base.base_str_enum import BaseStrEnum
+from .....config.enums.base.base_str_enum import BaseStrEnum
 
 class LOG_BACKGROUND_COLORS(BaseStrEnum):
     """ Log background colors supported by the application """

@@ -1,11 +1,11 @@
-from src.flongo_framework.api.responses.api_json_response import API_JSON_Response
-from src.flongo_framework.api.responses.api_message_response import API_Message_Response
-from src.flongo_framework.config.enums.http_methods import HTTP_METHODS
+from ....api.responses.api_json_response import API_JSON_Response
+from ....api.responses.api_message_response import API_Message_Response
+from ....config.enums.http_methods import HTTP_METHODS
 
 from flask import Request
 from pymongo.collection import Collection
-from src.flongo_framework.api.routing.types import HandlerMethod
-from src.flongo_framework.api.routing.handlers.route_handler import Route_Handler
+from ....api.routing.types import HandlerMethod
+from ....api.routing.handlers.route_handler import Route_Handler
 
 
 class Default_Route_Handler(Route_Handler):

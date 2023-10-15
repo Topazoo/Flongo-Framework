@@ -3,8 +3,8 @@ import os
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from src.flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
-from src.flongo_framework.utils.logging.loggers.app_config import ApplicationConfigLogger
+from ....config.enums.logs.log_levels import LOG_LEVELS
+from ....utils.logging.loggers.app_config import ApplicationConfigLogger
 
 @dataclass
 class Settings:

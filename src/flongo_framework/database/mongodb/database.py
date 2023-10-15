@@ -4,21 +4,21 @@ from typing import Optional
 
 from flask import current_app, has_app_context
 
-from src.flongo_framework.config.settings.mongodb_settings import MongoDB_Settings
+from ...config.settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
 
-from src.flongo_framework.database.errors.database_error import DatabaseError
-from src.flongo_framework.database.mongodb.fixture.base import MongoDB_Fixture
-from src.flongo_framework.database.mongodb.fixture.fixtures import MongoDB_Fixtures
-from src.flongo_framework.database.mongodb.index.base import MongoDB_Index
-from src.flongo_framework.database.mongodb.index.indices import MongoDB_Indices
+from ...database.errors.database_error import DatabaseError
+from ...database.mongodb.fixture.base import MongoDB_Fixture
+from ...database.mongodb.fixture.fixtures import MongoDB_Fixtures
+from ...database.mongodb.index.base import MongoDB_Index
+from ...database.mongodb.index.indices import MongoDB_Indices
 
 import traceback
 
-from src.flongo_framework.utils.logging.loggers.database import DatabaseLogger
+from ...utils.logging.loggers.database import DatabaseLogger
 
 class MongoDB_Database:
     ''' MongoDB database client 
