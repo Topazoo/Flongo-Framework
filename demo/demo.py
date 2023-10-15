@@ -2,7 +2,7 @@
 from src.application import Application
 # routing
 from src.api.routing import App_Routes, Route, Route_Schema, \
-    RouteHandler, DefaultRouteHandler, RoutePermissions
+    Route_Handler, DefaultRouteHandler, RoutePermissions
 
 # responses
 from src.api.responses import API_JSON_Response, API_Message_Response
@@ -34,7 +34,7 @@ routes = App_Routes(
     Route(
         # Route that demonstrates built-in basic request handling
         url='/request',
-        handler=RouteHandler(
+        handler=Route_Handler(
             GET=lambda request, payload, collection: API_Message_Response("Sample GET request"),
             POST=lambda request, payload, collection: API_JSON_Response({'sample_record': f'{payload["_id"]}', 'created': True}, 201),
             PUT=lambda request, payload, collection: API_JSON_Response({'payload': payload}),
@@ -66,7 +66,7 @@ routes = App_Routes(
     Route(
         # Route that demonstrates built-in basic error handling
         url='/error',
-        handler=RouteHandler(
+        handler=Route_Handler(
             GET=lambda request, payload, collection: throw(ValueError, "Oh no! A value error!"),
             POST=lambda request, payload, collection: throw(API_Error_Message, "Oh no! An API error!"),
             PUT=lambda request, payload, collection:  throw(API_Error_Response, {'data': payload, 'error': 'Oh no!'}),
@@ -76,7 +76,7 @@ routes = App_Routes(
     Route(
         # Route that demonstrates built-in database handling
         url='/database',
-        handler=RouteHandler(
+        handler=Route_Handler(
             # Custom handlers allow a POST request or a GET request to create different errors
             POST=lambda request, payload, collection: API_Message_Response(collection.insert_one(payload) if collection != None else 'No collection!'),
             GET=lambda request, payload, collection: API_Message_Response(collection.find_one(payload) if collection != None else 'No collection!')

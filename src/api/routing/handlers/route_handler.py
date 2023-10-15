@@ -25,7 +25,7 @@ from pymongo.collection import Collection
 from src.api.routing.types import HandlerMethod
 
 
-class RouteHandler:
+class Route_Handler:
     ''' Base class that allows functions to be bound
         to specific HTTP methods like GET or POST
 

@@ -5,7 +5,7 @@ from src.api.routing.route_permissions import RoutePermissions
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings import App_Settings
 from src.utils.logging.loggers.routing import RoutingLogger
-from src.api.routing.handlers.route_handler import RouteHandler
+from src.api.routing.handlers.route_handler import Route_Handler
 from src.api.routing.route_schema import Route_Schema
 
 class Route:
@@ -17,7 +17,7 @@ class Route:
 
     def __init__(self, 
             url:str, 
-            handler:RouteHandler,
+            handler:Route_Handler,
             permissions:Optional[RoutePermissions]=None,
             enable_CORS:bool=True,
             collection_name:str='',
