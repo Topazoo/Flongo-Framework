@@ -27,7 +27,7 @@ class Flask_Settings(Settings):
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "APP_PORT", 
             data_type=int,
-            default_value="3000"
+            default_value="8080"
         ),
         metadata={"log_level": LOG_LEVELS.DEBUG}
     ) # type: ignore

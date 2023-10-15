@@ -16,7 +16,7 @@
             "args": [
                 "run",
                 "--no-debugger",
-                "--port=3000"
+                "--port=8080"
             ],
             "jinja": true,
             "justMyCode": true
