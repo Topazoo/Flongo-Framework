@@ -13,7 +13,7 @@ from src.database.mongodb.index import MongoDB_Indices, MongoDB_Index
 from src.database.mongodb.fixture import MongoDB_Fixtures, MongoDB_Fixture
 
 # settings
-from src.config.settings import AppSettings, FlaskSettings, MongoDB_Settings
+from src.config.settings import App_Settings, FlaskSettings, MongoDB_Settings
 
 # enums
 from src.config.enums.logs.log_levels import LOG_LEVELS
@@ -113,7 +113,7 @@ routes = AppRoutes(
 )
 
  # Application settings
-settings = AppSettings(
+settings = App_Settings(
     flask=FlaskSettings(
         env="local", 
         debug_mode=True, 

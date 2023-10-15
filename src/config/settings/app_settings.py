@@ -8,7 +8,7 @@ from src.config.settings.flask_settings import FlaskSettings
 from src.config.settings.jwt_settings import JWT_Settings
 from src.config.settings.mongodb_settings import MongoDB_Settings
 
-class AppSettings:
+class App_Settings:
     ''' Class that holds all application settings configured by the user 
     '''
 
@@ -25,7 +25,7 @@ class AppSettings:
 
 
     @classmethod
-    def get_settings_from_flask(cls) -> Optional["AppSettings"]:
+    def get_settings_from_flask(cls) -> Optional["App_Settings"]:
         ''' Get the App settings for the current Flask app '''
 
         if has_app_context():

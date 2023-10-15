@@ -7,7 +7,7 @@ from src.api.routing.route_schema import RouteSchema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.app_settings import AppSettings
+from src.config.settings.app_settings import App_Settings
 from src.api.errors.schema_validation_error import SchemaValidationError
 
 from src.api.responses.errors.api_error import API_Error
@@ -66,7 +66,7 @@ class RouteHandler:
             action:HandlerMethod, 
             collection_name:str,
             permissions:RoutePermissions,
-            settings:AppSettings, 
+            settings:App_Settings, 
             request_schema:RouteSchema,
             response_schema:RouteSchema
         ) -> Callable:
@@ -144,7 +144,7 @@ class RouteHandler:
         return handler
     
 
-    def _log_and_raise_exception(self, url:str, method:str, error:API_Error, payload:dict, settings:AppSettings, logger:RoutingLogger):
+    def _log_and_raise_exception(self, url:str, method:str, error:API_Error, payload:dict, settings:App_Settings, logger:RoutingLogger):
         ''' Log and raise an exception '''
 
         tb = traceback.format_exc()
@@ -166,7 +166,7 @@ class RouteHandler:
             permissions:RoutePermissions,
             enable_CORS:bool,
             flask_app:Flask,
-            settings:AppSettings, 
+            settings:App_Settings, 
             request_schema:RouteSchema,
             response_schema:RouteSchema, 
             log_level:str

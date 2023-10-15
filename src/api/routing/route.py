@@ -3,7 +3,7 @@ from typing import Optional
 from flask import Flask
 from src.api.routing.route_permissions import RoutePermissions
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.app_settings import AppSettings
+from src.config.settings.app_settings import App_Settings
 from src.utils.logging.loggers.routing import RoutingLogger
 from src.api.routing.handlers.route_handler import RouteHandler
 from src.api.routing.route_schema import RouteSchema
@@ -38,7 +38,7 @@ class Route:
         self._configure_logger()
     
     
-    def register(self, flask_app:Flask, settings:AppSettings):
+    def register(self, flask_app:Flask, settings:App_Settings):
         ''' Registers this URL to a Flask app and binds all supplied
             methods (e.g. GET or POST) specified in the passed RouteHandler
         '''

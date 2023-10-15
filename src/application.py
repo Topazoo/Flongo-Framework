@@ -4,7 +4,7 @@ from flask_cors import cross_origin
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.api.routing import AppRoutes
-from src.config.settings import AppSettings
+from src.config.settings import App_Settings
 from src.api.responses.errors.api_error import API_Error
 from src.database.mongodb.database import MongoDB_Database
 from src.database.mongodb.fixture.fixtures import MongoDB_Fixtures
@@ -25,7 +25,7 @@ class Application:
     
     def __init__(self, 
             routes:AppRoutes, 
-            settings:Optional[AppSettings]=None,
+            settings:Optional[App_Settings]=None,
             indices:Optional[MongoDB_Indices]=None,
             fixtures:Optional[MongoDB_Fixtures]=None
         ):
@@ -36,7 +36,7 @@ class Application:
         self.fixtures = fixtures
 
         # Register as part of the Flask app config
-        self.settings = settings or AppSettings()
+        self.settings = settings or App_Settings()
         self.app.config['APP_SETTINGS'] = self.settings
 
         # Configure loggers
