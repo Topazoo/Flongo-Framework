@@ -1,8 +1,6 @@
 import logging
-from ...config.enums.logs.log_levels import LOG_LEVELS
 from ...config.enums.logs.log_groups import LOG_GROUPS
 from ...utils.logging.logging_util import LoggingUtil
-from ...utils.logging.formatters.colored_formatter import ColoredFormatter
 
 class StatefulLoggingUtil(LoggingUtil):
     ''' Base logger class for the application with state '''
