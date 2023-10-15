@@ -28,6 +28,7 @@ class App_JWT_Manager(JWTManager):
         app.config['JWT_REFRESH_TOKEN_EXPIRES'] = self.settings.refresh_token_expiration_secs
         app.config['JWT_COOKIE_SECURE'] = self.settings.only_allow_https
         app.config['JWT_COOKIE_CSRF_PROTECT'] = self.settings.enable_csrf_protection
+        app.config['JWT_CSRF_IN_COOKIES'] = self.settings.enable_csrf_protection
 
         app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 
@@ -92,7 +93,7 @@ class App_JWT_Manager(JWTManager):
         if not current_identity or not all(role in current_identity.get('roles', []) for role in required_roles):
             # User doesn't have required roles; deny access or handle accordingly
             raise API_Error(
-                f"Insufficient permissions to access this route. One of the following roles is required: {required_roles}",
+                f"Insufficient permissions to access this route. A JWT token with one of the following roles is required: {required_roles}",
                 status_code=403,
                 stack_trace=traceback.format_exc()
             )
