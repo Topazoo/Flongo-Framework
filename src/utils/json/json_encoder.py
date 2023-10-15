@@ -3,6 +3,8 @@ from datetime import datetime
 from json import JSONEncoder
 from decimal import Decimal
 
+from bson import ObjectId
+
 from src.utils.logging.loggers.app import ApplicationLogger
 
 class JSON_Encoder(JSONEncoder):
@@ -20,6 +22,10 @@ class JSON_Encoder(JSONEncoder):
             
             # Handle decimals
             if isinstance(obj, Decimal):
+                return str(obj)
+            
+            # Handle ObjectIds
+            if isinstance(obj, ObjectId):
                 return str(obj)
                 
             return JSONEncoder.default(self, obj)

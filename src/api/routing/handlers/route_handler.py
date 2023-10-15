@@ -1,13 +1,9 @@
-import logging
-
 from bson import ObjectId
 from flask_cors import cross_origin
-from src.api.routing.route_permissions import RoutePermissions
-from src.api.routing.route_schema import RouteSchema
+from src.api.routing.route_permissions import Route_Permissions
+from src.api.routing.route_schema import Route_Schema
 from src.config.enums.http_methods import HTTP_METHODS
-from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
-from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.app_settings import AppSettings
+from src.config.settings.app_settings import App_Settings
 from src.api.errors.schema_validation_error import SchemaValidationError
 
 from src.api.responses.errors.api_error import API_Error
@@ -23,9 +19,10 @@ from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
 from pymongo.collection import Collection
 from src.api.routing.types import HandlerMethod
+from sentry_sdk import start_span
 
 
-class RouteHandler:
+class Route_Handler:
     ''' Base class that allows functions to be bound
         to specific HTTP methods like GET or POST
 
@@ -65,10 +62,10 @@ class RouteHandler:
             method:str, 
             action:HandlerMethod, 
             collection_name:str,
-            permissions:RoutePermissions,
-            settings:AppSettings, 
-            request_schema:RouteSchema,
-            response_schema:RouteSchema
+            permissions:Route_Permissions,
+            settings:App_Settings, 
+            request_schema:Route_Schema,
+            response_schema:Route_Schema
         ) -> Callable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
@@ -77,41 +74,52 @@ class RouteHandler:
         
         logger = RoutingLogger(url, method)
         def handler(**kwargs) -> Optional[Response]:
-            logger.info(logger.color_log(f"* Recieved HTTP {method} request *", LOG_BACKGROUND_COLORS.GREEN))
+            logger.info(f"* Recieved HTTP {method} request *")
             # Get the data from the request body or query params
-            payload = RequestDataParser.get_request_data(request, logger)
+            with start_span(op="parse_request_data", description="Parse data from the query string or request body"):
+                payload = RequestDataParser.get_request_data(request, logger)
             try:
                 # Validate JIT roles
                 if required_roles:=getattr(permissions, method, []):
-                    App_JWT_Manager.validate_jwt_roles(required_roles)
-                    logger.info("* Validated request JWT IDENTITY successfully *")
+                    with start_span(op="validate_jwt", description="Validate the passed JWT token"):
+                        App_JWT_Manager.validate_jwt_roles(required_roles)
+                        logger.info("* Validated request JWT IDENTITY successfully *")
 
                 # Validate the payload passed to this route agains the request JSONSchema if configured
-                if(request_schema.validate_schema(request, payload)):
-                    logger.info("* Validated request SCHEMA successfully")
+                with start_span(op="validate_request_schema", description="Validate the passed request data against the configured JSONSchema"):
+                    if request_schema.validate_schema(request, payload):
+                        logger.info("* Validated request SCHEMA successfully")
 
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
                 if collection_name:
-                    with MongoDB_Database(collection_name, settings=settings.mongodb, connection_must_be_valid=True) as db:
-                        logger.debug(f"* Opened DATABASE CONNECTION to MongoDB collection [{collection_name}] for request")
-                        response = action(request, payload, db)
+                    with start_span(op="open_database", description="Open a configured MongoDB collection"):
+                        with MongoDB_Database(collection_name, settings=settings.mongodb, connection_must_be_valid=True) as db:
+                            logger.debug(f"* Opened DATABASE CONNECTION to MongoDB collection [{collection_name}] for request")
+                            with start_span(op="handle_request", description="Run user configured request handling logic"):
+                                response = action(request, payload, db)
                 else:
-                    response = action(request, payload, None)
+                    with start_span(op="handle_request", description="Run user configured request handling logic"):
+                        response = action(request, payload, None)
 
-                if not isinstance(response, Response):
-                    logger.warn(f"* HTTP {method} response was forced to a Response! Type: {type(response)}")
-                    response = jsonify(response)
+                with start_span(op="create_response", description="Create the final Flask response"):
+                    if not isinstance(response, Response):
+                        with start_span(op="convert_response", description="Convert a non-Response object to a Flask response"):
+                            logger.warn(f"* HTTP {method} response was forced to a Response! Type: {type(response)}")
+                            response = jsonify(response)
 
-                # Validate the payload passed to this route agains the request JSONSchema if configured
-                if isinstance(response.json, dict) and response_schema.validate_schema(request, response.json, is_response_schema=True):
-                    logger.info("* Validated response SCHEMA successfully")
+                    # Validate the payload passed to this route agains the request JSONSchema if configured    
+                    with start_span(op="validate_response_schema", description="Validate the passed response data against the configured JSONSchema"):
+                        if isinstance(response.json, dict) and response_schema.validate_schema(request, response.json, is_response_schema=True):
+                            logger.info("* Validated response SCHEMA successfully")
+                            
+                    with start_span(op="deliver_response", description="Send the response"):
+                        if response.json:
+                            logger.debug(f"* Attached RESPONSE BODY [{response.json}]")
                         
-                if response.json:
-                    logger.debug(f"* Attached RESPONSE BODY [{response.json}]")
-                
-                logger.info(logger.color_log(f"* Sending HTTP {method} response: ({response.status_code}) *", LOG_BACKGROUND_COLORS.GREEN))
-                return response
+                        logger.info(f"* Sending HTTP {method} response: ({response.status_code}) *")
+                        return response
+                    
             except HTTPException as e:
                 # Handle and log Flask generated errors
                 self._log_and_raise_exception(url, method,
@@ -144,7 +152,7 @@ class RouteHandler:
         return handler
     
 
-    def _log_and_raise_exception(self, url:str, method:str, error:API_Error, payload:dict, settings:AppSettings, logger:RoutingLogger):
+    def _log_and_raise_exception(self, url:str, method:str, error:API_Error, payload:dict, settings:App_Settings, logger:RoutingLogger):
         ''' Log and raise an exception '''
 
         tb = traceback.format_exc()
@@ -153,9 +161,9 @@ class RouteHandler:
             error.update_payload_data("request_data", payload)
             error.set_stack_trace(tb)
         
-        logger.error(logger.color_log(f"* Error: {error}", LOG_BACKGROUND_COLORS.RED))
+        logger.error(f"* Error: {error}")
         logger.debug(tb)
-        logger.info(logger.color_log(f"* Sending HTTP {method} ERROR response: ({error.status_code}) *", LOG_BACKGROUND_COLORS.GREEN))
+        logger.info(f"* Sending HTTP {method} ERROR response: ({error.status_code}) *")
 
         raise error
     
@@ -163,12 +171,12 @@ class RouteHandler:
     def register_url_methods(self, 
             url:str, 
             collection_name:str,
-            permissions:RoutePermissions,
+            permissions:Route_Permissions,
             enable_CORS:bool,
             flask_app:Flask,
-            settings:AppSettings, 
-            request_schema:RouteSchema,
-            response_schema:RouteSchema, 
+            settings:App_Settings, 
+            request_schema:Route_Schema,
+            response_schema:Route_Schema, 
             log_level:str
         ):
         ''' Register the functions for all methods (like GET or POST)
@@ -199,7 +207,13 @@ class RouteHandler:
             flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
             RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")
 
-        RoutingLogger(url).info(f"* CORS enabled for route: [{url}] *") if enable_CORS else RoutingLogger(url).info(f"* CORS disabled for route: {url} *")
+        logger = RoutingLogger(url)
+        logger.info(f"* CORS enabled for route: [{url}] *") if enable_CORS else RoutingLogger(url).info(f"* CORS disabled for route: {url} *")
+        if method_permissions:=permissions.permissions_map:
+            logger.info(f"* JWT validation enabled on methods: {list(method_permissions.keys())} *")
+            logger.debug(f"JWT permissions: {method_permissions}")
+        else:
+            logger.info(f"* JWT validation disabled for route: {url} *")
 
 
     @classmethod
@@ -234,9 +248,4 @@ class RouteHandler:
 
 
     def configure_logger(self, url:str, method:str, log_level:str):
-        logging.basicConfig(level=logging.NOTSET)
-
-        # Routing
-        logging.getLogger(RoutingLogger(url, method).LOGGER_NAME).setLevel(
-            LOG_LEVELS.level_to_int(log_level)
-        )
+        RoutingLogger(url, method).create_logger(log_level)

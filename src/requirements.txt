@@ -1,8 +1,8 @@
 Query-String-Manager >= 1.0.9
 Flask == 3.0.0
-dnspython == 2.4.2
 pyopenssl == 23.2.0
 pymongo[srv] == 4.5.0
 xmltodict >= 0.13.0
 flask-cors == 4.0.0
 Flask-JWT-Extended == 4.5.3
+sentry-sdk[flask] == 1.32.0

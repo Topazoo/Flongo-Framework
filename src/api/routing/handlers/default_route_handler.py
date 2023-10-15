@@ -5,10 +5,10 @@ from src.config.enums.http_methods import HTTP_METHODS
 from flask import Request
 from pymongo.collection import Collection
 from src.api.routing.types import HandlerMethod
-from src.api.routing.handlers.route_handler import RouteHandler
+from src.api.routing.handlers.route_handler import Route_Handler
 
 
-class DefaultRouteHandler(RouteHandler):
+class Default_Route_Handler(Route_Handler):
     ''' Class that allows functions to be bound to specific HTTP 
         methods like GET or POST but uses a default operation 
         if a custom function isn't passed.

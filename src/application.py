@@ -1,14 +1,16 @@
 import logging
+import traceback
 
 from flask_cors import cross_origin
-from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
-from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.api.routing import AppRoutes
-from src.config.settings import AppSettings
+import sentry_sdk
+from src.api.routing import App_Routes
+from src.config.settings import App_Settings
 from src.api.responses.errors.api_error import API_Error
 from src.database.mongodb.database import MongoDB_Database
 from src.database.mongodb.fixture.fixtures import MongoDB_Fixtures
 from src.database.mongodb.index.indices import MongoDB_Indices
+from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 from src.utils.json import JSON_Provider
 
 from flask import Flask, jsonify
@@ -24,23 +26,25 @@ class Application:
     '''
     
     def __init__(self, 
-            routes:AppRoutes, 
-            settings:Optional[AppSettings]=None,
+            routes:App_Routes, 
+            settings:Optional[App_Settings]=None,
             indices:Optional[MongoDB_Indices]=None,
             fixtures:Optional[MongoDB_Fixtures]=None
         ):
         # Get registered routes, settings, indices and fixtures
-        self.app = Flask(__name__)
+        self.settings = settings or App_Settings()
         self.routes = routes
         self.indices = indices
         self.fixtures = fixtures
 
-        # Register as part of the Flask app config
-        self.settings = settings or AppSettings()
-        self.app.config['APP_SETTINGS'] = self.settings
-
         # Configure loggers
         self._configure_logger()
+
+        # Initialize Sentry
+        self._initialize_sentry()
+
+        # Create the Flask app
+        self.app = Flask(__name__)
 
         # Initialize JWT Util
         self._initialize_jwt()
@@ -52,20 +56,20 @@ class Application:
         if database:=self._initialize_database():
             self.app.config['APP_DB_CLIENT'] = database.get_client()
 
-        ApplicationLogger.critical(
-            ApplicationLogger.color_log(f"[App Started Successfully]", LOG_BACKGROUND_COLORS.PURPLE)
-        )
+        if self.settings.flask.log_boot_events:
+            ApplicationLogger.critical(f"[App Started Successfully]")
 
 
     def _configure_logger(self):
         # Application
         if self.settings.flask and self.settings.flask.log_level:
-            logging.getLogger(ApplicationLogger.LOGGER_NAME).setLevel(
-                LOG_LEVELS.level_to_int(self.settings.flask.log_level)
-            )
+            ApplicationLogger.create_logger(self.settings.flask.log_level)
 
 
     def _initialize(self):
+        # Store passed settings in the Flask app config
+        self.app.config['APP_SETTINGS'] = self.settings
+
         # Create error handling definitions
         self._register_error_handlers()
 
@@ -78,6 +82,32 @@ class Application:
 
     def _initialize_jwt(self):
         App_JWT_Manager(self.app, self.settings.jwt)
+
+
+    def _initialize_sentry(self):
+        if self.settings.sentry.dsn:
+            try:
+                sentry_sdk.init(
+                    dsn=self.settings.sentry.dsn,
+                    traces_sample_rate=float(self.settings.sentry.traces_sample_rate or "1.0"),
+                    profiles_sample_rate=float(self.settings.sentry.profiles_sample_rate or "1.0"),
+                    environment=self.settings.flask.env,
+                    integrations=[
+                        FlaskIntegration(),
+                        LoggingIntegration(
+                            level=logging.INFO,  # Capture info and above as breadcrumbs
+                            event_level=logging.ERROR  # Send errors as events
+                        )
+                    ]
+                )
+                if self.settings.flask.log_boot_events:
+                    ApplicationLogger.critical(f"[Connected to Sentry]")
+            except Exception as e:
+                raise API_Error(
+                    f"Failed to connect to Sentry!",
+                    {"dsn": self.settings.sentry.dsn, "error": e},
+                    stack_trace=traceback.format_exc()
+                )
 
     
     def _initialize_database(self) -> Optional[MongoDB_Database]:
@@ -97,24 +127,21 @@ class Application:
 
         # If MongoDB is not required but the connection is valid, create and return the DB
         if requires_mongodb or database.validate_connection():
+            if self.settings.flask.log_boot_events:
+                ApplicationLogger.critical(f"[Setting up Database]")
+
             # Create indices
             if self.indices and len(self.indices):
                 database.create_indices()
-                ApplicationLogger.critical(
-                    ApplicationLogger.color_log(
-                        f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]",
-                        LOG_BACKGROUND_COLORS.PURPLE
-                    )
+                ApplicationLogger.warn(
+                    f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]"
                 )
 
             # Create fixtures
             if self.fixtures and len(self.fixtures):
                 database.create_fixtures()
-                ApplicationLogger.critical(
-                    ApplicationLogger.color_log(
-                        f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]",
-                        LOG_BACKGROUND_COLORS.PURPLE
-                    )
+                ApplicationLogger.warn(
+                    f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]"
                 )
 
             return database
@@ -125,6 +152,8 @@ class Application:
         @self.app.errorhandler(API_Error)
         @cross_origin(origins=self.settings.flask.cors_origins, supports_credentials=True)
         def handle_user_thrown_error(error:API_Error):
+            sentry_sdk.capture_exception(error)
+
             response = jsonify(
                 error=error.message, 
                 traceback=error.stack_trace, 

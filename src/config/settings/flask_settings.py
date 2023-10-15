@@ -1,5 +1,5 @@
 from flask import current_app, has_app_context
-from src.config.enums.logs import LOG_GROUPS, LOG_LEVELS
+from src.config.enums.logs import LOG_LEVELS
 from src.config.settings.base.base_settings import Settings
 from dataclasses import dataclass, field
 from typing import Optional
@@ -7,7 +7,7 @@ from typing import Optional
 from src.config.enums import ENVIRONMENTS
 
 @dataclass
-class FlaskSettings(Settings):
+class Flask_Settings(Settings):
     ''' 
         Class that holds the Flask application configuration
     '''
@@ -75,6 +75,15 @@ class FlaskSettings(Settings):
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
+    log_boot_events: Optional[bool] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "APP_LOG_BOOT_EVENTS", 
+            data_type=bool,
+            default_value="True"
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
     cors_origins: Optional[list] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "APP_CORS_ORIGINS", 
@@ -87,7 +96,7 @@ class FlaskSettings(Settings):
 
     def __post_init__(self):
         if self.config_log_level:
-            self._configure_logger(LOG_GROUPS.APP_CONFIG, self.config_log_level)
+            self._configure_logger(self.config_log_level)
 
         self._set_default_cors_origins()
             
@@ -103,7 +112,7 @@ class FlaskSettings(Settings):
 
 
     @classmethod
-    def get_settings_from_flask(cls) -> Optional["FlaskSettings"]:
+    def get_settings_from_flask(cls) -> Optional["Flask_Settings"]:
         ''' Get the Flask settings for the current Flask app '''
 
         if has_app_context():
