@@ -1,4 +1,4 @@
-# dead-simple-framework-v2
+# Flongo Framework
 
 A framework for rapid application development on Flask. Includes:
 
