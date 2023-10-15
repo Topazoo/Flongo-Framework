@@ -43,5 +43,12 @@ jobs:
       with:
         tag_name: ${{ env.VERSION }}
         release_name: Release ${{ env.VERSION }}
+        body: |
+          Release ${{ env.NEW_VERSION }} of Flongo-Framework :tada:
+      
+          [View on PyPI](https://pypi.org/project/Flongo-Framework/${{ env.NEW_VERSION }}/)
+
+          **Changelog:**
+          ${{ steps.get_commits.outputs.commits }}
         draft: false
         prerelease: false
