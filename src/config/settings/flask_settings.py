@@ -7,7 +7,7 @@ from typing import Optional
 from src.config.enums import ENVIRONMENTS
 
 @dataclass
-class FlaskSettings(Settings):
+class Flask_Settings(Settings):
     ''' 
         Class that holds the Flask application configuration
     '''
@@ -103,7 +103,7 @@ class FlaskSettings(Settings):
 
 
     @classmethod
-    def get_settings_from_flask(cls) -> Optional["FlaskSettings"]:
+    def get_settings_from_flask(cls) -> Optional["Flask_Settings"]:
         ''' Get the Flask settings for the current Flask app '''
 
         if has_app_context():

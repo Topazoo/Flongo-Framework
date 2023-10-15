@@ -4,7 +4,7 @@ from typing import Optional
 from flask import current_app, has_app_context
 
 from src.config.settings.base.base_settings import Settings
-from src.config.settings.flask_settings import FlaskSettings
+from src.config.settings.flask_settings import Flask_Settings
 from src.config.settings.jwt_settings import JWT_Settings
 from src.config.settings.mongodb_settings import MongoDB_Settings
 
@@ -13,13 +13,13 @@ class App_Settings:
     '''
 
     def __init__(self,
-            flask:Optional[FlaskSettings]=None,
+            flask:Optional[Flask_Settings]=None,
             mongodb:Optional[MongoDB_Settings]=None,
             jwt:Optional[JWT_Settings]=None
         ) -> None:
         
         # Register all passed settings, load from the current Flask app or create them
-        self.flask = flask or FlaskSettings.get_settings_from_flask() or FlaskSettings()
+        self.flask = flask or Flask_Settings.get_settings_from_flask() or Flask_Settings()
         self.mongodb = mongodb or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
         self.jwt = jwt or JWT_Settings.get_settings_from_flask() or JWT_Settings()
 
