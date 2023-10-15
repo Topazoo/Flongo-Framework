@@ -1,24 +1,24 @@
 from bson import ObjectId
 from flask_cors import cross_origin
-from src.api.routing.route_permissions import Route_Permissions
-from src.api.routing.route_schema import Route_Schema
-from src.config.enums.http_methods import HTTP_METHODS
-from src.config.settings.app_settings import App_Settings
-from src.api.errors.schema_validation_error import SchemaValidationError
+from src.flongo_framework.api.routing.route_permissions import Route_Permissions
+from src.flongo_framework.api.routing.route_schema import Route_Schema
+from src.flongo_framework.config.enums.http_methods import HTTP_METHODS
+from src.flongo_framework.config.settings.app_settings import App_Settings
+from src.flongo_framework.api.errors.schema_validation_error import SchemaValidationError
 
-from src.api.responses.errors.api_error import API_Error
-from src.database.mongodb.database import MongoDB_Database
-from src.utils.jwt.jwt_manager import App_JWT_Manager
-from src.utils.logging.loggers.routing import RoutingLogger
-from src.utils.requests import RequestDataParser
-from src.api.errors.request_handling_error import RequestHandlingError
+from src.flongo_framework.api.responses.errors.api_error import API_Error
+from src.flongo_framework.database.mongodb.database import MongoDB_Database
+from src.flongo_framework.utils.jwt.jwt_manager import App_JWT_Manager
+from src.flongo_framework.utils.logging.loggers.routing import RoutingLogger
+from src.flongo_framework.utils.requests import RequestDataParser
+from src.flongo_framework.api.errors.request_handling_error import RequestHandlingError
 
 import traceback
 from flask import Flask, Response, jsonify, request
 from werkzeug.exceptions import HTTPException
 from typing import Callable, Optional
 from pymongo.collection import Collection
-from src.api.routing.types import HandlerMethod
+from src.flongo_framework.api.routing.types import HandlerMethod
 from sentry_sdk import start_span
 
 

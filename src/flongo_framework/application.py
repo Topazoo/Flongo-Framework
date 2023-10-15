@@ -3,21 +3,21 @@ import traceback
 
 from flask_cors import cross_origin
 import sentry_sdk
-from src.api.routing import App_Routes
-from src.config.settings import App_Settings
-from src.api.responses.errors.api_error import API_Error
-from src.database.mongodb.database import MongoDB_Database
-from src.database.mongodb.fixture.fixtures import MongoDB_Fixtures
-from src.database.mongodb.index.indices import MongoDB_Indices
+from src.flongo_framework.api.routing import App_Routes
+from src.flongo_framework.config.settings import App_Settings
+from src.flongo_framework.api.responses.errors.api_error import API_Error
+from src.flongo_framework.database.mongodb.database import MongoDB_Database
+from src.flongo_framework.database.mongodb.fixture.fixtures import MongoDB_Fixtures
+from src.flongo_framework.database.mongodb.index.indices import MongoDB_Indices
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
-from src.utils.json import JSON_Provider
+from src.flongo_framework.utils.json import JSON_Provider
 
 from flask import Flask, jsonify
 from typing import Optional
 
-from src.utils.logging.loggers.app import ApplicationLogger
-from src.utils.jwt.jwt_manager import App_JWT_Manager
+from src.flongo_framework.utils.logging.loggers.app import ApplicationLogger
+from src.flongo_framework.utils.jwt.jwt_manager import App_JWT_Manager
     
 class Application:
     ''' Base application class that serves as a configuration class around Flask

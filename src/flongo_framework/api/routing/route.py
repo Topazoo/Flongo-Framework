@@ -1,12 +1,12 @@
 import logging
 from typing import Optional
 from flask import Flask
-from src.api.routing.route_permissions import Route_Permissions
-from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.app_settings import App_Settings
-from src.utils.logging.loggers.routing import RoutingLogger
-from src.api.routing.handlers.route_handler import Route_Handler
-from src.api.routing.route_schema import Route_Schema
+from src.flongo_framework.api.routing.route_permissions import Route_Permissions
+from src.flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
+from src.flongo_framework.config.settings.app_settings import App_Settings
+from src.flongo_framework.utils.logging.loggers.routing import RoutingLogger
+from src.flongo_framework.api.routing.handlers.route_handler import Route_Handler
+from src.flongo_framework.api.routing.route_schema import Route_Schema
 
 class Route:
     ''' Base class that wraps Flasks normal routing allowing us

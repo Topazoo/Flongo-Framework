@@ -1,5 +1,5 @@
 from typing import Optional
-from src.config.enums.mongodb_index_types import MONGODB_INDEX_TYPES
+from src.flongo_framework.config.enums.mongodb_index_types import MONGODB_INDEX_TYPES
 
 class MongoDB_Index:
     ''' Stores MongoDB index information '''

@@ -1,5 +1,5 @@
 
-from src.database.mongodb.index.base import MongoDB_Index
+from src.flongo_framework.database.mongodb.index.base import MongoDB_Index
 
 class MongoDB_Indices:
     ''' Client to store a collection of MongoDB index information '''

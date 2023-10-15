@@ -1,4 +1,4 @@
-from src.config.enums.base.base_str_enum import BaseStrEnum
+from src.flongo_framework.config.enums.base.base_str_enum import BaseStrEnum
 
 class ENVIRONMENTS(BaseStrEnum):
     """ Development environments levels supported by the application """

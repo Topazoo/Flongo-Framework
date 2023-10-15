@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from bson import ObjectId
 
-from src.utils.logging.loggers.app import ApplicationLogger
+from src.flongo_framework.utils.logging.loggers.app import ApplicationLogger
 
 class JSON_Encoder(JSONEncoder):
     ''' Custom JSON serializer '''

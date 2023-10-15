@@ -1,5 +1,5 @@
-from src.config.enums.logs.log_groups import LOG_GROUPS
-from src.utils.logging import StatefulLoggingUtil
+from src.flongo_framework.config.enums.logs.log_groups import LOG_GROUPS
+from src.flongo_framework.utils.logging import StatefulLoggingUtil
 
 class RoutingLogger(StatefulLoggingUtil):
     ''' Logger class for routes and route handling '''

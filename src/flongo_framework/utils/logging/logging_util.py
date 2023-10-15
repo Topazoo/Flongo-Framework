@@ -1,8 +1,8 @@
 import logging
 from typing import Callable
 
-from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.utils.logging.formatters.colored_formatter import ColoredFormatter
+from src.flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
+from src.flongo_framework.utils.logging.formatters.colored_formatter import ColoredFormatter
 
 class LoggingUtil:
     ''' Base logger class for the application '''

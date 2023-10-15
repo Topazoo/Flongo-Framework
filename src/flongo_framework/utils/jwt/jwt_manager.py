@@ -5,9 +5,9 @@ from typing import Optional, Union
 from flask_jwt_extended import JWTManager, get_jwt, get_jwt_identity, \
     set_access_cookies, set_refresh_cookies, verify_jwt_in_request, unset_jwt_cookies
 from flask import Flask, Response
-from src.api.responses.errors.api_error import API_Error
+from src.flongo_framework.api.responses.errors.api_error import API_Error
 
-from src.config.settings.jwt_settings import JWT_Settings
+from src.flongo_framework.config.settings.jwt_settings import JWT_Settings
 import flask_jwt_extended
 
 class App_JWT_Manager(JWTManager):

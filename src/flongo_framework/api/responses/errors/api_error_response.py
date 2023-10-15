@@ -1,4 +1,4 @@
-from src.api.responses.errors.api_error import API_Error
+from src.flongo_framework.api.responses.errors.api_error import API_Error
 
 from typing import Any, Optional
 

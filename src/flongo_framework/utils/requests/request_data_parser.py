@@ -4,7 +4,7 @@ from typing import Optional
 import xmltodict
 from flask import Request
 from QueryStringManager import QueryStringManager
-from src.utils.logging.loggers.routing import RoutingLogger
+from src.flongo_framework.utils.logging.loggers.routing import RoutingLogger
 
 
 class RequestDataParser:

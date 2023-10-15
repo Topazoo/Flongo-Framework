@@ -1,6 +1,6 @@
 from flask import current_app, has_app_context
-from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.config.settings.base.base_settings import Settings
+from src.flongo_framework.config.enums.logs.log_levels import LOG_LEVELS
+from src.flongo_framework.config.settings.base.base_settings import Settings
 from dataclasses import dataclass, field
 from typing import Optional
 

@@ -1,4 +1,4 @@
-from src.config.enums.base.base_str_enum import BaseStrEnum
+from src.flongo_framework.config.enums.base.base_str_enum import BaseStrEnum
 
 class HTTP_METHODS(BaseStrEnum):
     """ HTTP methods supported by the application """
