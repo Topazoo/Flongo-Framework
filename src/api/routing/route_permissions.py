@@ -1,6 +1,6 @@
 from typing import Union
 
-class RoutePermissions:
+class Route_Permissions:
     ''' Base class that allows Permissions to be bound
         to specific HTTP methods like GET or POST
 

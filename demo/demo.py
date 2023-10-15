@@ -2,7 +2,7 @@
 from src.application import Application
 # routing
 from src.api.routing import App_Routes, Route, Route_Schema, \
-    Route_Handler, Default_Route_Handler, RoutePermissions
+    Route_Handler, Default_Route_Handler, Route_Permissions
 
 # responses
 from src.api.responses import API_JSON_Response, API_Message_Response
@@ -108,7 +108,7 @@ routes = App_Routes(
         ),
         log_level=LOG_LEVELS.DEBUG,
         collection_name='permissions',
-        permissions=RoutePermissions(POST='user', PUT='admin')
+        permissions=Route_Permissions(POST='user', PUT='admin')
     ),
 )
 

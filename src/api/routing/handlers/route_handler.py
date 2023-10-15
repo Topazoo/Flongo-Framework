@@ -2,7 +2,7 @@ import logging
 
 from bson import ObjectId
 from flask_cors import cross_origin
-from src.api.routing.route_permissions import RoutePermissions
+from src.api.routing.route_permissions import Route_Permissions
 from src.api.routing.route_schema import Route_Schema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
@@ -65,7 +65,7 @@ class Route_Handler:
             method:str, 
             action:HandlerMethod, 
             collection_name:str,
-            permissions:RoutePermissions,
+            permissions:Route_Permissions,
             settings:App_Settings, 
             request_schema:Route_Schema,
             response_schema:Route_Schema
@@ -163,7 +163,7 @@ class Route_Handler:
     def register_url_methods(self, 
             url:str, 
             collection_name:str,
-            permissions:RoutePermissions,
+            permissions:Route_Permissions,
             enable_CORS:bool,
             flask_app:Flask,
             settings:App_Settings, 
