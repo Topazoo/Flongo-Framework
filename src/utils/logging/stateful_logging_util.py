@@ -45,12 +45,4 @@ class StatefulLoggingUtil(LoggingUtil):
     def create_logger(self, log_level:str, format:str=''):
         ''' Create a logger with a built-in color formatter '''
 
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(LOG_LEVELS.level_to_int(LOG_LEVELS.DEBUG))
-        formatter = ColoredFormatter(format or self.DEFAULT_FORMAT)
-        stream_handler.setFormatter(formatter)
-        logger = logging.getLogger(self.LOGGER_NAME)
-        logger.setLevel(LOG_LEVELS.level_to_int(log_level))
-        logger.addHandler(stream_handler)
-
-        return logger
+        return self._create_logger(self.LOGGER_NAME, log_level, format)

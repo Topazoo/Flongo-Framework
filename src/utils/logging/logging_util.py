@@ -9,7 +9,7 @@ class LoggingUtil:
 
     LOGGER_NAME = "root"
     EMPTY_TRACEBACK = "NoneType: None\n"
-    DEFAULT_FORMAT = "%(levelname)s:%(name)s:%(message)s"
+    DEFAULT_FORMAT = "[%(asctime)s]:%(levelname)s:%(name)s:%(message)s"
 
     @classmethod
     def info(cls, msg:str):
@@ -51,15 +51,21 @@ class LoggingUtil:
 
 
     @classmethod
-    def create_logger(cls, log_level:str, format:str=''):
+    def _create_logger(cls, name:str, log_level:str, format:str=''):
         ''' Create a logger with a built-in color formatter '''
 
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(LOG_LEVELS.level_to_int(LOG_LEVELS.DEBUG))
-        formatter = ColoredFormatter(format or cls.DEFAULT_FORMAT)
+        formatter = ColoredFormatter(format or cls.DEFAULT_FORMAT, datefmt="%Y-%m-%d %H:%M:%S")
         stream_handler.setFormatter(formatter)
-        logger = logging.getLogger(cls.LOGGER_NAME)
+        logger = logging.getLogger(name)
         logger.setLevel(LOG_LEVELS.level_to_int(log_level))
         logger.addHandler(stream_handler)
 
         return logger
+    
+
+    @classmethod
+    def create_logger(cls, log_level:str, format:str=''):
+        ''' Create a logger with a built-in color formatter '''
+        return cls._create_logger(cls.LOGGER_NAME, log_level, format)
