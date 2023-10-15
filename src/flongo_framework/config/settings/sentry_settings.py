@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from flask import current_app, has_app_context
 from ...config.enums.logs.log_levels import LOG_LEVELS
-from ...config.settings.base.base_settings import Settings
+from ...config.settings.base import Settings
 from dataclasses import dataclass, field
 from typing import Optional
 

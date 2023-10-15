@@ -3,7 +3,7 @@ from typing import Optional
 
 from flask import current_app, has_app_context
 
-from ...config.settings.base.base_settings import Settings
+from ...config.settings.base import Settings
 
 from ...config.settings.flask_settings import Flask_Settings
 from ...config.settings.jwt_settings import JWT_Settings
