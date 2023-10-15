@@ -11,8 +11,9 @@ A framework for rapid application development on Flask. Includes:
 - Built-in automatic CRUD handling for endpoints given a MongoDB collection name
 - Built-in detailed logging and fine-tuneable configurations
 - Built-in Sentry integration with detailed spans for request tracing
+- Dockerfile to easily build and run the application
 
-Sample App:
+## Sample App
 
 ```python
 # app
@@ -162,4 +163,22 @@ def get_app():
 if __name__ == '__main__':
     # Run application
     app.run()
+```
+
+## Running With Docker
+
+### Building
+
+From the root directory run:
+
+```sh
+docker build -t <your_image_name> -f docker/Dockerfile .
+```
+
+### Running
+
+Run your image from the Docker GUI or with
+
+```sh
+docker run <your_image_name>
 ```
