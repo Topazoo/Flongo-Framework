@@ -2,7 +2,7 @@
 from src.application import Application
 # routing
 from src.api.routing import App_Routes, Route, Route_Schema, \
-    Route_Handler, DefaultRouteHandler, RoutePermissions
+    Route_Handler, Default_Route_Handler, RoutePermissions
 
 # responses
 from src.api.responses import API_JSON_Response, API_Message_Response
@@ -87,14 +87,14 @@ routes = App_Routes(
     Route(
         # Route that demonstrates built-in default CRUD handling
         url='/default',
-        handler=DefaultRouteHandler(),
+        handler=Default_Route_Handler(),
         log_level=LOG_LEVELS.DEBUG,
         collection_name='default'
     ),
     Route(
         # Route that demonstrates built-in permissions handling
         url='/permissions',
-        handler=DefaultRouteHandler(
+        handler=Default_Route_Handler(
             # Authentication route that sets the JWT in response cookies
             GET=lambda request, payload, collection: App_JWT_Manager.add_response_jwt(
                 response=API_Message_Response("Authenticated!"),

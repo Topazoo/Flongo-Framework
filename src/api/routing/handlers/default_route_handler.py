@@ -8,7 +8,7 @@ from src.api.routing.types import HandlerMethod
 from src.api.routing.handlers.route_handler import Route_Handler
 
 
-class DefaultRouteHandler(Route_Handler):
+class Default_Route_Handler(Route_Handler):
     ''' Class that allows functions to be bound to specific HTTP 
         methods like GET or POST but uses a default operation 
         if a custom function isn't passed.
