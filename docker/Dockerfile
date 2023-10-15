@@ -27,16 +27,20 @@ WORKDIR /app
 
 # Set environment variables with default values
 ENV FLASK_APP=demo/demo.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=8080
-ENV FLASK_ENV=development
-ENV GUNICORN_TIMEOUT=30
+ENV APP_HOST=0.0.0.0
+ENV APP_PORT=8080
+
+ENV APP_LOG_LEVEL=debug
+ENV APP_CONFIG_LOG_LEVEL=debug
+ENV MONGODB_LOG_LEVEL=debug
+
 ENV GUNICORN_WORKERS=2
+ENV GUNICORN_TIMEOUT=30
 
 # Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
 # Expose the port Flask will run on
-EXPOSE ${FLASK_RUN_PORT}
+EXPOSE ${APP_PORT}
 
 ENTRYPOINT ["/entrypoint.sh"]
