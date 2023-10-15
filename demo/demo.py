@@ -1,7 +1,7 @@
 # app
 from src.application import Application
 # routing
-from src.api.routing import App_Routes, Route, RouteSchema, \
+from src.api.routing import App_Routes, Route, Route_Schema, \
     RouteHandler, DefaultRouteHandler, RoutePermissions
 
 # responses
@@ -41,7 +41,7 @@ routes = App_Routes(
             DELETE=lambda request, payload, collection: API_JSON_Response({'date': datetime.now(), 'deleted': True}),
         ),
         # Demonstrates HTTP method based schema validation
-        request_schema=RouteSchema(
+        request_schema=Route_Schema(
             POST={
                 'type': 'object',
                 'additionalProperties': False,
@@ -51,7 +51,7 @@ routes = App_Routes(
                 'required': ['_id']
             }
         ),
-        response_schema=RouteSchema(
+        response_schema=Route_Schema(
             PUT={
                 'type': 'object',
                 'additionalProperties': False,

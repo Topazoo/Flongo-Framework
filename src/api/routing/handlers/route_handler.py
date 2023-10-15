@@ -3,7 +3,7 @@ import logging
 from bson import ObjectId
 from flask_cors import cross_origin
 from src.api.routing.route_permissions import RoutePermissions
-from src.api.routing.route_schema import RouteSchema
+from src.api.routing.route_schema import Route_Schema
 from src.config.enums.http_methods import HTTP_METHODS
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
@@ -67,8 +67,8 @@ class RouteHandler:
             collection_name:str,
             permissions:RoutePermissions,
             settings:App_Settings, 
-            request_schema:RouteSchema,
-            response_schema:RouteSchema
+            request_schema:Route_Schema,
+            response_schema:Route_Schema
         ) -> Callable:
         ''' Delegates a request recieved by Flask to one
             of the methods registered to an instance of
@@ -167,8 +167,8 @@ class RouteHandler:
             enable_CORS:bool,
             flask_app:Flask,
             settings:App_Settings, 
-            request_schema:RouteSchema,
-            response_schema:RouteSchema, 
+            request_schema:Route_Schema,
+            response_schema:Route_Schema, 
             log_level:str
         ):
         ''' Register the functions for all methods (like GET or POST)

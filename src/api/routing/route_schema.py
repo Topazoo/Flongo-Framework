@@ -4,7 +4,7 @@ from src.utils.requests import JSON_Schema_Validator
 from flask import Request
 from typing import Any, Optional
 
-class RouteSchema:
+class Route_Schema:
     ''' Base class that allows JSONSchemas to be bound
         to specific HTTP methods like GET or POST
 

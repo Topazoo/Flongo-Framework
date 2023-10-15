@@ -6,7 +6,7 @@ from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.app_settings import App_Settings
 from src.utils.logging.loggers.routing import RoutingLogger
 from src.api.routing.handlers.route_handler import RouteHandler
-from src.api.routing.route_schema import RouteSchema
+from src.api.routing.route_schema import Route_Schema
 
 class Route:
     ''' Base class that wraps Flasks normal routing allowing us
@@ -21,8 +21,8 @@ class Route:
             permissions:Optional[RoutePermissions]=None,
             enable_CORS:bool=True,
             collection_name:str='',
-            request_schema:Optional[RouteSchema]=None,
-            response_schema:Optional[RouteSchema]=None,
+            request_schema:Optional[Route_Schema]=None,
+            response_schema:Optional[Route_Schema]=None,
             log_level:str=LOG_LEVELS.WARN
         ):
 
@@ -31,8 +31,8 @@ class Route:
         self.permissions = permissions or RoutePermissions()
         self.enable_CORS = enable_CORS
         self.collection_name = collection_name
-        self.request_schema = request_schema or RouteSchema()
-        self.response_schema = response_schema or RouteSchema()
+        self.request_schema = request_schema or Route_Schema()
+        self.response_schema = response_schema or Route_Schema()
         self.log_level = log_level
 
         self._configure_logger()
