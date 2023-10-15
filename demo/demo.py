@@ -1,7 +1,7 @@
 # app
 from src.application import Application
 # routing
-from src.api.routing import AppRoutes, Route, RouteSchema, \
+from src.api.routing import App_Routes, Route, RouteSchema, \
     RouteHandler, DefaultRouteHandler, RoutePermissions
 
 # responses
@@ -30,7 +30,7 @@ def throw(exception_type:type, msg:Any):
     raise exception_type(msg)
 
 # Simple sample application
-routes = AppRoutes(
+routes = App_Routes(
     Route(
         # Route that demonstrates built-in basic request handling
         url='/request',

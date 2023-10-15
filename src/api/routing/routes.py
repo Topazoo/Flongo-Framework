@@ -4,7 +4,7 @@ from src.config.settings.app_settings import App_Settings
 from src.api.routing.route import Route
 from src.utils.logging.loggers.routing import RoutingLogger
 
-class AppRoutes:
+class App_Routes:
     ''' Class that holds all routes for the application
         configured by the user 
     '''

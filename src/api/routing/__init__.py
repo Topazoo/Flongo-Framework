@@ -1,4 +1,4 @@
-from .routes import AppRoutes
+from .routes import App_Routes
 from .route import Route
 from .route_schema import RouteSchema
 from .route_permissions import RoutePermissions

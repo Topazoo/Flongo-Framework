@@ -3,7 +3,7 @@ import logging
 from flask_cors import cross_origin
 from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 from src.config.enums.logs.log_levels import LOG_LEVELS
-from src.api.routing import AppRoutes
+from src.api.routing import App_Routes
 from src.config.settings import App_Settings
 from src.api.responses.errors.api_error import API_Error
 from src.database.mongodb.database import MongoDB_Database
@@ -24,7 +24,7 @@ class Application:
     '''
     
     def __init__(self, 
-            routes:AppRoutes, 
+            routes:App_Routes, 
             settings:Optional[App_Settings]=None,
             indices:Optional[MongoDB_Indices]=None,
             fixtures:Optional[MongoDB_Fixtures]=None
