@@ -22,14 +22,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine bumpversion
 
-    - name: Build and publish to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
-
     - name: Set up Git user
       run: |
         git config --local user.email "action@github.com"
@@ -40,6 +32,14 @@ jobs:
       run: |
         bumpversion minor
         echo "NEW_VERSION=$(python setup.py --version)" >> $GITHUB_ENV
+
+    - name: Build and publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload --verbose dist/*
 
     - name: Push new version
       uses: ad-m/github-push-action@master
