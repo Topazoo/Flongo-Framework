@@ -97,24 +97,22 @@ class Application:
 
         # If MongoDB is not required but the connection is valid, create and return the DB
         if requires_mongodb or database.validate_connection():
+            ApplicationLogger.critical(
+                ApplicationLogger.color_log(f"[Setting up Database]", LOG_BACKGROUND_COLORS.PURPLE)
+            )
+
             # Create indices
             if self.indices and len(self.indices):
                 database.create_indices()
-                ApplicationLogger.critical(
-                    ApplicationLogger.color_log(
-                        f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]",
-                        LOG_BACKGROUND_COLORS.PURPLE
-                    )
+                ApplicationLogger.warn(
+                    f"[Created [{len(self.indices)}] database {'indices' if len(self.indices) > 1 else 'index'}]"
                 )
 
             # Create fixtures
             if self.fixtures and len(self.fixtures):
                 database.create_fixtures()
-                ApplicationLogger.critical(
-                    ApplicationLogger.color_log(
-                        f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]",
-                        LOG_BACKGROUND_COLORS.PURPLE
-                    )
+                ApplicationLogger.warn(
+                    f"[Created [{len(self.fixtures)}] database fixture{'s' if len(self.fixtures) > 1 else ''}]"
                 )
 
             return database

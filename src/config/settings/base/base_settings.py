@@ -87,7 +87,7 @@ class Settings:
         ''' Log all configuration values '''
 
         ApplicationConfigLogger.critical(
-            ApplicationConfigLogger.color_log(f'[{self.GROUP_NAME} Configured]', LOG_BACKGROUND_COLORS.PURPLE)
+            ApplicationConfigLogger.color_log(f'[{self.GROUP_NAME} Configuration]', LOG_BACKGROUND_COLORS.PURPLE)
         )
         for field_info in self.__dataclass_fields__.values():
             self._log_configuration_value(field_info.name, field_info.metadata)

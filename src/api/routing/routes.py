@@ -19,7 +19,7 @@ class App_Routes:
         ''' Register all stored routes to a passed app '''
 
         RoutingLogger().critical(
-            RoutingLogger.color_log(f'[Routes Configured]', LOG_BACKGROUND_COLORS.PURPLE)
+            RoutingLogger.color_log(f'[Routing Configuration]', LOG_BACKGROUND_COLORS.PURPLE)
         )
 
         for route in self.routes:
