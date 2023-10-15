@@ -7,6 +7,7 @@ def get_requirements():
 setup(
     name='Flongo Framework',
     version='0.1.0',
+    python_requires='>=3.9',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     install_requires=get_requirements(),
