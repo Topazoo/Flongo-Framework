@@ -6,7 +6,7 @@ def get_requirements():
 
 setup(
     name='flongo_framework',
-    version='0.2.12',
+    version='0.2.13',
     python_requires='>=3.9',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
