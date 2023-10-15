@@ -30,7 +30,7 @@ jobs:
     - name: Bump version
       id: bumpversion
       run: |
-        bumpversion minor
+        bumpversion patch
         echo "NEW_VERSION=$(python setup.py --version)" >> $GITHUB_ENV
 
     - name: Build and publish to PyPI
@@ -44,14 +44,14 @@ jobs:
     - name: Push new version
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.REPO_TOKEN }}
         branch: ${{ github.ref }}
 
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
       with:
         tag_name: ${{ env.NEW_VERSION }}
         release_name: Release ${{ env.NEW_VERSION }}
