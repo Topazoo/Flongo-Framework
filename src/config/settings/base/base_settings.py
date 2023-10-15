@@ -1,8 +1,7 @@
-import logging
+from decimal import Decimal
 import os
 from dataclasses import dataclass
 from typing import Optional, Union
-from src.config.enums.logs.colors.log_background_colors import LOG_BACKGROUND_COLORS
 
 from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.utils.logging.loggers.app_config import ApplicationConfigLogger
@@ -24,7 +23,7 @@ class Settings:
         env_var: str,
         data_type: type = str,
         default_value: Optional[str] = None
-    ) -> Union[bool, int, str, list[str], None]:
+    ) -> Union[bool, int, str, list[str], Decimal, None]:
         ''' Read the configuration from an environmental variable
             and cast to the values to the specified data type
         '''
@@ -40,13 +39,15 @@ class Settings:
     
 
     @staticmethod
-    def _normalize_config_value_type(value:str, data_type:type) -> Union[bool, int, str, list[str]]:
+    def _normalize_config_value_type(value:str, data_type:type) -> Union[bool, int, str, list[str], Decimal]:
         if data_type == bool:
             parsed_value = value.lower() in ["true", "1", "yes"]
         elif data_type == int:
             parsed_value = int(value)
         elif data_type == list:
             parsed_value = str(value).split(',')
+        elif data_type == Decimal:
+            parsed_value = Decimal(value)
         else:
             parsed_value = str(value)
 
@@ -75,19 +76,14 @@ class Settings:
         return "log_level" not in metadata or metadata.get("log_level") != None
 
 
-    def _configure_logger(self, name:str, log_level:str):
+    def _configure_logger(self, log_level:str):
         if log_level:
-            logging.basicConfig(level=logging.NOTSET)
-            logging.getLogger(name).setLevel(
-                LOG_LEVELS.level_to_int(log_level)
-            )
+            ApplicationConfigLogger.create_logger(log_level)
 
 
     def __post_init__(self):
         ''' Log all configuration values '''
 
-        ApplicationConfigLogger.critical(
-            ApplicationConfigLogger.color_log(f'[{self.GROUP_NAME} Configuration]', LOG_BACKGROUND_COLORS.PURPLE)
-        )
+        ApplicationConfigLogger.warn(f'[{self.GROUP_NAME} Configuration]')
         for field_info in self.__dataclass_fields__.values():
             self._log_configuration_value(field_info.name, field_info.metadata)

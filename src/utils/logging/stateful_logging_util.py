@@ -1,10 +1,8 @@
 import logging
-
-import logging
-
-from src.config.enums.logs.colors import LOG_TEXT_COLORS
+from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.enums.logs.log_groups import LOG_GROUPS
 from src.utils.logging.logging_util import LoggingUtil
+from src.utils.logging.formatters.colored_formatter import ColoredFormatter
 
 class StatefulLoggingUtil(LoggingUtil):
     ''' Base logger class for the application with state '''
@@ -24,21 +22,35 @@ class StatefulLoggingUtil(LoggingUtil):
 
     def info(self, msg:str):
         ''' Emit a info log '''
-        self._log(msg, logging.getLogger(self.LOGGER_NAME).info, LOG_TEXT_COLORS.GREEN)
+        self._log(msg, logging.getLogger(self.LOGGER_NAME).info)
 
     def debug(self, msg:str):
         ''' Emit a debug log '''
-        self._log(msg, logging.getLogger(self.LOGGER_NAME).debug, LOG_TEXT_COLORS.BLUE)
+        self._log(msg, logging.getLogger(self.LOGGER_NAME).debug)
 
     def warn(self, msg:str):
         ''' Emit a warning log '''
-        self._log(msg, logging.getLogger(self.LOGGER_NAME).warn, LOG_TEXT_COLORS.YELLOW)
+        self._log(msg, logging.getLogger(self.LOGGER_NAME).warn)
 
     def error(self, msg:str):
         ''' Emit an error log '''
 
-        self._log(msg, logging.getLogger(self.LOGGER_NAME).error, LOG_TEXT_COLORS.RED)
+        self._log(msg, logging.getLogger(self.LOGGER_NAME).error)
 
     def critical(self, msg:str):
         ''' Emit a critical error log '''
-        self._log(msg, logging.getLogger(self.LOGGER_NAME).critical, LOG_TEXT_COLORS.PURPLE)
+        self._log(msg, logging.getLogger(self.LOGGER_NAME).critical)
+
+
+    def create_logger(self, log_level:str, format:str=''):
+        ''' Create a logger with a built-in color formatter '''
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(LOG_LEVELS.level_to_int(LOG_LEVELS.DEBUG))
+        formatter = ColoredFormatter(format or self.DEFAULT_FORMAT)
+        stream_handler.setFormatter(formatter)
+        logger = logging.getLogger(self.LOGGER_NAME)
+        logger.setLevel(LOG_LEVELS.level_to_int(log_level))
+        logger.addHandler(stream_handler)
+
+        return logger

@@ -59,7 +59,4 @@ class Route:
 
 
     def _configure_logger(self):
-        # Routing
-        logging.getLogger(RoutingLogger(self.url).LOGGER_NAME).setLevel(
-            LOG_LEVELS.level_to_int(self.log_level)
-        )
+        RoutingLogger(self.url).create_logger(self.log_level)

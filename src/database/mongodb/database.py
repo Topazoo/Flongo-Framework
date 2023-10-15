@@ -1,11 +1,9 @@
     
 import json
-import logging
 from typing import Optional
 
 from flask import current_app, has_app_context
 
-from src.config.enums.logs.log_levels import LOG_LEVELS
 from src.config.settings.mongodb_settings import MongoDB_Settings
 from pymongo import TEXT, MongoClient
 from pymongo.database import Database
@@ -121,11 +119,7 @@ class MongoDB_Database:
     
     def _configure_logger(self):
         if self.settings and self.settings.log_level:
-            int_log_level = LOG_LEVELS.level_to_int(self.settings.log_level)
-
-            # Database
-            logging.basicConfig(level=int_log_level)
-            logging.getLogger(DatabaseLogger._BASE_NAME).setLevel(int_log_level)
+            DatabaseLogger(DatabaseLogger._BASE_NAME).create_logger(self.settings.log_level)
 
 
     def __getitem__(self, collection_name: str) -> Collection:
