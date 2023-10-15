@@ -11,8 +11,9 @@ A framework for rapid application development on Flask. Includes:
 - Built-in automatic CRUD handling for endpoints given a MongoDB collection name
 - Built-in detailed logging and fine-tuneable configurations
 - Built-in Sentry integration with detailed spans for request tracing
+- Dockerfile/Docker Compose to easily build and run the application
 
-Sample App:
+## Sample App
 
 ```python
 # app
@@ -154,9 +155,52 @@ fixtures = MongoDB_Fixtures(
 
 # Create application
 app = Application(routes=routes, settings=settings, indices=indices, fixtures=fixtures)
-# Binding for flask debugger
-root_app = app.app
+
+# Binding directly to Flask for Gunicorn or VSCode
+def get_app():
+    return app.app
+
 if __name__ == '__main__':
     # Run application
     app.run()
+```
+
+## Running With Docker
+
+### Building
+
+From the root directory run:
+
+```sh
+docker build -t <your_image_name> -f docker/Dockerfile .
+```
+
+### Running
+
+Run your image from the Docker GUI or with
+
+```sh
+docker run <your_image_name>
+```
+
+Note: that MongoDB must be configured on the same Docker network as the app **(Use Docker Compose to do this automatically)**
+
+## Running With Docker Compose
+
+Since the server might depend on MongoDB, you can use Docker Compose to start the Dockerized application in conjuction with a Dockerized MongoDB instance
+
+### Building the Server Container
+
+From the docker/ directory containing `docker-compose.yml`, run:
+
+```sh
+docker-compose build
+```
+
+### Running the Server + MongoDB
+
+From the docker/ directory containing `docker-compose.yml`, run:
+
+```sh
+docker-compose up --force-recreate
 ```

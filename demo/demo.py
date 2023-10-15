@@ -137,8 +137,11 @@ fixtures = MongoDB_Fixtures(
 
 # Create application
 app = Application(routes=routes, settings=settings, indices=indices, fixtures=fixtures)
-# Binding for flask debugger
-root_app = app.app
+
+# Binding directly to Flask for Gunicorn or VSCode
+def get_app():
+    return app.app
+
 if __name__ == '__main__':
     # Run application
     app.run()

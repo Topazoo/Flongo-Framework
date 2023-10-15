@@ -57,7 +57,7 @@ class JWT_Settings(Settings):
     enable_csrf_protection: Optional[bool] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "JWT_ENABLE_CSRF_PROTECTION", 
-            data_type=str,
+            data_type=bool,
             default_value="False"
         ),
         metadata={"log_level": LOG_LEVELS.WARN}
