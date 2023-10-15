@@ -20,18 +20,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine bumpversion
+        pip install setuptools wheel twine
 
-    - name: Set up Git user
+    - name: Get version
+      id: get_version
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-
-    - name: Bump version
-      id: bumpversion
-      run: |
-        bumpversion patch
-        echo "NEW_VERSION=$(python setup.py --version)" >> $GITHUB_ENV
+        echo "VERSION=$(python setup.py --version)" >> $GITHUB_ENV
 
     - name: Build and publish to PyPI
       env:
@@ -41,19 +35,13 @@ jobs:
         python setup.py sdist bdist_wheel
         twine upload --verbose dist/*
 
-    - name: Push new version
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
-
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.NEW_VERSION }}
-        release_name: Release ${{ env.NEW_VERSION }}
+        tag_name: ${{ env.VERSION }}
+        release_name: Release ${{ env.VERSION }}
         draft: false
         prerelease: false
