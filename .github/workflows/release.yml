@@ -1,4 +1,4 @@
-name: Bump release version and Publish to PyPi
+name: Publish to PyPI and Create Release
 
 on:
   push:
@@ -6,13 +6,12 @@ on:
       - main
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Check out code from Github
+    - name: Check out code
       uses: actions/checkout@v2
-
+      
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -21,20 +20,40 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install bumpversion setuptools wheel twine
-    
-    - name: Set up Git user
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        pip install setuptools wheel twine bumpversion
 
-    - name: Bump minor version
-      run: bumpversion patch
-
-    - name: Build and publish to PyPi
+    - name: Build and publish to PyPI
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/*
+
+    - name: Set up Git user
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+    - name: Bump version
+      id: bumpversion
+      run: |
+        bumpversion minor
+        echo "NEW_VERSION=$(python setup.py --version)" >> $GITHUB_ENV
+
+    - name: Push new version
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.NEW_VERSION }}
+        release_name: Release ${{ env.NEW_VERSION }}
+        draft: false
+        prerelease: false
