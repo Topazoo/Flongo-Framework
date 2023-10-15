@@ -177,10 +177,10 @@ docker build -t <your_image_name> -f docker/Dockerfile .
 
 ### Running
 
-Run your image from the Docker GUI or with
+Run the server image on port 8080 from the Docker GUI or with
 
 ```sh
-docker run <your_image_name>
+docker run -p 8080:8080 <your_image_name>
 ```
 
 Note: that MongoDB must be configured on the same Docker network as the app **(Use Docker Compose to do this automatically)**
@@ -199,7 +199,7 @@ docker-compose build
 
 ### Running the Server + MongoDB
 
-From the docker/ directory containing `docker-compose.yml`, run:
+From the docker/ directory containing `docker-compose.yml`, run the following to start the server on port 8080 and MongoDB on port 27017:
 
 ```sh
 docker-compose up --force-recreate
