@@ -4,6 +4,7 @@ from typing import Optional, Union, Any
 from flask import Response
 from flask_jwt_extended import get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
 
+from ...api.requests.identity import Request_Identity
 from ...api.responses.errors.api_error import API_Error
 from ..jwt.jwt_manager import App_JWT_Manager
 
@@ -11,7 +12,7 @@ class Authentication_Util:
     ''' Utility for managing application authentication via JWT cookies '''
 
     @classmethod
-    def validate_identity_cookie_role(cls, valid_roles:list[str]) -> dict[str, Any]:
+    def validate_identity_cookie_role(cls, valid_roles:list[str]) -> Request_Identity:
         ''' Validate the identity passed in the Request being handled has a role
             contained in the list of valid roles passed to the method 
             (if a valid JWT identity cookie is present)
@@ -20,7 +21,7 @@ class Authentication_Util:
         '''
 
         current_identity = cls.get_current_identity()
-        if not current_identity or not all(role in current_identity.get('roles', []) for role in valid_roles):
+        if not current_identity or not all(role in current_identity.roles for role in valid_roles):
             # User doesn't have required roles; deny access or handle accordingly
             raise API_Error(
                 f"Insufficient permissions to access this route. A JWT cookie with one of the following roles is required: {valid_roles}",
@@ -50,8 +51,9 @@ class Authentication_Util:
     
 
     @staticmethod
-    def get_current_identity() -> Optional[dict[str, Any]]:
+    def get_current_identity() -> Optional[Request_Identity]:
         ''' Gets the identity passed in the Request being handled if a valid JWT identity cookie is present '''
         
         verify_jwt_in_request(optional=True)
-        return get_jwt()
+        if jwt:=get_jwt():
+            return Request_Identity.from_dict(jwt)
