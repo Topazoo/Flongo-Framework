@@ -41,7 +41,7 @@ from typing import Any
 from bson import ObjectId
 from datetime import datetime
 
-from flongo_framework.utils.jwt.jwt_manager import App_JWT_Manager
+from flongo_framework.utils.jwt import Authentication_Util
 
 # Method that throws a sample error
 def throw(exception_type:type, msg:Any): 
@@ -114,13 +114,13 @@ routes = App_Routes(
         url='/permissions',
         handler=Default_Route_Handler(
             # Authentication route that sets the JWT in response cookies
-            GET=lambda request, payload, collection: App_JWT_Manager.add_response_jwt(
+            GET=lambda request, payload, collection: Authentication_Util.set_identity_cookie(
                 response=API_Message_Response("Authenticated!"),
                 _id="test",
                 roles="user"
             ),
             # De-authentication route that removes the JWT in response cookies
-            DELETE=lambda request, payload, collection: App_JWT_Manager.remove_response_jwt(
+            DELETE=lambda request, payload, collection: Authentication_Util.unset_identity_cookie(
                 response=API_Message_Response("Logged out!"),
             )
         ),
