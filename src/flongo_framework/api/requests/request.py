@@ -4,9 +4,10 @@ from bson import ObjectId
 from pymongo.collection import Collection
 from flask import Request
 
+from .identity import Request_Identity
 from ...api.responses.errors.api_error import API_Error
 
-class App_Request():
+class App_Request:
     ''' Base class that wraps Flask's request and allows
         some additional data like the passed data, identity
         and MongoDB collection to be injected
@@ -14,21 +15,21 @@ class App_Request():
 
     def __init__(self, 
             raw_request:Request,
-            identity:Optional[dict]=None,
+            identity:Optional[Request_Identity]=None,
             payload:Optional[dict]=None,
             collection:Optional[Collection]=None
         ) -> None:
         # Raw Flask request
         self.raw_request = raw_request
         # JWT Identity parsed from cookies if available
-        self.identity = identity or {}
+        self.identity = identity
         # Data parsed from query string and request body if available
         self.payload = payload or {}
         # MongoDB collection instance to configured collection if available
         self.collection = collection
 
 
-    def set_identity(self, identity:dict):
+    def set_identity(self, identity:Request_Identity):
         self.identity = identity
 
 
@@ -70,7 +71,7 @@ class App_Request():
             )
         
 
-    def ensure_field(self, field:str) -> Any:
+    def ensure_field(self, field:str, required_value:str='') -> Any:
         ''' Ensure a field is specified in this request payload and return the field value '''
 
         value = None
@@ -78,6 +79,18 @@ class App_Request():
             raise API_Error(
                 f"Required field [{field}] not passed in request",
                 {'url': self.raw_request.root_url, 'method': self.raw_request.method},
+                stack_trace=traceback.format_exc()
+            )
+        
+        if required_value and value != required_value:
+            raise API_Error(
+                f"Required field [{field}] passed in request did not have the required value",
+                {
+                    'url': self.raw_request.root_url, 
+                    'method': self.raw_request.method,
+                    'value': value,
+                    'required_value': required_value
+                },
                 stack_trace=traceback.format_exc()
             )
         
