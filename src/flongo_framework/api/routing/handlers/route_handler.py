@@ -8,7 +8,7 @@ from ....api.errors.schema_validation_error import SchemaValidationError
 
 from ....api.responses.errors.api_error import API_Error
 from ....database.mongodb.database import MongoDB_Database
-from ....utils.jwt.jwt_manager import App_JWT_Manager
+from ....utils.jwt.authentication_util import Authentication_Util
 from ....utils.logging.loggers.routing import RoutingLogger
 from ....utils.requests import RequestDataParser
 from ....api.errors.request_handling_error import RequestHandlingError
@@ -82,7 +82,7 @@ class Route_Handler:
                 # Validate JIT roles
                 if required_roles:=getattr(permissions, method, []):
                     with start_span(op="validate_jwt", description="Validate the passed JWT token"):
-                        App_JWT_Manager.validate_jwt_roles(required_roles)
+                        Authentication_Util.validate_identity_cookie_role(required_roles)
                         logger.info("* Validated request JWT IDENTITY successfully *")
 
                 # Validate the payload passed to this route agains the request JSONSchema if configured
