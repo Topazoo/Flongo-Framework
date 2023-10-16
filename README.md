@@ -18,9 +18,13 @@ A framework for rapid application development on Flask. Includes:
 ```python
 # app
 from flongo_framework.application import Application
+
 # routing
 from flongo_framework.api.routing import App_Routes, Route, Route_Schema, \
     Route_Handler, Default_Route_Handler, Route_Permissions
+
+# utils
+from flongo_framework.utils.jwt import Authentication_Util
 
 # responses
 from flongo_framework.api.responses import API_JSON_Response, API_Message_Response
@@ -41,7 +45,6 @@ from typing import Any
 from bson import ObjectId
 from datetime import datetime
 
-from flongo_framework.utils.jwt import Authentication_Util
 
 # Method that throws a sample error
 def throw(exception_type:type, msg:Any): 

@@ -1,10 +1,10 @@
+from typing import Callable
+from flask import Response
+from ....api.requests.request import App_Request
 from ....api.responses.api_json_response import API_JSON_Response
 from ....api.responses.api_message_response import API_Message_Response
 from ....config.enums.http_methods import HTTP_METHODS
 
-from flask import Request
-from pymongo.collection import Collection
-from ....api.routing.types import HandlerMethod
 from ....api.routing.handlers.route_handler import Route_Handler
 
 
@@ -20,44 +20,48 @@ class Default_Route_Handler(Route_Handler):
         - DELETE: Deletes a record from the MongoDB collection specified using the payload from the request
     '''
 
-    def GET(self, request:Request, payload:dict, collection:Collection):
+    def GET(self, request:App_Request):
         ''' Gets a record from the MongoDB collection specified 
             using the payload from the request
         '''
 
-        self.ensure_collection(request.root_url, collection)
-        self.normalize_id(payload)
+        request.ensure_collection()
+        request.normalize_id(enforce=False)
 
-        if result:=list(collection.find(payload)):
+        if result:=list(request.run_mongo_operation() or []):
             return API_JSON_Response(result) if len(result) > 1 else API_JSON_Response(result[0])
         else:
             return API_JSON_Response(result, 404)
         
 
-    def POST(self, request:Request, payload:dict, collection:Collection):
+    def POST(self, request:App_Request):
         ''' Creates a record from the MongoDB collection specified 
             using the payload from the request
         '''
 
-        self.ensure_collection(request.root_url, collection)
-        self.normalize_id(payload)
+        request.ensure_collection()
+        request.normalize_id(enforce=False)
 
-        if _id:=collection.insert_one(payload).inserted_id:
+        if _id:=request.run_mongo_operation(op='insert_one').inserted_id:
             return API_JSON_Response({"_id": str(_id)}, 201) 
         else:
             return API_Message_Response("Failed to create record in MongoDB", 500)
         
 
-    def PUT(self, request:Request, payload:dict, collection:Collection):
+    def PUT(self, request:App_Request):
         ''' Updates a record from the MongoDB collection specified by ID
             using the payload from the request. Creates it if it does not exist
         '''
 
-        self.ensure_collection(request.root_url, collection)
-        self.ensure_field(request.root_url, request.method.upper(), "_id", payload)
-        self.normalize_id(payload)
+        request.ensure_collection()
+        request.normalize_id()
+        result = request.run_mongo_operation(
+            op='update_many', 
+            search_payload={"_id": request.payload.pop("_id")}, 
+            set_payload=True, 
+            upsert=True
+        )
 
-        result = collection.update_one({"_id": payload.pop("_id")}, {"$set": payload}, upsert=True)
         if result:
             if upserted_id:=result.upserted_id:
                 return API_JSON_Response({"_id": str(upserted_id)}, 201)
@@ -69,38 +73,41 @@ class Default_Route_Handler(Route_Handler):
             return API_Message_Response("Failed to create record in MongoDB", 500)
         
 
-    def PATCH(self, request:Request, payload:dict, collection:Collection):
+    def PATCH(self, request:App_Request):
         ''' Updates a record from the MongoDB collection specified by ID
             using the payload from the request. Does not create it if it does not exist
         '''
 
-        self.ensure_collection(request.root_url, collection)
-        self.ensure_field(request.root_url, request.method.upper(), "_id", payload)
-        self.normalize_id(payload)
+        request.ensure_collection()
+        request.normalize_id()
+        result = request.run_mongo_operation(
+            op='update_many',
+            search_payload={"_id": request.payload.pop("_id")},
+            set_payload=True
+        )
 
-        result = collection.update_one({"_id": payload.pop("_id")}, {"$set": payload})
         if result:
             return API_JSON_Response({}, 200) if result.matched_count else API_JSON_Response({}, 404)
         else:
             return API_Message_Response("Failed to create record in MongoDB", 500)
 
 
-    def DELETE(self, request:Request, payload:dict, collection:Collection):
+    def DELETE(self, request:App_Request):
         ''' Deletes a record from the MongoDB collection specified 
             using the payload from the request
         '''
 
-        self.ensure_collection(request.root_url, collection)
-        self.normalize_id(payload)
-
-        if collection.delete_one(payload).deleted_count:
+        request.ensure_collection()
+        request.normalize_id(enforce=False)
+        
+        if request.run_mongo_operation(op='delete_many').deleted_count:
             return API_JSON_Response({})
         else:
             return API_JSON_Response({}, 404)
         
 
     # Holds a reference of all methods for this route
-    def __init__(self, **methods:HandlerMethod):
+    def __init__(self, **methods:Callable[[App_Request], Response]):
         self.methods = {
             "GET": self.GET,
             "POST": self.POST,

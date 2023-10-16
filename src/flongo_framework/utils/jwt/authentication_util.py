@@ -1,5 +1,5 @@
 import traceback
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 from flask import Response
 from flask_jwt_extended import get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
@@ -11,8 +11,15 @@ class Authentication_Util:
     ''' Utility for managing application authentication via JWT cookies '''
 
     @classmethod
-    def validate_identity_cookie_role(cls, valid_roles:list[str]):
-        current_identity:Optional[dict] = cls.get_current_identity()
+    def validate_identity_cookie_role(cls, valid_roles:list[str]) -> dict[str, Any]:
+        ''' Validate the identity passed in the Request being handled has a role
+            contained in the list of valid roles passed to the method 
+            (if a valid JWT identity cookie is present)
+
+            Returns the identity if one is present
+        '''
+
+        current_identity = cls.get_current_identity()
         if not current_identity or not all(role in current_identity.get('roles', []) for role in valid_roles):
             # User doesn't have required roles; deny access or handle accordingly
             raise API_Error(
@@ -20,6 +27,8 @@ class Authentication_Util:
                 status_code=403,
                 stack_trace=traceback.format_exc()
             )
+        
+        return current_identity
         
 
     @staticmethod
@@ -41,7 +50,7 @@ class Authentication_Util:
     
 
     @staticmethod
-    def get_current_identity():
+    def get_current_identity() -> Optional[dict[str, Any]]:
         ''' Gets the identity passed in the Request being handled if a valid JWT identity cookie is present '''
         
         verify_jwt_in_request(optional=True)
