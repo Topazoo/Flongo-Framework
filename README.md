@@ -56,10 +56,10 @@ routes = App_Routes(
         # Route that demonstrates built-in basic request handling
         url='/request',
         handler=Route_Handler(
-            GET=lambda request, payload, collection: API_Message_Response("Sample GET request"),
-            POST=lambda request, payload, collection: API_JSON_Response({'sample_record': f'{payload["_id"]}', 'created': True}, 201),
-            PUT=lambda request, payload, collection: API_JSON_Response({'payload': payload}),
-            DELETE=lambda request, payload, collection: API_JSON_Response({'date': datetime.now(), 'deleted': True}),
+            GET=lambda request: API_Message_Response("Sample GET request"),
+            POST=lambda request: API_JSON_Response({'sample_record': f'{request.payload["_id"]}', 'created': True}, 201),
+            PUT=lambda request: API_JSON_Response({'payload': request.payload}),
+            DELETE=lambda request: API_JSON_Response({'date': datetime.now(), 'deleted': True}),
         ),
         # Demonstrates HTTP method based schema validation
         request_schema=Route_Schema(
@@ -88,9 +88,9 @@ routes = App_Routes(
         # Route that demonstrates built-in basic error handling
         url='/error',
         handler=Route_Handler(
-            GET=lambda request, payload, collection: throw(ValueError, "Oh no! A value error!"),
-            POST=lambda request, payload, collection: throw(API_Error_Message, "Oh no! An API error!"),
-            PUT=lambda request, payload, collection:  throw(API_Error_Response, {'data': payload, 'error': 'Oh no!'}),
+            GET=lambda request: throw(ValueError, "Oh no! A value error!"),
+            POST=lambda request: throw(API_Error_Message, "Oh no! An API error!"),
+            PUT=lambda request:  throw(API_Error_Response, {'data': request.payload, 'error': 'Oh no!'}),
         ),
         log_level=LOG_LEVELS.DEBUG
     ),
@@ -99,8 +99,8 @@ routes = App_Routes(
         url='/database',
         handler=Route_Handler(
             # Custom handlers allow a POST request or a GET request to create different errors
-            POST=lambda request, payload, collection: API_Message_Response(collection.insert_one(payload) if collection != None else 'No collection!'),
-            GET=lambda request, payload, collection: API_Message_Response(collection.find_one(payload) if collection != None else 'No collection!')
+            POST=lambda request: API_Message_Response(request.collection.insert_one(request.payload) if request.collection != None else 'No collection!'),
+            GET=lambda request: API_Message_Response(request.collection.find_one(request.payload) if request.collection != None else 'No collection!')
         ),
         log_level=LOG_LEVELS.DEBUG,
         collection_name='sample'
@@ -117,13 +117,13 @@ routes = App_Routes(
         url='/permissions',
         handler=Default_Route_Handler(
             # Authentication route that sets the JWT in response cookies
-            GET=lambda request, payload, collection: Authentication_Util.set_identity_cookie(
+            GET=lambda request: Authentication_Util.set_identity_cookie(
                 response=API_Message_Response("Authenticated!"),
                 _id="test",
                 roles="user"
             ),
             # De-authentication route that removes the JWT in response cookies
-            DELETE=lambda request, payload, collection: Authentication_Util.unset_identity_cookie(
+            DELETE=lambda request: Authentication_Util.unset_identity_cookie(
                 response=API_Message_Response("Logged out!"),
             )
         ),
