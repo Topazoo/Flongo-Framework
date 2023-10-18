@@ -9,7 +9,7 @@ from ....api.errors.schema_validation_error import SchemaValidationError
 
 from ....api.responses.errors.api_error import API_Error
 from ....database.mongodb.database import MongoDB_Database
-from ....utils.jwt.authentication_util import Authentication_Util
+from ..utils.authentication_util import Authentication_Util
 from ....utils.logging.loggers.routing import RoutingLogger
 from ....utils.requests import RequestDataParser
 from ....api.errors.request_handling_error import RequestHandlingError

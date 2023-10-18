@@ -6,7 +6,7 @@ from src.flongo_framework.api.routing import App_Routes, Route, Route_Schema, \
     Route_Handler, Default_Route_Handler, Route_Permissions
 
 # utils
-from src.flongo_framework.utils.jwt import Authentication_Util
+from src.flongo_framework.api.routing.utils import Authentication_Util
 
 # responses
 from src.flongo_framework.api.responses import API_JSON_Response, API_Message_Response
