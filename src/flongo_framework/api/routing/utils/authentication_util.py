@@ -21,7 +21,7 @@ class Authentication_Util:
         '''
 
         current_identity = cls.get_current_identity()
-        if not current_identity or not all(role in current_identity.roles for role in valid_roles):
+        if not current_identity or not any(role in current_identity.roles for role in valid_roles):
             # User doesn't have required roles; deny access or handle accordingly
             raise API_Error(
                 f"Insufficient permissions to access this route. A JWT cookie with one of the following roles is required: {valid_roles}",
