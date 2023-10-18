@@ -4,9 +4,9 @@ from typing import Optional, Union, Any
 from flask import Response
 from flask_jwt_extended import get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
 
-from ...api.requests.identity import Request_Identity
-from ...api.responses.errors.api_error import API_Error
-from ..jwt.jwt_manager import App_JWT_Manager
+from ...requests.identity import Request_Identity
+from ...responses.errors.api_error import API_Error
+from ....utils.jwt.jwt_manager import App_JWT_Manager
 
 class Authentication_Util:
     ''' Utility for managing application authentication via JWT cookies '''
