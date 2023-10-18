@@ -1,10 +1,15 @@
 from datetime import timedelta
 import time
+import traceback
 from typing import Optional, Union
-from flask_jwt_extended import JWTManager, get_jwt_identity, set_access_cookies
+from flask_jwt_extended import JWTManager, get_jwt, set_access_cookies, verify_jwt_in_request
 from flask import Flask, Response
+
+from ...utils.logging.loggers.app import ApplicationLogger
 from ...config.settings.jwt_settings import JWT_Settings
+from ...api.responses.errors.api_error import API_Error
 import flask_jwt_extended
+from jwt.exceptions import ExpiredSignatureError
 
 class App_JWT_Manager(JWTManager):
     ''' Utilities for managing JWT for the application '''
@@ -14,6 +19,7 @@ class App_JWT_Manager(JWTManager):
 
         super().__init__(app, add_context_processor)
         self._configure_app_settings(app)
+        self._configure_app_middleware(app)
 
 
     def _configure_app_settings(self, app:Flask):
@@ -37,16 +43,27 @@ class App_JWT_Manager(JWTManager):
 
 
     def renew_token_middleware(self, response:Response):
-        current_identity = get_jwt_identity()
-        if current_identity:
-            token_exp = current_identity['exp']
-            # Renew if the token will expire in X seconds
-            if token_exp - time.time() < self.settings.refresh_access_token_within_secs:
-                new_access_token = flask_jwt_extended.create_access_token(
-                    identity=current_identity, 
-                    expires_delta=timedelta(seconds=self.settings.access_token_expiration_secs or 300)
-                )
-                set_access_cookies(response, new_access_token)
+        try:
+            verify_jwt_in_request(optional=True)
+            current_identity = get_jwt()
+            if current_identity:
+                token_exp = current_identity['exp']
+                # Renew if the token will expire in X seconds
+                if token_exp - time.time() < self.settings.refresh_access_token_within_secs:
+                    new_access_token = flask_jwt_extended.create_access_token(
+                        identity=current_identity['sub'], 
+                        additional_claims={'roles': current_identity['roles']},
+                        expires_delta=timedelta(seconds=self.settings.access_token_expiration_secs or 300)
+                    )
+                    set_access_cookies(response, new_access_token)
+                    ApplicationLogger.debug(f"Refreshed access token for identity [{current_identity['sub']}]")
+        except ExpiredSignatureError as e:
+            ApplicationLogger.debug(f"Failed to refresh access token! Cookie is expired.")
+        except Exception as e:
+            raise API_Error(
+                f"Failed to refresh access token: {e}",
+                stack_trace=traceback.format_exc()
+            )
 
         return response
     
