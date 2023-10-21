@@ -105,10 +105,22 @@ class Flask_Settings(Settings):
     
     def _set_default_cors_origins(self):
         if not self.cors_origins:
-            self.cors_origins = [
-                f"http://{self.host or ''}:*",
-                f"https://{self.host or ''}:*"
-            ]
+            # If localhost, enable broad local support by default
+            if self.host in ['127.0.0.1', 'localhost', '0.0.0.0']:
+                self.cors_origins = [
+                    f"http://127.0.0.1:*",
+                    f"https://127.0.0.1:*",
+                    f"http://localhost:*",
+                    f"https://localhost:*",
+                    f"http://0.0.0.0:*",
+                    f"https://0.0.0.0:*",
+                ]
+            # Otherwise, enable same host any port by default
+            else:
+                self.cors_origins = [
+                    f"http://{self.host or ''}:*",
+                    f"https://{self.host or ''}:*"
+                ]
 
 
     @classmethod
