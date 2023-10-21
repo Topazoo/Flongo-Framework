@@ -1,4 +1,5 @@
 from flask_cors import cross_origin
+from jwt import ExpiredSignatureError
 
 from ....api.requests.request import App_Request
 from ....api.routing.route_permissions import Route_Permissions
@@ -140,6 +141,10 @@ class Route_Handler:
                     ), 
                     settings,
                     logger
+                )
+            except ExpiredSignatureError as e:
+                self._log_and_raise_exception(wrapped_request, method,
+                    RequestHandlingError(f"JWT cookie is expired!", status_code=401), settings, logger
                 )
             except Exception as e:
                 # Handle unknown exceptions
