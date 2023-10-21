@@ -106,8 +106,8 @@ class Flask_Settings(Settings):
     def _set_default_cors_origins(self):
         if not self.cors_origins:
             self.cors_origins = [
-                f"http://{self.host or ''}:{self.port or ''}",
-                f"https://{self.host or ''}:{self.port or ''}"
+                f"http://{self.host or ''}:*",
+                f"https://{self.host or ''}:*"
             ]
 
 
