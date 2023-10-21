@@ -20,11 +20,19 @@ class Authentication_Util:
             Returns the identity if one is present
         '''
 
-        current_identity = cls.get_current_identity()
-        if not current_identity or not any(role in current_identity.roles for role in valid_roles):
-            # User doesn't have required roles; deny access or handle accordingly
+        error_prefix = "Insufficient permissions to access this route."
+        if not (current_identity:=cls.get_current_identity()):
+            # No JWT Identity was passed in the request
             raise API_Error(
-                f"Insufficient permissions to access this route. A JWT cookie with one of the following roles is required: {valid_roles}",
+                f"{error_prefix} A JWT cookie is required.",
+                status_code=401,
+                stack_trace=traceback.format_exc()
+            )
+          
+        if not any(role in current_identity.roles for role in valid_roles):
+            # A JWT Identity was passed in the request but it does not have the right permissions
+            raise API_Error(
+                f"{error_prefix} A JWT cookie with one of the following roles is required: {valid_roles}",
                 status_code=403,
                 stack_trace=traceback.format_exc()
             )
