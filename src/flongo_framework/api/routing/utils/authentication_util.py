@@ -1,8 +1,8 @@
 import traceback
-from typing import Optional, Union, Any
+from typing import Optional, Union
 
 from flask import Response
-from flask_jwt_extended import get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
+from flask_jwt_extended import get_jwt, verify_jwt_in_request
 
 from ...requests.identity import Request_Identity
 from ...responses.errors.api_error import API_Error
@@ -40,22 +40,18 @@ class Authentication_Util:
         return current_identity
         
 
-    @staticmethod
-    def set_identity_cookie(response:Response, _id:str, roles:Optional[Union[str, list[str]]]='') -> Response:
+    @classmethod
+    def set_identity_cookies(cls, response:Response, _id:str, roles:Optional[Union[str, list[str]]]='') -> Response:
         ''' Sets a JWT identity cookie in the response which will be stored by the client '''
+
+        return App_JWT_Manager.set_identity_cookies(response, _id, roles)
         
-        set_access_cookies(response, App_JWT_Manager.create_access_token(_id, roles))
-        set_refresh_cookies(response, App_JWT_Manager.create_refresh_token(_id, roles))
 
-        return response
-    
-
-    @staticmethod
-    def unset_identity_cookie(response:Response) -> Response:
+    @classmethod
+    def unset_identity_cookies(cls, response:Response) -> Response:
         ''' Unsets the JWT identity cookie in the response which will be purged by the client '''
         
-        unset_jwt_cookies(response)
-        return response
+        return App_JWT_Manager.unset_identity_cookies(response)
     
 
     @staticmethod

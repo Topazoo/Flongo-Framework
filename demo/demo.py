@@ -99,13 +99,13 @@ routes = App_Routes(
         url='/permissions',
         handler=Default_Route_Handler(
             # Authentication route that sets the JWT in response cookies
-            GET=lambda request: Authentication_Util.set_identity_cookie(
+            GET=lambda request: Authentication_Util.set_identity_cookies(
                 response=API_Message_Response("Authenticated!"),
                 _id="test",
                 roles="user"
             ),
             # De-authentication route that removes the JWT in response cookies
-            DELETE=lambda request: Authentication_Util.unset_identity_cookie(
+            DELETE=lambda request: Authentication_Util.unset_identity_cookies(
                 response=API_Message_Response("Logged out!"),
             )
         ),

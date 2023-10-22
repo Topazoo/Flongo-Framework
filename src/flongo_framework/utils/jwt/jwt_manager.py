@@ -2,9 +2,10 @@ from datetime import timedelta
 import time
 import traceback
 from typing import Optional, Union
-from flask_jwt_extended import JWTManager, get_jwt, set_access_cookies, verify_jwt_in_request
+from flask_jwt_extended import JWTManager, get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
 from flask import Flask, Response
 
+from ...config.settings.app_settings import App_Settings
 from ...utils.logging.loggers.app import ApplicationLogger
 from ...config.settings.jwt_settings import JWT_Settings
 from ...api.responses.errors.api_error import API_Error
@@ -13,6 +14,8 @@ from jwt.exceptions import ExpiredSignatureError
 
 class App_JWT_Manager(JWTManager):
     ''' Utilities for managing JWT for the application '''
+
+    APP_IDENTITY_COOKIE = "identity_cookie"
 
     def __init__(self, app:Flask, settings:JWT_Settings, add_context_processor:bool=False) -> None:
         self.settings = settings
@@ -50,13 +53,9 @@ class App_JWT_Manager(JWTManager):
                 token_exp = current_identity['exp']
                 # Renew if the token will expire in X seconds
                 if token_exp - time.time() < self.settings.refresh_access_token_within_secs:
-                    new_access_token = flask_jwt_extended.create_access_token(
-                        identity=current_identity['sub'], 
-                        additional_claims={'roles': current_identity['roles']},
-                        expires_delta=timedelta(seconds=self.settings.access_token_expiration_secs or 300)
-                    )
-                    set_access_cookies(response, new_access_token)
+                    self.set_identity_cookies(response, current_identity['sub'], current_identity.get('roles'))
                     ApplicationLogger.debug(f"Refreshed access token for identity [{current_identity['sub']}]")
+                    
         except ExpiredSignatureError as e:
             ApplicationLogger.debug(f"Failed to refresh access token! Cookie is expired.")
         except Exception as e:
@@ -98,3 +97,32 @@ class App_JWT_Manager(JWTManager):
     @classmethod
     def create_tokens(cls, _id:str, roles:Optional[Union[str, list[str]]]=''):
         return cls.create_access_token(_id, roles), cls.create_refresh_token(_id, roles)
+    
+
+    @classmethod
+    def set_identity_cookies(cls, response:Response, _id:str, roles:Optional[Union[str, list[str]]]='') -> Response:
+        ''' Sets a JWT identity cookie in the response which will be stored by the client '''
+        
+        # HTTP Only cookies that store actual identity
+        set_access_cookies(response, cls.create_access_token(_id, roles))
+        set_refresh_cookies(response, cls.create_refresh_token(_id, roles))
+
+        # JS accessible cookie that can be used to track the ID of the authed user by the client
+        response.set_cookie(
+            cls.APP_IDENTITY_COOKIE, 
+            _id, 
+            samesite='strict',
+            max_age=App_Settings().jwt.access_token_expiration_secs
+        )
+
+        return response
+
+
+    @classmethod
+    def unset_identity_cookies(cls, response:Response) -> Response:
+        ''' Unsets the JWT identity cookie in the response which will be purged by the client '''
+        
+        unset_jwt_cookies(response)
+        response.set_cookie(cls.APP_IDENTITY_COOKIE, '', samesite='strict', expires=0)
+
+        return response
