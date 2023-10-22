@@ -26,7 +26,7 @@ COPY docker/entrypoint.sh /entrypoint.sh
 WORKDIR /app
 
 # Set environment variables with default values
-ENV FLASK_APP=demo/demo.py
+ENV FLASK_APP=demo.demo:get_app
 ENV APP_HOST=0.0.0.0
 ENV APP_PORT=8080
 
