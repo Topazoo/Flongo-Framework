@@ -1,4 +1,3 @@
-from datetime import timedelta
 import time
 import traceback
 from typing import Optional, Union
@@ -109,8 +108,8 @@ class App_JWT_Manager(JWTManager):
 
         # JS accessible cookie that can be used to track the ID of the authed user by the client
         response.set_cookie(
-            cls.APP_IDENTITY_COOKIE, 
-            _id, 
+            cls.APP_IDENTITY_COOKIE,
+            f"{_id}|roles={','.join(roles) if isinstance(roles, list) else roles}",
             samesite='strict',
             max_age=App_Settings().jwt.access_token_expiration_secs
         )
