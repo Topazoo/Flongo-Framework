@@ -207,3 +207,5 @@ From the docker/ directory containing `docker-compose.yml`, run the following to
 ```sh
 docker-compose up --force-recreate
 ```
+
+If you are running the application with the environment configured to `sandbox` or higher, the application will run using gunicorn. If you are running with it configured in a lower environment, the application will run via Flask directly and will allow hot-reloads when code is changed
