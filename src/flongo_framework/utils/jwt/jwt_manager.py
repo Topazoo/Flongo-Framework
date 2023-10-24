@@ -2,7 +2,7 @@ import time
 import traceback
 from typing import Optional, Union
 from flask_jwt_extended import JWTManager, get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
-from flask import Flask, Response
+from flask import Flask, Response, request
 
 from ...config.settings.app_settings import App_Settings
 from ...utils.logging.loggers.app import ApplicationLogger
@@ -45,6 +45,9 @@ class App_JWT_Manager(JWTManager):
 
 
     def renew_token_middleware(self, response:Response):
+        if request.method == 'OPTIONS':
+            return response
+        
         try:
             verify_jwt_in_request(optional=True)
             current_identity = get_jwt()
