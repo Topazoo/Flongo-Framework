@@ -4,6 +4,7 @@ from jwt import ExpiredSignatureError
 from ....api.requests.request import App_Request
 from ....api.routing.route_permissions import Route_Permissions
 from ....api.routing.route_schema import Route_Schema
+from ....api.routing.route_transformer import Route_Transformer
 from ....config.enums.http_methods import HTTP_METHODS
 from ....config.settings.app_settings import App_Settings
 from ....api.errors.schema_validation_error import SchemaValidationError
@@ -63,7 +64,8 @@ class Route_Handler:
             action:Callable[[App_Request], Response], 
             collection_name:str,
             permissions:Route_Permissions,
-            settings:App_Settings, 
+            settings:App_Settings,
+            transformer:Route_Transformer,
             request_schema:Route_Schema,
             response_schema:Route_Schema
         ) -> Callable:
@@ -79,7 +81,10 @@ class Route_Handler:
 
             # Get the data from the request body or query params
             with start_span(op="parse_request_data", description="Parse data from the query string or request body"):
-                wrapped_request.set_payload(RequestDataParser.get_request_data(wrapped_request.raw_request, logger))
+                payload = RequestDataParser.get_request_data(wrapped_request.raw_request, logger)
+            with start_span(op="transform_request_data", description="Transform data from the query string or request body"):
+                wrapped_request.set_payload(transformer.transform(wrapped_request.raw_request, payload, logger))
+            
             try:
                 # Validate JIT roles
                 if required_roles:=getattr(permissions, method, []):
@@ -177,7 +182,8 @@ class Route_Handler:
             permissions:Route_Permissions,
             enable_CORS:bool,
             flask_app:Flask,
-            settings:App_Settings, 
+            settings:App_Settings,
+            transformer:Route_Transformer,
             request_schema:Route_Schema,
             response_schema:Route_Schema, 
             log_level:str
@@ -196,6 +202,7 @@ class Route_Handler:
                 collection_name,
                 permissions,
                 settings,
+                transformer,
                 request_schema,
                 response_schema
             )
