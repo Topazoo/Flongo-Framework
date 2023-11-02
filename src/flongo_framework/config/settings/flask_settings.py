@@ -93,6 +93,15 @@ class Flask_Settings(Settings):
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
+    allowed_file_extensions: Optional[list] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "APP_ALLOWED_FILE_EXTENSIONS", 
+            data_type=list,
+            default_value="txt, pdf, png, jpg, jpeg, gif, mov, mp4, xls, xlsx, doc, docx, ppt, pptx, avi, mkv, flv, wmv, mp3, wav, aac, psd, tiff, bmp, csv, json, xml, html, css, js, zip, rar, 7z, tar, gz"
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
 
     def __post_init__(self):
         if self.config_log_level:

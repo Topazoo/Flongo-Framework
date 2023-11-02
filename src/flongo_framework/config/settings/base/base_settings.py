@@ -45,7 +45,7 @@ class Settings:
         elif data_type == int:
             parsed_value = int(value)
         elif data_type == list:
-            parsed_value = str(value).split(',')
+            parsed_value = [x.strip() for x in str(value).split(',')]
         elif data_type == Decimal:
             parsed_value = Decimal(value)
         else:
