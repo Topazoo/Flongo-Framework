@@ -6,6 +6,7 @@ from ...config.settings.app_settings import App_Settings
 from ...utils.logging.loggers.routing import RoutingLogger
 from ...api.routing.handlers.route_handler import Route_Handler
 from ...api.routing.route_schema import Route_Schema
+from ...api.routing.route_transformer import Route_Transformer
 
 class Route:
     ''' Base class that wraps Flasks normal routing allowing us
@@ -20,6 +21,7 @@ class Route:
             permissions:Optional[Route_Permissions]=None,
             enable_CORS:bool=True,
             collection_name:str='',
+            transformer:Optional[Route_Transformer]=None,
             request_schema:Optional[Route_Schema]=None,
             response_schema:Optional[Route_Schema]=None,
             log_level:str=LOG_LEVELS.WARN
@@ -30,6 +32,7 @@ class Route:
         self.permissions = permissions or Route_Permissions()
         self.enable_CORS = enable_CORS
         self.collection_name = collection_name
+        self.transformer = transformer or Route_Transformer()
         self.request_schema = request_schema or Route_Schema()
         self.response_schema = response_schema or Route_Schema()
         self.log_level = log_level
@@ -49,6 +52,7 @@ class Route:
             self.enable_CORS,
             flask_app, 
             settings, 
+            self.transformer,
             self.request_schema,
             self.response_schema,
             self.log_level
