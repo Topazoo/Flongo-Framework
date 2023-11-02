@@ -4,6 +4,7 @@ from typing import Optional
 import xmltodict
 from flask import Request
 from QueryStringManager import QueryStringManager
+from ...config.settings import App_Settings
 from ...utils.logging.loggers.routing import RoutingLogger
 
 
@@ -44,6 +45,7 @@ class RequestDataParser:
 
         body = {}
         mimetype_suffix = request.mimetype.split('/')[-1]
+        allowed_extensions = App_Settings().flask.allowed_file_extensions or []
         if request.is_json:
             body = request.get_json()
         
@@ -56,6 +58,9 @@ class RequestDataParser:
         
         elif mimetype_suffix in ['xml', 'html']:
             body = xmltodict.parse(request.data.decode())
+
+        elif mimetype_suffix in allowed_extensions:
+            pass
         
         elif request.mimetype and logger:
             logger.error(f"* Unable to parse mimetype [{request.mimetype}]!")

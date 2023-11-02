@@ -27,6 +27,8 @@ class App_Request:
         self.payload = payload or {}
         # MongoDB collection instance to configured collection if available
         self.collection = collection
+        # Files parsed from the raw request
+        self.files = self.raw_request.files.to_dict(flat=True) if self.raw_request.files else {}
 
 
     def set_identity(self, identity:Request_Identity):
