@@ -13,6 +13,7 @@ class Request_Identity:
             jti:str='',
             type:str='access',
             nbf:int=0,
+            csrf:str='',
             exp:int=0,
             roles:Optional[list[str]]=None
         ) -> None:
@@ -23,6 +24,7 @@ class Request_Identity:
         self.jti = jti
         self.type = type,
         self.nbf = nbf
+        self.csrf = csrf
         self.exp = exp
         self.roles = roles or []
 
@@ -41,5 +43,6 @@ class Request_Identity:
             "type": self.type,
             "nbf": self.nbf,
             "exp": self.exp,
-            "roles": self.roles
+            "roles": self.roles,
+            "csrf": self.csrf
         }
