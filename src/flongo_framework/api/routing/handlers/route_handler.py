@@ -92,7 +92,7 @@ class Route_Handler:
 
                 # Validate the payload passed to this route agains the request JSONSchema if configured
                 with start_span(op="validate_request_schema", description="Validate the passed request data against the configured JSONSchema"):
-                    if request_schema.validate_schema(wrapped_request.raw_request, wrapped_request.payload):
+                    if request_schema.validate_schema(wrapped_request.raw_request, payload):
                         logger.info("* Validated request SCHEMA successfully")
 
                 with start_span(op="transform_request_data", description="Transform data from the query string or request body"):
