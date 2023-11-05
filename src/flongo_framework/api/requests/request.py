@@ -108,3 +108,19 @@ class App_Request:
         if field in self.payload:
             if ObjectId.is_valid(self.payload[field]):
                 self.payload[field] = ObjectId(self.payload[field])
+
+
+    def set_payload_from_current_identity(self, field:str="_id"):
+        ''' Set a field in the payload to the current identity if there is one '''
+
+        if self.identity and self.identity._id:
+            self.payload[field] = self.identity._id
+
+
+    def ensure_payload_has_valid_identity(self, field:str="_id"):
+        ''' Validate the identity in the payload or set to the current identity if there is one '''
+
+        if field in self.payload:
+            self.ensure_field(field, getattr(self.identity, "_id"))
+        else:
+            self.set_payload_from_current_identity(field)
