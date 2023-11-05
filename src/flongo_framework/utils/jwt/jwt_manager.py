@@ -10,6 +10,7 @@ from ...config.settings.jwt_settings import JWT_Settings
 from ...api.responses.errors.api_error import API_Error
 import flask_jwt_extended
 from jwt.exceptions import ExpiredSignatureError
+from flask_jwt_extended.exceptions import CSRFError
 
 class App_JWT_Manager(JWTManager):
     ''' Utilities for managing JWT for the application '''
@@ -60,6 +61,8 @@ class App_JWT_Manager(JWTManager):
                     
         except ExpiredSignatureError as e:
             ApplicationLogger.debug(f"Failed to refresh access token! Cookie is expired.")
+        except CSRFError as e:
+            ApplicationLogger.debug(f"Failed to refresh access token! No CSRF token in request.")
         except Exception as e:
             raise API_Error(
                 f"Failed to refresh access token: {e}",
