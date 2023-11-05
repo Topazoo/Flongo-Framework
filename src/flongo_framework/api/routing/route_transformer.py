@@ -49,15 +49,25 @@ class Route_Transformer:
         method = request.method.upper()
         if transformer:=self.get_transformer(method):
             for field, func in transformer.items():
+                # Function is to transform data
                 if field in payload:
                     transformed_data = func(payload[field])
-                    if logger:
-                        logger.debug(f'* Transformed payload data for field [{field}]: {payload[field]} -> {transformed_data}')
 
                     # Remove if the transformer set the data to None
                     if transformed_data == None:
                         del payload[field]
+                        if logger:
+                            logger.debug(f'* Removed payload data for field [{field}]')
                     else:
                         payload[field] = transformed_data
+                        if logger:
+                            logger.debug(f'* Transformed payload data for field [{field}]: {payload[field]} -> {transformed_data}')
+
+                # Function is to insert a default
+                else:
+                    transformed_data = func()
+                    payload[field] = transformed_data
+                    if logger:
+                        logger.debug(f'* Created default payload data for field [{field}]: {transformed_data}')
                         
         return payload
