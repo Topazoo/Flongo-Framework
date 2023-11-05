@@ -6,7 +6,7 @@ from ...config.settings.app_settings import App_Settings
 from ...utils.logging.loggers.routing import RoutingLogger
 from ...api.routing.handlers.route_handler import Route_Handler
 from ...api.routing.route_schema import Route_Schema
-from ...api.routing.route_transformer import Route_Transformer
+from .utils.tranformers import Route_Transformer
 
 class Route:
     ''' Base class that wraps Flasks normal routing allowing us
