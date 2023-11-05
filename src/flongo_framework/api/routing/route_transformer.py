@@ -57,17 +57,17 @@ class Route_Transformer:
                     if transformed_data == None:
                         del payload[field]
                         if logger:
-                            logger.debug(f'* Removed payload data for field [{field}]')
+                            logger.debug(f'* Transformer removed payload data for field [{field}]')
                     else:
                         payload[field] = transformed_data
                         if logger:
-                            logger.debug(f'* Transformed payload data for field [{field}]: {payload[field]} -> {transformed_data}')
+                            logger.debug(f'* Transformer modified payload data for field [{field}] -> {transformed_data}')
 
                 # Function is to insert a default
                 else:
                     transformed_data = func()
                     payload[field] = transformed_data
                     if logger:
-                        logger.debug(f'* Created default payload data for field [{field}]: {transformed_data}')
+                        logger.debug(f'* Transformer created default payload data for field [{field}] -> {transformed_data}')
                         
         return payload
