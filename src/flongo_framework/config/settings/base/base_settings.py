@@ -23,7 +23,7 @@ class Settings:
         env_var: str,
         data_type: type = str,
         default_value: Optional[str] = None
-    ) -> Union[bool, int, str, list[str], Decimal, None]:
+    ) -> Union[bool, int, str, list[str], Decimal, bytes, None]:
         ''' Read the configuration from an environmental variable
             and cast to the values to the specified data type
         '''
@@ -39,7 +39,7 @@ class Settings:
     
 
     @staticmethod
-    def _normalize_config_value_type(value:str, data_type:type) -> Union[bool, int, str, list[str], Decimal]:
+    def _normalize_config_value_type(value:str, data_type:type) -> Union[bool, int, str, list[str], Decimal, bytes]:
         if data_type == bool:
             parsed_value = value.lower() in ["true", "1", "yes"]
         elif data_type == int:
@@ -48,6 +48,8 @@ class Settings:
             parsed_value = [x.strip() for x in str(value).split(',')]
         elif data_type == Decimal:
             parsed_value = Decimal(value)
+        elif data_type == bytes:
+            parsed_value = value.encode()
         else:
             parsed_value = str(value)
 

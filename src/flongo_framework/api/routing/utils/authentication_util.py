@@ -1,8 +1,10 @@
-import traceback
+import traceback, bcrypt
 from typing import Optional, Union
 
 from flask import Response
 from flask_jwt_extended import get_jwt, verify_jwt_in_request
+
+from src.flongo_framework.config.settings.app_settings import App_Settings
 
 from ...requests.identity import Request_Identity
 from ...responses.errors.api_error import API_Error
@@ -61,3 +63,17 @@ class Authentication_Util:
         verify_jwt_in_request(optional=True)
         if jwt:=get_jwt():
             return Request_Identity.from_dict(jwt)
+        
+
+    @staticmethod
+    def hash_password(password:str) -> bytes:
+        ''' Hash a passed password using the configured `password_salt` JWT setting '''
+
+        return bcrypt.hashpw(password.encode(), App_Settings().jwt.password_salt or b'')
+
+
+    @staticmethod
+    def validate_password(password:str, hashed_password:bytes):
+        ''' Returns True if the passed password is valid when compared to a passed hash '''
+        
+        return bcrypt.checkpw(password.encode(), hashed_password)

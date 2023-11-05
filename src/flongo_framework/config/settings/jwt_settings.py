@@ -21,6 +21,15 @@ class JWT_Settings(Settings):
         metadata={"log_level": LOG_LEVELS.DEBUG}
     ) # type: ignore
 
+    password_salt: Optional[bytes] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "JWT_PASSWORD_SALT", 
+            data_type=bytes,
+            default_value='$2b$12$eSed7n6el5ZZRIKusxMqWu'
+        ),
+        metadata={"log_level": LOG_LEVELS.DEBUG}
+    ) # type: ignore
+
     access_token_expiration_secs: Optional[int] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "JWT_ACCESS_TOKEN_EXPIRATION_SECS", 
