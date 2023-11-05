@@ -4,8 +4,7 @@ from typing import Optional, Union
 from flask import Response
 from flask_jwt_extended import get_jwt, verify_jwt_in_request
 
-from src.flongo_framework.config.settings.app_settings import App_Settings
-
+from ....config.settings.app_settings import App_Settings
 from ...requests.identity import Request_Identity
 from ...responses.errors.api_error import API_Error
 from ....utils.jwt.jwt_manager import App_JWT_Manager
