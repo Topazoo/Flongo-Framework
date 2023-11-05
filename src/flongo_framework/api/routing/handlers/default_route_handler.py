@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 from flask import Response
 from ....api.requests.request import App_Request
 from ....api.responses.api_json_response import API_JSON_Response
@@ -107,7 +107,7 @@ class Default_Route_Handler(Route_Handler):
         
 
     # Holds a reference of all methods for this route
-    def __init__(self, **methods:Callable[[App_Request], Response]):
+    def __init__(self, **methods:Optional[Callable[[App_Request], Response]]):
         self.methods = {
             "GET": self.GET,
             "POST": self.POST,
