@@ -193,29 +193,30 @@ class Route_Handler:
         '''
 
         for method, action in self.get_methods().items():
-            self.configure_logger(url, method, log_level)
+            if action:
+                self.configure_logger(url, method, log_level)
 
-            method_handler = self._get_request_handler(
-                url, 
-                method,
-                action,
-                collection_name,
-                permissions,
-                settings,
-                transformer,
-                request_schema,
-                response_schema
-            )
+                method_handler = self._get_request_handler(
+                    url, 
+                    method,
+                    action,
+                    collection_name,
+                    permissions,
+                    settings,
+                    transformer,
+                    request_schema,
+                    response_schema
+                )
 
-            # Enable CORS for the route if it is specified
-            if enable_CORS: 
-                method_handler = cross_origin(
-                    origins=settings.flask.cors_origins,
-                    supports_credentials=True
-                )(method_handler)
+                # Enable CORS for the route if it is specified
+                if enable_CORS: 
+                    method_handler = cross_origin(
+                        origins=settings.flask.cors_origins,
+                        supports_credentials=True
+                    )(method_handler)
 
-            flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
-            RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")
+                flask_app.add_url_rule(url, f"{url}_{method}", method_handler, methods=[method])
+                RoutingLogger(url, method).debug(f"Function [{action.__name__}] bound to HTTP method")
 
         logger = RoutingLogger(url)
         logger.info(f"* CORS enabled for route: [{url}] *") if enable_CORS else RoutingLogger(url).info(f"* CORS disabled for route: {url} *")
