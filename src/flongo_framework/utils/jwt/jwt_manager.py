@@ -56,7 +56,7 @@ class App_JWT_Manager(JWTManager):
                 token_exp = current_identity['exp']
                 # Renew if the token will expire in X seconds
                 if token_exp - time.time() < self.settings.refresh_access_token_within_secs:
-                    self.set_identity_cookies(response, current_identity['sub'], roles=current_identity.get('roles'))
+                    self.set_access_cookies(response, current_identity['sub'], roles=current_identity.get('roles'))
                     ApplicationLogger.debug(f"Refreshed access token for identity [{current_identity['sub']}]")
                     
         except ExpiredSignatureError as e:
@@ -105,21 +105,37 @@ class App_JWT_Manager(JWTManager):
     
 
     @classmethod
-    def set_identity_cookies(cls, response:Response, _id:str, username:Optional[str]=None, roles:Optional[Union[str, list[str]]]='') -> Response:
-        ''' Sets a JWT identity cookie in the response which will be stored by the client '''
+    def set_access_cookies(cls, response:Response, _id:str, roles:Optional[Union[str, list[str]]]='') -> Response:
+        ''' Sets JWT access cookies in the response which will be stored by the client '''
         
         # HTTP Only cookies that store actual identity
         set_access_cookies(response, cls.create_access_token(_id, roles))
-        set_refresh_cookies(response, cls.create_refresh_token(_id, roles))
+        set_refresh_cookies(response, cls.create_refresh_token(_id, roles))       
+
+        return response
+
+    @classmethod
+    def set_identity_cookies(cls, response:Response, _id:str, username:Optional[str]=None, email:Optional[str]=None, roles:Optional[Union[str, list[str]]]='') -> Response:
+        ''' Sets a JWT identity cookies in the response which will be stored by the client '''
+        
+        # Set access cookies
+        cls.set_access_cookies(response, _id, roles)
 
         # JS accessible cookie that can be used to track the username and ID of the authed user by the client
-        if _id and username:
-            response.set_cookie(
-                cls.APP_IDENTITY_COOKIE,
-                f"_id={_id}|username={username}|roles={','.join(roles) if isinstance(roles, list) else roles}",
-                samesite='strict',
-                max_age=App_Settings().jwt.access_token_expiration_secs
-            )
+        base_identity = [f"_id={_id}"]
+        if username:
+            base_identity.append(f"username={username}")
+        if email:
+            base_identity.append(f"email={email}")
+        
+        base_identity.append(f"roles={','.join(roles) if isinstance(roles, list) else roles}")
+
+        response.set_cookie(
+            cls.APP_IDENTITY_COOKIE,
+            "|".join(base_identity),
+            samesite='strict',
+            max_age=App_Settings().jwt.access_token_expiration_secs
+        )
 
         return response
 
