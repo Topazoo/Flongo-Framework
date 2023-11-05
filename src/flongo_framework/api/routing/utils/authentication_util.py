@@ -42,10 +42,10 @@ class Authentication_Util:
         
 
     @classmethod
-    def set_identity_cookies(cls, response:Response, _id:str, roles:Optional[Union[str, list[str]]]='') -> Response:
+    def set_identity_cookies(cls, response:Response, _id:str, username:Optional[str]=None, roles:Optional[Union[str, list[str]]]='') -> Response:
         ''' Sets a JWT identity cookie in the response which will be stored by the client '''
 
-        return App_JWT_Manager.set_identity_cookies(response, _id, roles)
+        return App_JWT_Manager.set_identity_cookies(response, _id, username, roles)
         
 
     @classmethod

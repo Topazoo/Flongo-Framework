@@ -56,7 +56,7 @@ class App_JWT_Manager(JWTManager):
                 token_exp = current_identity['exp']
                 # Renew if the token will expire in X seconds
                 if token_exp - time.time() < self.settings.refresh_access_token_within_secs:
-                    self.set_identity_cookies(response, current_identity['sub'], current_identity.get('roles'))
+                    self.set_identity_cookies(response, current_identity['sub'], roles=current_identity.get('roles'))
                     ApplicationLogger.debug(f"Refreshed access token for identity [{current_identity['sub']}]")
                     
         except ExpiredSignatureError as e:
@@ -105,20 +105,21 @@ class App_JWT_Manager(JWTManager):
     
 
     @classmethod
-    def set_identity_cookies(cls, response:Response, _id:str, roles:Optional[Union[str, list[str]]]='') -> Response:
+    def set_identity_cookies(cls, response:Response, _id:str, username:Optional[str]=None, roles:Optional[Union[str, list[str]]]='') -> Response:
         ''' Sets a JWT identity cookie in the response which will be stored by the client '''
         
         # HTTP Only cookies that store actual identity
         set_access_cookies(response, cls.create_access_token(_id, roles))
         set_refresh_cookies(response, cls.create_refresh_token(_id, roles))
 
-        # JS accessible cookie that can be used to track the ID of the authed user by the client
-        response.set_cookie(
-            cls.APP_IDENTITY_COOKIE,
-            f"{_id}|roles={','.join(roles) if isinstance(roles, list) else roles}",
-            samesite='strict',
-            max_age=App_Settings().jwt.access_token_expiration_secs
-        )
+        # JS accessible cookie that can be used to track the username and ID of the authed user by the client
+        if _id and username:
+            response.set_cookie(
+                cls.APP_IDENTITY_COOKIE,
+                f"_id={_id}|username={username}|roles={','.join(roles) if isinstance(roles, list) else roles}",
+                samesite='strict',
+                max_age=App_Settings().jwt.access_token_expiration_secs
+            )
 
         return response
 
