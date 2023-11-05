@@ -82,8 +82,6 @@ class Route_Handler:
             # Get the data from the request body or query params
             with start_span(op="parse_request_data", description="Parse data from the query string or request body"):
                 payload = RequestDataParser.get_request_data(wrapped_request.raw_request, logger)
-            with start_span(op="transform_request_data", description="Transform data from the query string or request body"):
-                wrapped_request.set_payload(transformer.transform(wrapped_request.raw_request, payload, logger))
             
             try:
                 # Validate JIT roles
@@ -94,8 +92,11 @@ class Route_Handler:
 
                 # Validate the payload passed to this route agains the request JSONSchema if configured
                 with start_span(op="validate_request_schema", description="Validate the passed request data against the configured JSONSchema"):
-                    if request_schema.validate_schema(wrapped_request.raw_request, wrapped_request.payload):
+                    if request_schema.validate_schema(wrapped_request.raw_request, payload):
                         logger.info("* Validated request SCHEMA successfully")
+
+                with start_span(op="transform_request_data", description="Transform data from the query string or request body"):
+                    wrapped_request.set_payload(transformer.transform(wrapped_request.raw_request, payload, logger))
 
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
