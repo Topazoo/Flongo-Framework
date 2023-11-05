@@ -65,7 +65,8 @@ class Route_Handler:
             collection_name:str,
             permissions:Route_Permissions,
             settings:App_Settings,
-            transformer:Route_Transformer,
+            request_transformer:Route_Transformer,
+            response_transformer:Route_Transformer,
             request_schema:Route_Schema,
             response_schema:Route_Schema
         ) -> Callable:
@@ -96,7 +97,7 @@ class Route_Handler:
                         logger.info("* Validated request SCHEMA successfully")
 
                 with start_span(op="transform_request_data", description="Transform data from the query string or request body"):
-                    wrapped_request.set_payload(transformer.transform(wrapped_request.raw_request, payload, logger))
+                    wrapped_request.set_payload(request_transformer.transform(wrapped_request.raw_request, payload, logger))
 
                 # Execute the function configured for this route if one is configured
                 # If there is a MongoDB collection specified, grab it and pass it too
@@ -114,6 +115,10 @@ class Route_Handler:
                         with start_span(op="convert_response", description="Convert a non-Response object to a Flask response"):
                             logger.warn(f"* HTTP {method} response was forced to a Response! Type: {type(response)}")
                             response = jsonify(response)
+
+                    with start_span(op="transform_response_data", description="Transform data from the response"):
+                        if isinstance(response.json, dict) and response_transformer:
+                            response.set_data(jsonify(response_transformer.transform(request, response.json, logger)).get_data())
 
                     # Validate the payload passed to this route agains the request JSONSchema if configured    
                     with start_span(op="validate_response_schema", description="Validate the passed response data against the configured JSONSchema"):
@@ -184,7 +189,8 @@ class Route_Handler:
             enable_CORS:bool,
             flask_app:Flask,
             settings:App_Settings,
-            transformer:Route_Transformer,
+            request_transformer:Route_Transformer,
+            response_transformer:Route_Transformer,
             request_schema:Route_Schema,
             response_schema:Route_Schema, 
             log_level:str
@@ -204,7 +210,8 @@ class Route_Handler:
                     collection_name,
                     permissions,
                     settings,
-                    transformer,
+                    request_transformer,
+                    response_transformer,
                     request_schema,
                     response_schema
                 )

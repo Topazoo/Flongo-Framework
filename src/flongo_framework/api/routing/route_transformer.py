@@ -54,6 +54,10 @@ class Route_Transformer:
                     if logger:
                         logger.debug(f'* Transformed payload data for field [{field}]: {payload[field]} -> {transformed_data}')
 
-                    payload[field] = transformed_data
+                    # Remove if the transformer set the data to None
+                    if transformed_data:
+                        payload[field] = transformed_data
+                    else:
+                        del payload[field]
 
         return payload
