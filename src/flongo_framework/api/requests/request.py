@@ -124,3 +124,12 @@ class App_Request:
             self.ensure_field(field, getattr(self.identity, "_id"))
         else:
             self.set_payload_from_current_identity(field)
+
+    
+    def is_admin_identity(self, admin_identity:str='admin') -> bool:
+        ''' Returns True if the current identity is an admin identity '''
+        
+        if self.identity and admin_identity in self.identity.roles:
+            return True
+        
+        return False
