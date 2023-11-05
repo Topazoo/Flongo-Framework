@@ -27,6 +27,10 @@ class JSON_Encoder(JSONEncoder):
             # Handle ObjectIds
             if isinstance(obj, ObjectId):
                 return str(obj)
+            
+            # Handle bytes
+            if isinstance(obj, bytes):
+                return obj.decode()
                 
             return JSONEncoder.default(self, obj)
         except TypeError:   # Write as string on failure
