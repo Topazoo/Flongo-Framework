@@ -1,4 +1,5 @@
 Query-String-Manager >= 1.0.9
+gmail-python-client >= 0.0.4
 Flask == 3.0.0
 pyopenssl == 23.2.0
 pymongo[srv] == 4.5.0
