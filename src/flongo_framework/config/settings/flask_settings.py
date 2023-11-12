@@ -84,6 +84,15 @@ class Flask_Settings(Settings):
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
+    domain: Optional[str] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "APP_DOMAIN", 
+            data_type=str,
+            default_value=""
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
     cors_origins: Optional[list] = field(
         default_factory=lambda: Settings.read_config_from_env_or_default(
             "APP_CORS_ORIGINS", 
@@ -108,6 +117,7 @@ class Flask_Settings(Settings):
             self._configure_logger(self.config_log_level)
 
         self._set_default_cors_origins()
+        self._set_default_domain()
             
         super().__post_init__()
 
@@ -130,6 +140,10 @@ class Flask_Settings(Settings):
                     f"http://{self.host or ''}:*",
                     f"https://{self.host or ''}:*"
                 ]
+
+    def _set_default_domain(self):
+        if not self.domain:
+            self.domain = f"http://{self.host or ''}:{self.port or ''}"
 
 
     @classmethod

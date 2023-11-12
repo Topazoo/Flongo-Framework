@@ -11,6 +11,7 @@ A framework for rapid application development on Flask. Includes:
 - Built-in automatic CRUD handling for endpoints given a MongoDB collection name
 - Built-in detailed logging and fine-tuneable configurations
 - Built-in Sentry integration with detailed spans for request tracing
+- Built-in [Gmail utility](https://github.com/Topazoo/Gmail-Python-Client)
 - Dockerfile/Docker Compose to easily build and run the application
 
 ## Sample App

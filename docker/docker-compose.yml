@@ -17,6 +17,7 @@ services:
       APP_LOG_LEVEL: '${APP_LOG_LEVEL-debug}'
       APP_CONFIG_LOG_LEVEL: '${APP_CONFIG_LOG_LEVEL-debug}'
       APP_LOG_BOOT_EVENTS: '${APP_LOG_BOOT_EVENTS-True}'
+      APP_DOMAIN: '${APP_DOMAIN}'
       APP_CORS_ORIGINS: ${APP_CORS_ORIGINS}
 
       # GMail Settings
