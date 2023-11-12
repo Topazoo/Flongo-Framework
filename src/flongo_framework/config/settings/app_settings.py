@@ -9,6 +9,7 @@ from ...config.settings.flask_settings import Flask_Settings
 from ...config.settings.jwt_settings import JWT_Settings
 from ...config.settings.mongodb_settings import MongoDB_Settings
 from ...config.settings.sentry_settings import Sentry_Settings
+from ...config.settings.gmail_settings import GMail_Settings
 
 class App_Settings:
     ''' Class that holds all application settings configured by the user 
@@ -18,7 +19,8 @@ class App_Settings:
             flask:Optional[Flask_Settings]=None,
             mongodb:Optional[MongoDB_Settings]=None,
             jwt:Optional[JWT_Settings]=None,
-            sentry:Optional[Sentry_Settings]=None
+            sentry:Optional[Sentry_Settings]=None,
+            gmail:Optional[GMail_Settings]=None,
         ) -> None:
         
         # Register all passed settings, load from the current Flask app or create them
@@ -26,6 +28,7 @@ class App_Settings:
         self.mongodb = mongodb or MongoDB_Settings.get_settings_from_flask() or MongoDB_Settings()
         self.jwt = jwt or JWT_Settings.get_settings_from_flask() or JWT_Settings()
         self.sentry = sentry or Sentry_Settings.get_settings_from_flask() or Sentry_Settings()
+        self.gmail = gmail or GMail_Settings.get_settings_from_flask() or GMail_Settings()
 
 
     @classmethod
