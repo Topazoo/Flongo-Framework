@@ -47,6 +47,13 @@ class Route_Handler:
             # that should run when it is called 
             setattr(self, normalized_method, func)
             self.methods[normalized_method] = func
+
+        # Check to see if there are any methods directly overridden by a subclass
+        for method in HTTP_METHODS:
+            normalized_method = method.upper()
+            if func:=(getattr(self, method, None) or getattr(self, normalized_method, None)):
+                setattr(self, normalized_method, func)
+                self.methods[normalized_method] = func
     
 
     def get_methods(self) -> dict[str, Callable[[App_Request], Response]]:
