@@ -1,4 +1,4 @@
-Query-String-Manager >= 1.0.10
+Query-String-Manager >= 1.0.11
 gmail-python-client >= 0.0.4
 Flask == 3.0.0
 pyopenssl == 23.2.0
