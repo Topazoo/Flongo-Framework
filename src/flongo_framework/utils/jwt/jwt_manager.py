@@ -32,6 +32,7 @@ class App_JWT_Manager(JWTManager):
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = self.settings.access_token_expiration_secs
         app.config['JWT_REFRESH_TOKEN_EXPIRES'] = self.settings.refresh_token_expiration_secs
         app.config['JWT_COOKIE_SECURE'] = self.settings.only_allow_https
+        app.config['JWT_COOKIE_SAMESITE'] = self.settings.samesite_cookie_policy
         app.config['JWT_COOKIE_CSRF_PROTECT'] = self.settings.enable_csrf_protection
         app.config['JWT_CSRF_IN_COOKIES'] = self.settings.enable_csrf_protection
 
