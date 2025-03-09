@@ -72,6 +72,27 @@ class JWT_Settings(Settings):
         metadata={"log_level": LOG_LEVELS.WARN}
     ) # type: ignore
 
+    samesite_cookie_policy: Optional[str] = field(
+        default_factory=lambda: Settings.read_config_from_env_or_default(
+            "JWT_SAMESITE_COOKIE_POLICY", 
+            data_type=str,
+            default_value="Lax"
+        ),
+        metadata={"log_level": LOG_LEVELS.WARN}
+    ) # type: ignore
+
+    def __post_init__(self):
+        self._set_cookie_policy()
+            
+        super().__post_init__()
+
+    def _set_cookie_policy(self):
+        if self.samesite_cookie_policy:
+            self.samesite_cookie_policy = self.samesite_cookie_policy.title()
+
+            # https://flask-jwt-extended.readthedocs.io/en/stable/options.html#JWT_COOKIE_SAMESITE
+            if self.samesite_cookie_policy == 'None':
+                self.only_allow_https = True
 
     @classmethod
     def get_settings_from_flask(cls) -> Optional["JWT_Settings"]:
