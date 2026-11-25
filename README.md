@@ -1,18 +1,16 @@
 # Flongo Framework
 
-A framework for rapid application development on Flask. Includes:
+A Flask backend framework for building APIs with MongoDB. Routes can declare their request schemas and permissions alongside the handlers, so the same checks apply before application code runs.
 
-- Built-in easy HTTP request/response management and error handling
-- Built-in query string and response body parsing / normalization
-- Built-in request and response payload validation using JSONSchema
-- Built-in CORS handling and request origin configuration
-- Built-in endpoint permissions handling with cookie-based JWT
-- Built-in bindings for MongoDB including fixtures and index management
-- Built-in automatic CRUD handling for endpoints given a MongoDB collection name
-- Built-in detailed logging and fine-tuneable configurations
-- Built-in Sentry integration with detailed spans for request tracing
-- Built-in [Gmail utility](https://github.com/Topazoo/Gmail-Python-Client)
-- Dockerfile/Docker Compose to easily build and run the application
+For a typical endpoint, the framework validates the request with JSONSchema, makes the configured MongoDB collection available to the handler, and formats the response. Cookie-based JWT authentication supports role-based endpoint permissions.
+
+The package is available on [PyPI](https://pypi.org/project/flongo-framework/):
+
+```sh
+pip install flongo-framework
+```
+
+The example below shows how to configure routes. To start with a Flutter frontend as well, see [Flongo-Stack](https://github.com/Topazoo/Flongo-Stack).
 
 ## Sample App
 
